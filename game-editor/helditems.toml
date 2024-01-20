@@ -1,3 +1,0 @@
-[[heldItems]]
-name = "Oran Berry"
-functionality = [{status = "Restore 10hp", description="Restore 10 hp"}]
