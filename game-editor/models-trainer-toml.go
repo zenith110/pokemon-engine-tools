@@ -14,7 +14,7 @@ type Pokemons struct {
 	Speed          int      `toml:"speed"`
 	SpecialAttack  int      `toml:"specialAttack"`
 	SpecialDefense int      `toml:"specialDefense"`
-	ID             int      `toml:"id"`
+	ID             string   `toml:"id"`
 }
 type Trainers struct {
 	Name      string     `toml:"name"`

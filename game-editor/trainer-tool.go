@@ -26,6 +26,7 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 		}
 		pokemons = append(pokemons, pokemon)
 	}
+	fmt.Print(pokemons)
 	var trainers []Trainers
 
 	trainer := Trainers{

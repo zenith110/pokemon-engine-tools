@@ -32,7 +32,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             "attack": attack,
             "speed": speed,
             "level": parseInt(level),
-            "id": currentlySelectedPokemon.ID
+            "id": String(currentlySelectedPokemon.ID)
         }
         setPokemonIndex(pokemonIndex + 1)
         dictData.pokemons.push(data)
@@ -65,7 +65,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             "id": uuidv4(),
             "pokemons": dictData.pokemons
         }
-        
+        console.log(finalData)
         CreateTrainerData(finalData)
         dictData.setNewTrainer(false)
     }

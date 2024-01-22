@@ -12,7 +12,7 @@ export namespace main {
 	    specialDefense: number;
 	    moves: string[];
 	    heldItem: string;
-	    id: number;
+	    id: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PokemonJson(source);

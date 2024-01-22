@@ -11,7 +11,3 @@ type HeldItems struct {
 	Name          string          `toml:"name"`
 	Functionality []Functionality `toml:"functionality"`
 }
-
-type HeldItem struct {
-	Name string
-}

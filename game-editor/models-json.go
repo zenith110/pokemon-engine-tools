@@ -11,7 +11,7 @@ type PokemonJson struct {
 	SpecialDefense int      `json:"specialDefense"`
 	Moves          []string `json:"moves"`
 	HeldItem       string   `json:"heldItem"`
-	ID             int      `json:"id"`
+	ID             string   `json:"id"`
 }
 
 type TrainerJson struct {
@@ -39,4 +39,8 @@ type PokemonTrainerEditor struct {
 	Attack         int
 	Moves          []Moves
 	ID             string
+}
+
+type HeldItem struct {
+	Name string
 }

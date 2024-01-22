@@ -102,7 +102,7 @@ func (a *App) ParseHeldItems() []HeldItem {
 
 func (a *App) SetDataFolder() {
 	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select a directory",
+		Title: "Select the data directory",
 	})
 	if err != nil {
 		panic(err)
