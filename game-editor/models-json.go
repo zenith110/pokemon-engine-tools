@@ -1,5 +1,9 @@
 package main
 
+import (
+	Models "github.com/zenith110/pokemon-go-engine/models"
+)
+
 type PokemonJson struct {
 	Species        string   `json:"species"`
 	Level          int      `json:"level"`
@@ -37,7 +41,7 @@ type PokemonTrainerEditor struct {
 	Speed          int
 	SpecialDefense int
 	Attack         int
-	Moves          []Moves
+	Moves          []Models.Moves
 	ID             string
 }
 
