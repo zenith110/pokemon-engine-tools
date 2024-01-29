@@ -15,7 +15,7 @@ import (
 
 func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 
-	file, err := os.Open(fmt.Sprintf("%s/toml/pokemon.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +55,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 }
 
 func (a *App) ParseTrainerClass() Models.TrainerClasses {
-	file, err := os.Open(fmt.Sprintf("%s/toml/trainerclasses.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainerclasses.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -74,7 +74,7 @@ func (a *App) ParseTrainerClass() Models.TrainerClasses {
 }
 
 func (a *App) ParseHeldItems() []HeldItem {
-	file, err := os.Open(fmt.Sprintf("%s/toml/helditems.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/helditems.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +103,7 @@ func (a *App) ParseHeldItems() []HeldItem {
 
 func (a *App) SetDataFolder() {
 	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select the data directory",
+		Title: "Select the engine directory",
 	})
 	if err != nil {
 		panic(err)
@@ -125,7 +125,7 @@ func (a *App) SetDataFolder() {
 }
 
 func (a *App) ParseTrainers() Models.TrainerToml {
-	file, err := os.Open(fmt.Sprintf("%s/toml/trainers.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
