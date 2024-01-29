@@ -121,7 +121,7 @@ func (a *App) SetDataFolder() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	a.dataDirectory, _ = SetupConfig()
 }
 
 func (a *App) ParseTrainers() Models.TrainerToml {
