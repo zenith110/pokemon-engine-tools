@@ -142,3 +142,19 @@ func (a *App) ParseTrainers() Models.TrainerToml {
 	fmt.Print(trainers)
 	return trainers
 }
+
+func (a *App) GrabTrainerSprites() []TrainerSprite {
+	trainerSprites, err := os.ReadDir(fmt.Sprintf("%s/data/assets/trainers_sprite", a.dataDirectory.DataDirectory))
+	if err != nil {
+		fmt.Printf("Error is %v", err)
+	}
+	var trainerSpritesResult []TrainerSprite
+	for _, sprite := range trainerSprites {
+		trainerSprites := TrainerSprite{
+			Name: sprite.Name(),
+			Path: fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory.DataDirectory, sprite.Name()),
+		}
+		trainerSpritesResult = append(trainerSpritesResult, trainerSprites)
+	}
+	return trainerSpritesResult
+}

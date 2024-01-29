@@ -49,7 +49,7 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 	}
 
 	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/toml/trainers.toml", a.dataDirectory.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}

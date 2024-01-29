@@ -60,7 +60,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         dictData.pokemons.push(data)
         let finalData = {
             "name": dictData.name,
-            "sprite": "yo",
+            "sprite": dictData.sprite,
             "classType": dictData.classType,
             "id": uuidv4(),
             "pokemons": dictData.pokemons

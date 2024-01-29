@@ -5,6 +5,8 @@ import {models} from '../models';
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
 
+export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
+
 export function ParseHeldItems():Promise<Array<main.HeldItem>>;
 
 export function ParsePokemonData():Promise<Array<main.PokemonTrainerEditor>>;

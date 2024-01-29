@@ -48,3 +48,8 @@ type PokemonTrainerEditor struct {
 type HeldItem struct {
 	Name string
 }
+
+type TrainerSprite struct {
+	Name string
+	Path string
+}

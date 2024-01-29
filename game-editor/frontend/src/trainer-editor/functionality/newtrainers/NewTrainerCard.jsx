@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react"
-import { ParsePokemonData, ParseHeldItems, ParseTrainerClass} from "../../../../wailsjs/go/main/App"
+import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites} from "../../../../wailsjs/go/main/App"
 import TrainerPokemonsGenerator from "./TrainerPokemonsGenerator"
 import TrainerClasses from "./TrainerClasses";
+import TrainerSprites from "./TrainerSprites";
 const NewTrainerCard = ({ setNewTrainer }) => {
     const [classTypes, setClassTypes] = useState([])
     const [pokemonSpecies, setPokemonSpecies] = useState([])
     const [pokemonCount, setPokemonCount] = useState(0)
     const [heldItemsList, setHeldItemList] = useState([])
+    const [trainerSprites, setTrainerSprites] = useState([])
     const [dictData, setDictData ] = useState({
         "name": "",
         "setNewTrainer": setNewTrainer,
@@ -18,21 +20,21 @@ const NewTrainerCard = ({ setNewTrainer }) => {
             let data = await ParseTrainerClass()
             setClassTypes(data.Data)
         }
-        const fetchSprites = () => {
-
-        }
         const fetchPokemonSpecies = async() => {
             let data = await ParsePokemonData()
-            console.log(data)
             setPokemonSpecies(data)
         }
         const fetchHeldItemListData = async() => {
             let data = await ParseHeldItems()
             setHeldItemList(data)
         }
+        const fetchTrainerSprites = async() => {
+            let data = await GrabTrainerSprites()
+            setTrainerSprites(data)
+        }
+        fetchTrainerSprites()
         fetchHeldItemListData()
         fetchClassTypes()
-        fetchSprites()
         fetchPokemonSpecies()
     }, []) 
     
@@ -40,6 +42,8 @@ const NewTrainerCard = ({ setNewTrainer }) => {
         <>
         <label>Trainer name: </label>
         <input type="text" onChange={(event) => setDictData(dictData => ({...dictData, name: event.target.value}))}></input>
+        <br/>
+        <TrainerSprites trainerSprites={trainerSprites} dictData={dictData} setDictData={setDictData}/>
         <br/>
         <label>Select trainer class: </label>
         <TrainerClasses trainerClasses={classTypes} dictData = {dictData} setDictData={setDictData}/>
