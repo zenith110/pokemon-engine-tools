@@ -1,12 +1,11 @@
 module pokemon-game-editor
 
-go 1.21
-
-toolchain go1.21.1
+go 1.21.1
 
 require (
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/wailsapp/wails/v2 v2.7.1
+	github.com/zenith110/pokemon-go-engine v0.0.0-20240129001417-0a9db3a3ba5e
 )
 
 require (

@@ -10,6 +10,7 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
 func (a *App) ParsePokemonData() []PokemonTrainerEditor {
@@ -20,7 +21,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	}
 	defer file.Close()
 
-	var pokemons PokemonToml
+	var pokemons Models.PokemonToml
 
 	b, err := io.ReadAll(file)
 	if err != nil {
@@ -53,13 +54,13 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	return trainerEditorPokemons
 }
 
-func (a *App) ParseTrainerClass() TrainerClasses {
+func (a *App) ParseTrainerClass() Models.TrainerClasses {
 	file, err := os.Open(fmt.Sprintf("%s/toml/trainerclasses.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
-	var trainerclasses TrainerClasses
+	var trainerclasses Models.TrainerClasses
 	bytes, err := io.ReadAll(file)
 	if err != nil {
 		panic(err)
@@ -79,7 +80,7 @@ func (a *App) ParseHeldItems() []HeldItem {
 	}
 	defer file.Close()
 
-	var heldItems HeldItemToml
+	var heldItems Models.HeldItemToml
 
 	b, err := io.ReadAll(file)
 	if err != nil {
@@ -123,13 +124,13 @@ func (a *App) SetDataFolder() {
 
 }
 
-func (a *App) ParseTrainers() TrainerToml {
+func (a *App) ParseTrainers() Models.TrainerToml {
 	file, err := os.Open(fmt.Sprintf("%s/toml/trainers.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
-	var trainers TrainerToml
+	var trainers Models.TrainerToml
 	bytes, err := io.ReadAll(file)
 	if err != nil {
 		panic(err)

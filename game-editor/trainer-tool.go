@@ -5,13 +5,14 @@ import (
 	"os"
 
 	"github.com/pelletier/go-toml/v2"
+	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
 func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 
-	var pokemons []Pokemons
+	var pokemons []Models.Pokemons
 	for index := range trainerJson.Pokemons {
-		pokemon := Pokemons{
+		pokemon := Models.Pokemons{
 			Species:        trainerJson.Pokemons[index].Species,
 			Level:          trainerJson.Pokemons[index].Level,
 			Moves:          trainerJson.Pokemons[index].Moves,
@@ -24,12 +25,13 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 			Speed:          trainerJson.Pokemons[index].Speed,
 			ID:             trainerJson.Pokemons[index].ID,
 		}
+
 		pokemons = append(pokemons, pokemon)
 	}
-	fmt.Print(pokemons)
-	var trainers []Trainers
 
-	trainer := Trainers{
+	var trainers []Models.Trainers
+
+	trainer := Models.Trainers{
 		Name:      trainerJson.Name,
 		Sprite:    trainerJson.Sprite,
 		ID:        trainerJson.Id,
@@ -38,7 +40,7 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 	}
 
 	trainers = append(trainers, trainer)
-	trainerConfig := TrainerToml{
+	trainerConfig := Models.TrainerToml{
 		Trainers: trainers,
 	}
 	data, err := toml.Marshal(trainerConfig)

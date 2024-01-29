@@ -69,6 +69,8 @@ github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhw
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
 github.com/wailsapp/wails/v2 v2.7.1 h1:HAzp2c5ODOzsLC6ZMDVtNOB72ozM7/SJecJPB2Ur+UU=
 github.com/wailsapp/wails/v2 v2.7.1/go.mod h1:oIJVwwso5fdOgprBYWXBBqtx6PaSvxg8/KTQHNGkadc=
+github.com/zenith110/pokemon-go-engine v0.0.0-20240129001417-0a9db3a3ba5e h1:AWniRtdBzCaRl9a2b7va9SP8N/ljQoBtXr9px3BYIqs=
+github.com/zenith110/pokemon-go-engine v0.0.0-20240129001417-0a9db3a3ba5e/go.mod h1:43aMnmQZ1CNAet0kWjG4QFjgEHqPHNTBbrcDPP6APJU=
 golang.org/x/crypto v0.14.0 h1:wBqGXzWJW6m1XrIKlAH0Hs1JJ7+9KBwnIO8v66Q9cHc=
 golang.org/x/crypto v0.14.0/go.mod h1:MVFd36DqK4CsrnJYDkBA3VC4m2GkXAM0PvzMCn4JQf4=
 golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 h1:k/i9J1pBpvlfR+9QsetwPyERsqu1GIbi967PQMq3Ivc=
