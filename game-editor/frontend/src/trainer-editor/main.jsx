@@ -1,9 +1,12 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom";
+
 import LoadTrainers from "./functionality/existingtrainers/LoadTrainers"
 import NewTrainerCard from "./functionality/newtrainers/NewTrainerCard"
 const TrainerEditor = () => {
     const [newTrainer, setNewTrainer] = useState(false)
     const [editTrainers, setEditTrainers] = useState(false)
+    const navigate = useNavigate();
     return(
         <>
            <button onClick={() => setNewTrainer(true)}>Create new trainer</button>
@@ -15,6 +18,7 @@ const TrainerEditor = () => {
            {
             editTrainers ? <LoadTrainers /> : <></>
            }
+           <button onClick={() => navigate(-1)}>Go back to main menu</button>
         </>
     )
 }
