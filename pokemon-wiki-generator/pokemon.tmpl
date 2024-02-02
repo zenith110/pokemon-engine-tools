@@ -1,0 +1,25 @@
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Species</th>
+    <th>HP</th>
+    <th>Attack</th>
+    <th>Defense</th>
+    <th>Speed</th>
+    <th>SpecialAttack</th>
+    <th>SpecialDefense</th>
+    <th>Pokedex description</th>
+  </tr>
+  <tr>
+    <td>{{ .ID }}</td>
+    <td>{{ .Species }}</td>
+    <td>{{ .Stats.Hp }}</td>
+    <td>{{ .Stats.Attack }}</td>
+    <td>{{ .Stats.Defense }}</td>
+    <td>{{ .Stats.Speed }}</td>
+    <td>{{ .Stats.SpecialAttack }}</td>
+    <td>{{ .Stats.SpecialDefense }}</td>
+    <td>{{ .DexEntry}}</td>
+  </tr>
+</table>
+

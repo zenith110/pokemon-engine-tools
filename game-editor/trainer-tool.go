@@ -9,7 +9,6 @@ import (
 )
 
 func (a *App) CreateTrainerData(trainerJson TrainerJson) {
-
 	var pokemons []Models.Pokemons
 	for index := range trainerJson.Pokemons {
 		pokemon := Models.Pokemons{
