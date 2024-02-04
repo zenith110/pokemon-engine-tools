@@ -6,6 +6,7 @@ import "./style.css"
 import App from "./App"
 import TrainerEditor from "./trainer-editor/main";
 import MapEditor from "./map-editor/main";
+import PokemonEditor from "./pokemon-editor/main";
 
 const container = document.getElementById("root")
 
@@ -18,6 +19,7 @@ root.render(
             <Route path="/" element={<App />} exact />
             <Route path="/trainer-editor" element={<TrainerEditor />} />
             <Route path="/map-editor" element={<MapEditor />} />
+            <Route path="/pokemon-editor" element={<PokemonEditor/>} />
         </Routes>
         </HashRouter>
     </React.StrictMode>

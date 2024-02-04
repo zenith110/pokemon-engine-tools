@@ -11,7 +11,8 @@ function App() {
     return (
         <>
            <button onClick={() => navigate("trainer-editor")}><img src={battleIcon}></img></button>
-           <button onClick={() => navigate("map-editor")}><img src={mapIcon}></img></button>
+            <button onClick={() => navigate("map-editor")}><img src={mapIcon}></img></button>
+            <button onClick={() => navigate("pokemon-editor")}>Pokemon Editor</button>
            <br/>
            <button onClick={() => OptionsMenu()}>Select Folder</button>
         </>
