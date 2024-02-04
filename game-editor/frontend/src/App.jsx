@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-
 import { SetDataFolder } from "../wailsjs/go/main/App"
 import battleIcon from "./trainer-editor/icons/battleicon.png"
 import mapIcon from "./map-editor/icons/map.png"

@@ -7,6 +7,7 @@ import App from "./App"
 import TrainerEditor from "./trainer-editor/main";
 import MapEditor from "./map-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
+import Navbar from "./navbar/navbar";
 
 const container = document.getElementById("root")
 
@@ -15,6 +16,7 @@ const root = createRoot(container)
 root.render(
     <React.StrictMode>
         <HashRouter>
+        <Navbar /> 
         <Routes>
             <Route path="/" element={<App />} exact />
             <Route path="/trainer-editor" element={<TrainerEditor />} />
