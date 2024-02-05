@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import LoadTrainers from "./functionality/existingtrainers/LoadTrainers"
-import NewTrainerCard from "./functionality/newtrainers/NewTrainerCard"
-const TrainerEditor = () => {
+import LoadTrainers from "./functionality/existingtrainers/LoadTrainers";
+import NewTrainerCard from "./functionality/newtrainers/NewTrainerCard";
+
+const TrainerEditor:React.FC = () => {
     const [newTrainer, setNewTrainer] = useState(false)
     const [editTrainers, setEditTrainers] = useState(false)
     const navigate = useNavigate();

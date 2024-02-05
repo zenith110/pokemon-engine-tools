@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-const MapEditor = () => {
+
+const MapEditor:React.FC = () => {
     const navigate = useNavigate();
     return(
         <>

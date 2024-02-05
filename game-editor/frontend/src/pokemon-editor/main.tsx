@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-export default function PokemonEditor() {
+export default function PokemonEditor():React.ReactElement {
     const navigate = useNavigate();
     return (
         <>

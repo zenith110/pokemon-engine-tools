@@ -10,7 +10,7 @@ const navigation = [
   { name: 'Map', href: '/map-editor', current: false },
 ];
 
-function classNames(...classes) {
+function classNames(...classes:string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
@@ -19,7 +19,7 @@ export default function NavBar() {
   const location = useLocation();
 
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-blueWhale">
       {({ open }) => (
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="relative flex h-16 items-center justify-between">
@@ -38,7 +38,7 @@ export default function NavBar() {
                         key={item.name}
                         onClick={() => navigate(item.href)}
                         className={classNames(
-                          location.pathname === item.href ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                          location.pathname === item.href ? 'bg-wildBlueYonder text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                           'px-3 py-2 rounded-md text-sm font-medium'
                         )}
                         aria-current={location.pathname === item.href ? 'page' : undefined}
