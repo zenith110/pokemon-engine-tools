@@ -19,7 +19,7 @@ const TrainerEditor:React.FC = () => {
            {
             editTrainers ? <LoadTrainers /> : <></>
            }
-           <button onClick={() => navigate(-1)}>Go back to main menu</button>
+           {/* <button onClick={() => navigate(-1)}>Go back to main menu</button> */}
         </>
     )
 }

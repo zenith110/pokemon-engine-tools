@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["./src/main.tsx"]
+  "include": ["src/main.tsx"]
 }
