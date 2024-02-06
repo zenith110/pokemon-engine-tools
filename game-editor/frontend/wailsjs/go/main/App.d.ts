@@ -16,3 +16,5 @@ export function ParseTrainerClass():Promise<models.TrainerClasses>;
 export function ParseTrainers():Promise<models.TrainerToml>;
 
 export function SetDataFolder():Promise<void>;
+
+export function SetMapTileset():Promise<void>;
