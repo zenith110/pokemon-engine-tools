@@ -29,3 +29,7 @@ export function ParseTrainers() {
 export function SetDataFolder() {
   return window['go']['main']['App']['SetDataFolder']();
 }
+
+export function SetMapTileset() {
+  return window['go']['main']['App']['SetMapTileset']();
+}

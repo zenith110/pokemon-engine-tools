@@ -10,16 +10,18 @@
     <th>SpecialDefense</th>
     <th>Pokedex description</th>
   </tr>
+    <h1>Stats</h1>
   <tr>
     <td>{{ .ID }}</td>
     <td>{{ .Species }}</td>
     <td>{{ .Stats.Hp }}</td>
     <td>{{ .Stats.Attack }}</td>
     <td>{{ .Stats.Defense }}</td>
-    <td>{{ .Stats.Speed }}</td>
     <td>{{ .Stats.SpecialAttack }}</td>
     <td>{{ .Stats.SpecialDefense }}</td>
-    <td>{{ .DexEntry}}</td>
   </tr>
 </table>
+
+<h1>Dex description</h1>
+<p>{{ .DexEntry}}</p>
 
