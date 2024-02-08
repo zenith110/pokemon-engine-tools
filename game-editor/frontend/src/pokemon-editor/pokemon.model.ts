@@ -32,4 +32,8 @@ export interface Pokemon {
         ShinyBack: string;
         Icon: string;
     };
+    FrontSprite: string;
+    BackSprite: string;
+    Icon: string;
+    HP: string;
 }

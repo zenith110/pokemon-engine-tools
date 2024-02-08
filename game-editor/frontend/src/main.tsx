@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 import "./style.css";
@@ -9,7 +9,10 @@ import MapEditor from "./map-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
 import Navbar from "./navbar/navbar";
 import NewMap from "./map-editor/new-map"
-ReactDOM.render(
+
+const container = document.getElementById('root') as HTMLElement;
+const root = createRoot(container);
+root.render(
     <React.StrictMode>
         <HashRouter>
             <Navbar /> 
@@ -21,6 +24,5 @@ ReactDOM.render(
                 <Route path="/pokemon-editor" element={<PokemonEditor/>} />
             </Routes>
         </HashRouter>
-    </React.StrictMode>,
-    document.getElementById("root") as HTMLElement
+    </React.StrictMode>
 )
