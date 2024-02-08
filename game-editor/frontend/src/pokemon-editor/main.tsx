@@ -20,8 +20,8 @@ export default function PokemonEditor():React.ReactElement {
     }, [selectedPokemon]);
 
     return (
-        <div>
-            <div className="text-black border-2 w-6/12">
+        <div className="grid">
+            <div className="text-black border-2 w-1/4">
                 <Select
                     options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: pokemon.ID + ": " +pokemon.Name }))}
                     onChange={async (e) => {
@@ -36,21 +36,27 @@ export default function PokemonEditor():React.ReactElement {
                     isSearchable={true}
                     isMulti={false}
                 />
+                
             </div>
             <p>{selectedPokemon?.Name}</p>
-            <div className="grid grid-flow-row grid-cols-6 grid-rows-2 max-w-fit border-2 rounded-xl text-center">
-                    <h3 className="bg-blueWhale rounded-tl-lg">HP</h3>
-                    <h3 className="bg-blueWhale">Attack</h3>
-                    <h3 className="bg-blueWhale">Defense</h3>
-                    <h3 className="bg-blueWhale">Sp. Atk</h3>
-                    <h3 className="bg-blueWhale">Sp. Def</h3>
-                    <h3 className="bg-blueWhale rounded-tr-lg">Speed</h3>
+            <div className="w-1/2 h-1/6">
+                <div className="grid grid-cols-6 bg-blueWhale rounded-t-xl text-center divide-black divide-x gap-y-4">
+                    <h3>HP</h3>
+                    <h3>Attack</h3>
+                    <h3>Defense</h3>
+                    <h3>Sp. Atk</h3>
+                    <h3>Sp. Def</h3>
+                    <h3>Speed</h3>
+                </div>
+                <div className="grid grid-cols-6 bg-tealBlue rounded-b-xl">
                     <p>100</p>
                     <p>100</p>
                     <p>100</p>
                     <p>100</p>
                     <p>100</p>
                     <p>100</p>
+                </div>
+                    
             </div>
         </div>
 );
