@@ -8,7 +8,7 @@ import TrainerEditor from "./trainer-editor/main";
 import MapEditor from "./map-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
 import Navbar from "./navbar/navbar";
-
+import NewMap from "./map-editor/new-map"
 ReactDOM.render(
     <React.StrictMode>
         <HashRouter>
@@ -17,6 +17,7 @@ ReactDOM.render(
                 <Route path="/" element={<App />} />
                 <Route path="/trainer-editor" element={<TrainerEditor />} />
                 <Route path="/map-editor" element={<MapEditor />} />
+                <Route path="/map-editor/new-map" element={<NewMap />} />
                 <Route path="/pokemon-editor" element={<PokemonEditor/>} />
             </Routes>
         </HashRouter>

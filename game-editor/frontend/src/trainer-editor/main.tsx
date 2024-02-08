@@ -10,8 +10,10 @@ const TrainerEditor:React.FC = () => {
     const navigate = useNavigate();
     return(
         <>
-           <button onClick={() => setNewTrainer(true)}>Create new trainer</button>
-           <button onClick={() => setEditTrainers(true)}>Edit trainers</button>
+           <button onClick={() => setNewTrainer(true)} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black">Create new trainer</button>
+           <br/>
+           <br/>
+           <button onClick={() => setEditTrainers(true)} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black">Edit trainers</button>
            <br/>
            {
             newTrainer ? <NewTrainerCard setNewTrainer={setNewTrainer}/> : <></>
@@ -19,7 +21,6 @@ const TrainerEditor:React.FC = () => {
            {
             editTrainers ? <LoadTrainers /> : <></>
            }
-           {/* <button onClick={() => navigate(-1)}>Go back to main menu</button> */}
         </>
     )
 }
