@@ -38,6 +38,8 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 			Name:           pokemons.Pokemon[pokemon].Species,
 			FrontSprite:    pokemons.Pokemon[pokemon].AssetData.Front,
 			BackSprite:     pokemons.Pokemon[pokemon].AssetData.Back,
+			ShinyFront:     pokemons.Pokemon[pokemon].AssetData.ShinyFront,
+			ShinyBack:      pokemons.Pokemon[pokemon].AssetData.ShinyBack,
 			Icon:           pokemons.Pokemon[pokemon].AssetData.Icon,
 			HP:             pokemons.Pokemon[pokemon].Stats.Hp,
 			Defense:        pokemons.Pokemon[pokemon].Stats.Defense,

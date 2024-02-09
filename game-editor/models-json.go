@@ -34,6 +34,8 @@ type PokemonTrainerEditor struct {
 	Name           string
 	FrontSprite    string
 	BackSprite     string
+	ShinyFront     string
+	ShinyBack      string
 	Icon           string
 	HP             int
 	Defense        int
