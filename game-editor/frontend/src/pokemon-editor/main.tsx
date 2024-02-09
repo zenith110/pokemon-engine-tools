@@ -56,7 +56,7 @@ export default function PokemonEditor():React.ReactElement {
                     <p>{selectedPokemon ? selectedPokemon?.SpecialDefense : 0}</p>
                     <p>{selectedPokemon ? selectedPokemon?.Speed : 0}</p>
                 </div>
-                 <img src={selectedPokemon? `../../../../../${selectedPokemon.Icon}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `${selectedPokemon.FrontSprite}` : ''} alt="pokemon sprite" />
             </div>
         </div>
 );

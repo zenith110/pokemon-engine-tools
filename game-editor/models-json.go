@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/zenith110/pokemon-go-engine/models"
 	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
@@ -45,6 +46,7 @@ type PokemonTrainerEditor struct {
 	Attack         int
 	Moves          []Models.Moves
 	ID             string
+	Abilities      []models.Abilities
 }
 
 type HeldItem struct {

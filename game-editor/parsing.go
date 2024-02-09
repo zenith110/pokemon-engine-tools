@@ -40,7 +40,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 			BackSprite:     fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.Back),
 			ShinyFront:     fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.ShinyFront),
 			ShinyBack:      fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.ShinyBack),
-			Icon:           pokemons.Pokemon[pokemon].AssetData.Icon,
+			Icon:           fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.Icon),
 			HP:             pokemons.Pokemon[pokemon].Stats.Hp,
 			Defense:        pokemons.Pokemon[pokemon].Stats.Defense,
 			SpecialAttack:  pokemons.Pokemon[pokemon].Stats.SpecialAttack,
@@ -49,6 +49,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 			Moves:          pokemons.Pokemon[pokemon].Moves,
 			Attack:         pokemons.Pokemon[pokemon].Stats.Attack,
 			ID:             pokemons.Pokemon[pokemon].ID,
+			Abilities:      pokemons.Pokemon[pokemon].Abilities,
 		}
 		trainerEditorPokemons = append(trainerEditorPokemons, trainerEditorPokemon)
 	}
