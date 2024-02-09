@@ -17,23 +17,17 @@ export interface Pokemon {
         Methods: string[];
         ID: string;
     }[];
-    Stats: {
-        Hp: number;
-        Attack: number;
-        Defense: number;
-        SpecialAttack: number;
-        SpecialDefense: number;
-        Speed: number;
-    };
-    AssetData: {
-        Front: string;
-        Back: string;
-        ShinyFront: string;
-        ShinyBack: string;
-        Icon: string;
-    };
+
+    HP: number;
+    Attack: number;
+    Defense: number;
+    SpecialAttack: number;
+    SpecialDefense: number;
+    Speed: number;
+
     FrontSprite: string;
     BackSprite: string;
+    ShinyFront: string;
+    ShinyBack: string;
     Icon: string;
-    HP: string;
 }

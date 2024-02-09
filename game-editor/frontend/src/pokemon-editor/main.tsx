@@ -49,14 +49,14 @@ export default function PokemonEditor():React.ReactElement {
                     <h3>Speed</h3>
                 </div>
                 <div className="grid grid-cols-6 bg-tealBlue rounded-b-xl">
-                    <p>100</p>
-                    <p>100</p>
-                    <p>100</p>
-                    <p>100</p>
-                    <p>100</p>
-                    <p>100</p>
+                    <p>{selectedPokemon ? selectedPokemon?.HP : 0}</p>
+                    <p>{selectedPokemon ? selectedPokemon?.Attack : 0}</p>
+                    <p>{selectedPokemon ? selectedPokemon?.Defense : 0}</p>
+                    <p>{selectedPokemon ? selectedPokemon?.SpecialAttack : 0}</p>
+                    <p>{selectedPokemon ? selectedPokemon?.SpecialDefense : 0}</p>
+                    <p>{selectedPokemon ? selectedPokemon?.Speed : 0}</p>
                 </div>
-                    
+                 <img src={selectedPokemon? `../../../../../${selectedPokemon.Icon}` : ''} alt="pokemon sprite" />
             </div>
         </div>
 );
