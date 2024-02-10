@@ -8,7 +8,6 @@ export default function PokemonEditor():React.ReactElement {
     const navigate = useNavigate();
     const [pokemonSpecies, setPokemonSpecies] = useState<Pokemon[]>([]);
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
-
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
         setPokemonSpecies(data);
@@ -28,6 +27,7 @@ export default function PokemonEditor():React.ReactElement {
                         const selected: Pokemon | undefined = pokemonSpecies.find(pokemon => pokemon.ID === (e?.value));
                         await setSelectedPokemon(selected);
                         console.log("selected pokemon: ", selectedPokemon);
+                        await fetch(`${selectedPokemon?.FrontSprite}`)        
                     }}
                     isClearable={false}
                     isDisabled={false}
@@ -56,7 +56,11 @@ export default function PokemonEditor():React.ReactElement {
                     <p>{selectedPokemon ? selectedPokemon?.SpecialDefense : 0}</p>
                     <p>{selectedPokemon ? selectedPokemon?.Speed : 0}</p>
                 </div>
-                 <img src={selectedPokemon? `${selectedPokemon.FrontSprite}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="pokemon sprite" />
+                 <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.Icon}` : ''} alt="pokemon sprite" />
             </div>
         </div>
 );

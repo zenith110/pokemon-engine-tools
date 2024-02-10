@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,9 +14,20 @@ import (
 	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
-func (a *App) ParsePokemonData() []PokemonTrainerEditor {
+func toBase64(byte []byte) string {
+	return base64.StdEncoding.EncodeToString(byte)
+}
+func CreateBase64Image(image string) string {
+	bytes, _ := os.ReadFile(image)
+	var base64String string
 
+	base64String += toBase64(bytes)
+	return base64String
+}
+func (a *App) ParsePokemonData() []PokemonTrainerEditor {
+	// SetUpPokemonFolders(a.dataDirectory.DataDirectory)
 	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.dataDirectory.DataDirectory))
+
 	if err != nil {
 		panic(err)
 	}
@@ -32,15 +44,16 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	if err != nil {
 		panic(err)
 	}
+	CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/90_front.png", a.dataDirectory.DataDirectory))
 	var trainerEditorPokemons []PokemonTrainerEditor
 	for pokemon := range pokemons.Pokemon {
 		trainerEditorPokemon := PokemonTrainerEditor{
 			Name:           pokemons.Pokemon[pokemon].Species,
-			FrontSprite:    fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.Front),
-			BackSprite:     fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.Back),
-			ShinyFront:     fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.ShinyFront),
-			ShinyBack:      fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.ShinyBack),
-			Icon:           fmt.Sprintf("%s/data/%s", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].AssetData.Icon),
+			FrontSprite:    CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
+			BackSprite:     CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
+			ShinyFront:     CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
+			ShinyBack:      CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
+			Icon:           CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/icons/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
 			HP:             pokemons.Pokemon[pokemon].Stats.Hp,
 			Defense:        pokemons.Pokemon[pokemon].Stats.Defense,
 			SpecialAttack:  pokemons.Pokemon[pokemon].Stats.SpecialAttack,
