@@ -72,6 +72,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
     return(
         <>
         <br/>
+        <img src={currentlySelectedPokemon? `data:image/png;base64,${currentlySelectedPokemon?.Icon}` : ''} alt="pokemon sprite"/>
         <label>HP:</label>
         <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(e.target.value)}></input>
         <br/>
