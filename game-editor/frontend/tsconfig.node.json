@@ -6,5 +6,8 @@
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src/main.tsx"]
+  "include": [
+    "**/*.tsx",
+    "**/*.ts"
+]
 }

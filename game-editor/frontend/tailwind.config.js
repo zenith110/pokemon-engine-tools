@@ -6,10 +6,10 @@ export default {
 	content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
 	theme: {
 		screens: {
-			sm: "480px",
-			md: "768px",
-			lg: "976px",
-			xl: "1440px",
+			sm: "832px",
+			md: "982px",
+			lg: "1024px",
+			xl: "1117px",
 		},
 		extend: {
 			colors: {
@@ -17,6 +17,9 @@ export default {
 				wildBlueYonder: "#7A89C2",
 				offWhite: "#FFF8F0",
 				tealBlue: "#2E798A",
+			},
+			gridTemplateColumns: {
+				"fluid": "repeat(auto-fit, minmax(20rem, 1fr))",
 			},
 		},
 	},
