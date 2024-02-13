@@ -30,7 +30,17 @@ type TrainerJson struct {
 type OptionsConfig struct {
 	DataDirectory string `json:"dataDirectory"`
 }
-
+type Evolution struct {
+	Name        string
+	FrontSprite string
+	BackSprite  string
+	ShinyFront  string
+	ShinyBack   string
+	Icon        string
+	ID          string
+	Method      string
+	Level       string
+}
 type PokemonTrainerEditor struct {
 	Name           string
 	FrontSprite    string
@@ -47,6 +57,7 @@ type PokemonTrainerEditor struct {
 	Moves          []Models.Moves
 	ID             string
 	Abilities      []models.Abilities
+	Evolutions     []Evolution
 }
 
 type HeldItem struct {
