@@ -7,7 +7,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "**/*.tsx",
-    "**/*.ts"
-]
+    "src/*.tsx",
+    "src/*.ts"
+  ]
 }

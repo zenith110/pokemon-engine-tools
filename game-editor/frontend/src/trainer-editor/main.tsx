@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import React from "react";
 import LoadTrainers from "./functionality/existingtrainers/LoadTrainers";
 import NewTrainerCard from "./functionality/newtrainers/NewTrainerCard";
 

@@ -1,5 +1,6 @@
 import { SetMapTileset } from "../../wailsjs/go/main/App";
 import { useState } from "react";
+import React from "react";
 
 const NewMap:React.FC = () => {
     const [tileset, setTileset] = useState<string>("")
