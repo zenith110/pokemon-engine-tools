@@ -30,7 +30,7 @@ export default function PokemonEditor():React.ReactElement {
                     <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="pokemon sprite" />
                 </div>
 
-                <div className="h-fit text-black border-2 flex flex-row justify-around py-6">
+                <div className="h-fit text-black border-2 border-black flex flex-row justify-around py-6">
                     <Select
                         options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: `${pokemon.ID}: ${pokemon.Name}`}))}
                         onChange={async (e) => {
@@ -60,7 +60,7 @@ export default function PokemonEditor():React.ReactElement {
                     
                 </div>
 
-                <div className="h-3/12 pt-12 ">
+                <div className="h-3/12 pt-12">
                     <div className="grid grid-cols-6 bg-blueWhale rounded-t-xl text-center divide-black divide-x gap-y-4 py-1">
                         <h3>HP</h3>
                         <h3>Attack</h3>
@@ -79,7 +79,62 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                 </div>
             </div>
+            
+            <div>
+                <div className="flex flex-row">
+                    <div className="flex flex-col mx-4">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1">Level-Up Moves</h4>
+                        <div className="h-24 overflow-auto overscroll-none">
+                           {selectedPokemon?.Moves.length ?? 0 > 0 ? 
+                                selectedPokemon?.Moves
+                                    .filter(move => move.Method === "level-up")
+                                    .sort((a, b) => a.Level - b.Level)
+                                    .map((move, index) => (
+                                        <p className="bg-tealBlue" key={index}>{move.Name} - Level: {move.Level}</p>
+                                    ))
+                            
+                                : <p>No Moves</p>
+                            } 
+                        </div>
+                        
+                        <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1"> Edit</button>
+                    </div>
+                    
+                    <div className="flex flex-col mx-4">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1">Tutor Moves</h4>
+                        <div className="h-24 overflow-auto w-full overscroll-none">
+                           {selectedPokemon?.Moves.length ?? 0 > 0 ? 
+                                selectedPokemon?.Moves
+                                    .filter(move => move.Method === "tutor")
+                                    .map((move, index) => (
+                                        <p className="bg-tealBlue" key={index}>{move.Name}</p>
+                                    ))
+                            
+                                : <p>No Moves</p>
+                            } 
+                        </div>
+                        
+                        <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1"> Edit</button>
+                    </div>
 
+                    <div className="flex flex-col mx-4">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1">TM/HM Moves</h4>
+                        <div className="h-24 overflow-auto w-full overscroll-none">
+                           {selectedPokemon?.Moves.length ?? 0 > 0 ? 
+                                selectedPokemon?.Moves
+                                    .filter(move => move.Method === "machine")
+                                    .map((move, index) => (
+                                        <p className="bg-tealBlue" key={index}>{move.Name}</p>
+                                    ))
+                            
+                                : <p>No Moves</p>
+                            } 
+                        </div>
+                        
+                        <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1"> Edit</button>
+                    </div>
+                </div>
+            </div>
 
         </div>
 );

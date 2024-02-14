@@ -14,7 +14,7 @@ export interface Pokemon {
     }[];
     Evolutions: {
         Name: string;
-        Methods: string[];
+        Method: string[];
         ID: string;
     }[];
 
