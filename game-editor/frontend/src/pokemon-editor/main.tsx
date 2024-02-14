@@ -22,7 +22,7 @@ export default function PokemonEditor():React.ReactElement {
     return (
         <div className="flex flex-row h-[44rem] border-2 border-red-800 ml-2 mt-1">
 
-            <div className="h-full flex flex-col border-4">
+            <div className="h-full flex flex-col border-4 w-96">
                 <div className="h-1/2  rounded-2xl grid grid-rows-2 grid-cols-2 items-stretch border-2 border-pink-400 bg-offWhite">
                     <img className="" src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="pokemon sprite" />
                     <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="pokemon sprite" />
