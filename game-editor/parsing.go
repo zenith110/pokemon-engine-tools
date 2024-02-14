@@ -48,6 +48,10 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 
 	for pokemon := range pokemons.Pokemon {
 		var evolutions []Evolution
+		var types []string
+		for pokemonType := range pokemons.Pokemon[pokemon].Types {
+			types = append(types, pokemons.Pokemon[pokemon].Types[pokemonType])
+		}
 		for evolution := range pokemons.Pokemon[pokemon].Evolutions {
 			evolutionData := Evolution{
 				Name: pokemons.Pokemon[pokemon].Evolutions[evolution].Name,
@@ -79,6 +83,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 			ID:             pokemons.Pokemon[pokemon].ID,
 			Abilities:      pokemons.Pokemon[pokemon].Abilities,
 			Evolutions:     evolutions,
+			Types:          types,
 		}
 		trainerEditorPokemons = append(trainerEditorPokemons, trainerEditorPokemon)
 	}
