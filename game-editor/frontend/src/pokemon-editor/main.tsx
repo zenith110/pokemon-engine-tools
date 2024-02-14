@@ -83,8 +83,8 @@ export default function PokemonEditor():React.ReactElement {
             <div>
                 <div className="flex flex-row">
                     <div className="flex flex-col mx-4">
-                        <h4 className="bg-blueWhale rounded-t-lg py-1">Level-Up Moves</h4>
-                        <div className="h-24 overflow-auto overscroll-none">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1 px-4">Level-Up Moves</h4>
+                        <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-tealBlue">
                            {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                 selectedPokemon?.Moves
                                     .filter(move => move.Method === "level-up")
@@ -101,13 +101,13 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                     
                     <div className="flex flex-col mx-4">
-                        <h4 className="bg-blueWhale rounded-t-lg py-1">Tutor Moves</h4>
-                        <div className="h-24 overflow-auto w-full overscroll-none">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1 px-8">Tutor Moves</h4>
+                        <div className="h-24 overflow-auto w-full overscroll-none bg-tealBlue">
                            {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                 selectedPokemon?.Moves
                                     .filter(move => move.Method === "tutor")
                                     .map((move, index) => (
-                                        <p className="bg-tealBlue" key={index}>{move.Name}</p>
+                                        <p className="" key={index}>{move.Name}</p>
                                     ))
                             
                                 : <p>No Moves</p>
@@ -118,13 +118,13 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
 
                     <div className="flex flex-col mx-4">
-                        <h4 className="bg-blueWhale rounded-t-lg py-1">TM/HM Moves</h4>
-                        <div className="h-24 overflow-auto w-full overscroll-none">
+                        <h4 className="bg-blueWhale rounded-t-lg py-1 px-6">TM/HM Moves</h4>
+                        <div className="h-24 overflow-auto w-full overscroll-none bg-tealBlue">
                            {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                 selectedPokemon?.Moves
                                     .filter(move => move.Method === "machine")
                                     .map((move, index) => (
-                                        <p className="bg-tealBlue" key={index}>{move.Name}</p>
+                                        <p className="" key={index}>{move.Name}</p>
                                     ))
                             
                                 : <p>No Moves</p>
