@@ -53,7 +53,7 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                         <div className="flex flex-row justify-center">
                             <p className="bg-blueWhale px-6 py-3 rounded-l-2xl pl-10 items-center">Type:</p>
-                            <button onClick={() => {console.log("Add this later")}} className="bg-tealBlue px-6 py-3 rounded-r-2xl basis-10">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
+                            <button onClick={() => {console.log("Add this later")}} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
                         </div> 
                 </div>
                 
