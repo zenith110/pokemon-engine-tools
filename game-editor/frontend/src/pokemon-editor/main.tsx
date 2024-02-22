@@ -15,9 +15,17 @@ export default function PokemonEditor():React.ReactElement {
         console.log("list of Pokemon: ", pokemonSpecies);
     }
 
+    const handleStatChange = (stat: string, val: number) => {
+
+        setSelectedPokemon(prevState => ({
+            ...(prevState as Pokemon),
+            [stat]: val
+        }));
+    };
+
     useEffect(() => {
         fetchPokemonSpecies();
-    }, [selectedPokemon]);
+    }, [selectedPokemon == undefined]);
 
     return (
 
@@ -109,19 +117,30 @@ export default function PokemonEditor():React.ReactElement {
                         <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1 hover:bg-wildBlueYonder"> Edit</button>
                     </div>
                 </div>
-                    <div className="bg-green-500 flex flex-row">
-                        evolution line
-                        <div className="bg-blue-500 flex flex-col">
-                            ability 1
-                            ability 2
-                            ability hidden
+                    <div className="border-green-500 border-4 flex flex-row justify-around h-full">
+                        <div className="flex flex-col justify-center border-2 border-pink-600 bg-offWhite text-black rounded-xl w-5/12">
+                            evolution line here
+                        </div>
+                        <div className="border-blue-500 border-4 flex flex-col justify-evenly w-5/12">
+                            <div>
+                                <h4 className="bg-blueWhale rounded-t-lg pt-2">Ability 1</h4>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon ? selectedPokemon?.Abilities[0].Name : "None"}</button>
+                            </div>
+                            <div>
+                                <h4 className="bg-blueWhale rounded-t-lg pt-2">Ability 2 (Optional)</h4>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && selectedPokemon?.Abilities[1].isHidden == false ? selectedPokemon?.Abilities[1].Name : "None"}</button>
+                            </div>
+                            <div>
+                                <h4 className="bg-blueWhale rounded-t-lg pt-2">Hidden Ability</h4>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && selectedPokemon?.Abilities.find(ability => ability.isHidden === true)? selectedPokemon?.Abilities.find(ability => ability.isHidden === true)?.Name : "None"}</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="border-orange-500 border-4 flex flex-row justify-around h-1/4">
+            <div className="flex flex-row justify-around h-1/4">
                 <div className="h-1/6 pt-8 grow-[.4]">
-                    <div className="grid grid-cols-6 bg-blueWhale rounded-t-xl text-center divide-black divide-x gap-y-4 py-1">
+                    <div className="grid grid-cols-6 bg-blueWhale rounded-t-xl text-center divide-black divide-x gap-y-4 py-2">
                         <h3>HP</h3>
                         <h3>Attack</h3>
                         <h3>Defense</h3>
@@ -130,20 +149,18 @@ export default function PokemonEditor():React.ReactElement {
                         <h3>Speed</h3>
                     </div>
                     <div className="grid grid-cols-6 bg-tealBlue rounded-b-xl py-4">
-                        <p>{selectedPokemon ? selectedPokemon?.HP : 0}</p>
-                        <p>{selectedPokemon ? selectedPokemon?.Attack : 0}</p>
-                        <p>{selectedPokemon ? selectedPokemon?.Defense : 0}</p>
-                        <p>{selectedPokemon ? selectedPokemon?.SpecialAttack : 0}</p>
-                        <p>{selectedPokemon ? selectedPokemon?.SpecialDefense : 0}</p>
-                        <p>{selectedPokemon ? selectedPokemon?.Speed : 0}</p>
+                        <input value={selectedPokemon ? selectedPokemon?.HP : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('HP', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Attack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Attack', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Defense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Defense', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.SpecialAttack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('SpecialAttack', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.SpecialDefense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('SpecialDefense', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Speed : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Speed', parseInt(e.target.value))} max={255} min={5}/>
                     </div>
                 </div>
-                <div className="flex flex-row items-center border-4 border-pink-500">
-                    <button onClick={() => console.log("Add Later")} className="px-12 py-1 mr-6 bg-blueWhale rounded-lg  hover:bg-wildBlueYonder">Save</button>
+                <div className="flex flex-row items-center">
+                    <button onClick={() => console.log("Add Later")} className="px-12 py-1 mr-[6vw] bg-blueWhale rounded-lg  hover:bg-wildBlueYonder">Save</button>
                     <button onClick={() => console.log("Add Later")} className="px-12 py-1 bg-blueWhale rounded-lg  hover:bg-wildBlueYonder">Reset</button> 
                 </div>
-                
-                
             </div>
         </div>
 );
