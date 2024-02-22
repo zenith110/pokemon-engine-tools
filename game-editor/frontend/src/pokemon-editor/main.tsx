@@ -9,6 +9,7 @@ export default function PokemonEditor():React.ReactElement {
     const navigate = useNavigate();
     const [pokemonSpecies, setPokemonSpecies] = useState<Pokemon[]>([]);
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
+    const regex:RegExp = /^[0-9\b]{0,3}$/;
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
         setPokemonSpecies(data);
@@ -149,12 +150,68 @@ export default function PokemonEditor():React.ReactElement {
                         <h3>Speed</h3>
                     </div>
                     <div className="grid grid-cols-6 bg-tealBlue rounded-b-xl py-4">
-                        <input value={selectedPokemon ? selectedPokemon?.HP : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('HP', parseInt(e.target.value))} max={255} min={5}/>
-                        <input value={selectedPokemon ? selectedPokemon?.Attack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Attack', parseInt(e.target.value))} max={255} min={5}/>
-                        <input value={selectedPokemon ? selectedPokemon?.Defense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Defense', parseInt(e.target.value))} max={255} min={5}/>
-                        <input value={selectedPokemon ? selectedPokemon?.SpecialAttack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('SpecialAttack', parseInt(e.target.value))} max={255} min={5}/>
-                        <input value={selectedPokemon ? selectedPokemon?.SpecialDefense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('SpecialDefense', parseInt(e.target.value))} max={255} min={5}/>
-                        <input value={selectedPokemon ? selectedPokemon?.Speed : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => handleStatChange('Speed', parseInt(e.target.value))} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.HP : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {
+                            if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('HP', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('HP', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('HP', 5);
+                                }
+                                    
+                            }
+                        }} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Attack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Attack', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Attack', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Attack', 5);
+                                }
+                                    
+                            }}} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Defense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Defense', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Defense', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Defense', 5);
+                                }
+                                    
+                            }}} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.SpecialAttack : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('SpecialAttack', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('SpecialAttack', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('SpecialAttack', 5);
+                                }
+                                    
+                            }}} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.SpecialDefense : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('SpecialDefense', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('SpecialDefense', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('SpecialDefense', 5);
+                                }
+                                    
+                            }}} max={255} min={5}/>
+                        <input value={selectedPokemon ? selectedPokemon?.Speed : 0} type="number" className="flex shrink bg-tealBlue text-center" onChange={(e) => {if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Speed', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Speed', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Speed', 5);
+                                }
+                                    
+                            }}} max={255} min={5}/>
                     </div>
                 </div>
                 <div className="flex flex-row items-center">
