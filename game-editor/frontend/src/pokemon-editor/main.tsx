@@ -9,6 +9,8 @@ export default function PokemonEditor():React.ReactElement {
     const navigate = useNavigate();
     const [pokemonSpecies, setPokemonSpecies] = useState<Pokemon[]>([]);
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
+    const [abilities, setAbilities] = useState<string[]>([]);
+    const [hiddenAbility, setHiddenAbility] = useState<string>();
     const regex:RegExp = /^[0-9\b]{0,3}$/;
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
@@ -42,11 +44,21 @@ export default function PokemonEditor():React.ReactElement {
                     <div className="text-black border-2 border-yellow-500 flex flex-row justify-around py-6">
                         <Select
                             options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: `${pokemon.ID}: ${pokemon.Name}`}))}
-                            onChange={async (e) => {
+                            onChange={(e) => {
                                 const selected: Pokemon | undefined = pokemonSpecies.find(pokemon => pokemon.ID === (e?.value));
                                 setSelectedPokemon(selected);
+                                setAbilities(
+                                    selected?.Abilities
+                                        .filter(ability => !ability.IsHidden)
+                                        .map(ability => ability.Name) as string[]
+                                );
+                                setHiddenAbility(
+                                    selected?.Abilities
+                                        .find(ability => ability.IsHidden)
+                                        ?.Name ? selected?.Abilities.find(ability => ability.IsHidden)
+                                        ?.Name : undefined
+                                );
                                 console.log("selected pokemon: ", selectedPokemon);
-                                await fetch(`${selectedPokemon?.FrontSprite}`)
                             }}
                             isClearable={false}
                             isDisabled={false}
@@ -120,20 +132,20 @@ export default function PokemonEditor():React.ReactElement {
                 </div>
                     <div className="border-green-500 border-4 flex flex-row justify-around h-full">
                         <div className="flex flex-col justify-center border-2 border-pink-600 bg-offWhite text-black rounded-xl w-5/12">
-                            evolution line here
+                            Evolution line here
                         </div>
                         <div className="border-blue-500 border-4 flex flex-col justify-evenly w-5/12">
                             <div>
                                 <h4 className="bg-blueWhale rounded-t-lg pt-2">Ability 1</h4>
-                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon ? selectedPokemon?.Abilities[0].Name : "None"}</button>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon ? abilities[0] : "None"}</button>
                             </div>
                             <div>
                                 <h4 className="bg-blueWhale rounded-t-lg pt-2">Ability 2 (Optional)</h4>
-                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && selectedPokemon?.Abilities[1].isHidden == false ? selectedPokemon?.Abilities[1].Name : "None"}</button>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && abilities.length > 1 ? abilities[1] : "None"}</button>
                             </div>
                             <div>
                                 <h4 className="bg-blueWhale rounded-t-lg pt-2">Hidden Ability</h4>
-                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && selectedPokemon?.Abilities.find(ability => ability.isHidden === true)? selectedPokemon?.Abilities.find(ability => ability.isHidden === true)?.Name : "None"}</button>
+                                <button onClick={() => console.log("Add Later")} className="bg-tealBlue rounded-b-lg hover:bg-wildBlueYonder w-full py-2">{selectedPokemon && hiddenAbility != undefined ? hiddenAbility : "None"}</button>
                             </div>
                         </div>
                     </div>
