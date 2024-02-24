@@ -88,7 +88,7 @@ export default function PokemonEditor():React.ReactElement {
                                         .filter(move => move.Method === "level-up")
                                         .sort((a, b) => a.Level - b.Level)
                                         .map((move, index) => (
-                                            <p className="bg-tealBlue" key={index}>{move.Name} - Level: {move.Level}</p>
+                                            <p className="bg-tealBlue" key={index}>{move.Name} - level: {move.Level}</p>
                                         ))
                                 
                                     : <p>No Moves</p>

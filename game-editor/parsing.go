@@ -51,7 +51,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 		var types []string
 
 		for pokemonType := range pokemons.Pokemon[pokemon].Types {
-			types = append(types, pokemons.Pokemon[pokemon].Types[pokemonType])
+			types = append(types, (strings.ToUpper(pokemons.Pokemon[pokemon].Types[pokemonType][:1]) + pokemons.Pokemon[pokemon].Types[pokemonType][1:]))
 		}
 		for evolution := range pokemons.Pokemon[pokemon].Evolutions {
 			if len(pokemons.Pokemon[pokemon].Evolutions[evolution].Methods) == 2 {
