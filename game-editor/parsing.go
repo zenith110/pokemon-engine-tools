@@ -49,25 +49,41 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	for pokemon := range pokemons.Pokemon {
 		var evolutions []Evolution
 		var types []string
+
 		for pokemonType := range pokemons.Pokemon[pokemon].Types {
 			types = append(types, pokemons.Pokemon[pokemon].Types[pokemonType])
 		}
 		for evolution := range pokemons.Pokemon[pokemon].Evolutions {
-			evolutionData := Evolution{
-				Name: pokemons.Pokemon[pokemon].Evolutions[evolution].Name,
-				// Method: pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[0],
-				// Level:       pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[1],
-				FrontSprite: CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-				BackSprite:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-				ShinyFront:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-				ShinyBack:   CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-				Icon:        CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/icons/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-				ID:          pokemons.Pokemon[pokemon].Evolutions[evolution].ID,
+			if len(pokemons.Pokemon[pokemon].Evolutions[evolution].Methods) == 2 {
+				evolutionData := Evolution{
+					Name:        strings.ToUpper(pokemons.Pokemon[pokemon].Evolutions[evolution].Name[:1]) + pokemons.Pokemon[pokemon].Evolutions[evolution].Name[1:],
+					Method1:     pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[0],
+					Method2:     pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[1],
+					FrontSprite: CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					BackSprite:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyFront:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyBack:   CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					Icon:        CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/icons/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ID:          pokemons.Pokemon[pokemon].Evolutions[evolution].ID,
+				}
+				evolutions = append(evolutions, evolutionData)
+			} else {
+				evolutionData := Evolution{
+					Name:        strings.ToUpper(pokemons.Pokemon[pokemon].Evolutions[evolution].Name[:1]) + pokemons.Pokemon[pokemon].Evolutions[evolution].Name[1:],
+					Method1:     "",
+					Method2:     "",
+					FrontSprite: CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					BackSprite:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyFront:  CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyBack:   CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					Icon:        CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/icons/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ID:          pokemons.Pokemon[pokemon].Evolutions[evolution].ID,
+				}
+				evolutions = append(evolutions, evolutionData)
 			}
-			evolutions = append(evolutions, evolutionData)
 		}
 		trainerEditorPokemon := PokemonTrainerEditor{
-			Name:           pokemons.Pokemon[pokemon].Species,
+			Name:           strings.ToUpper(pokemons.Pokemon[pokemon].Species[:1]) + pokemons.Pokemon[pokemon].Species[1:],
 			FrontSprite:    CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
 			BackSprite:     CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
 			ShinyFront:     CreateBase64Image(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),

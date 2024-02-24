@@ -38,8 +38,8 @@ type Evolution struct {
 	ShinyBack   string
 	Icon        string
 	ID          string
-	Method      string
-	Level       string
+	Method1     string
+	Method2     string
 }
 type PokemonTrainerEditor struct {
 	Name           string
