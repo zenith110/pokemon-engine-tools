@@ -5,7 +5,7 @@ export interface Pokemon {
     DexEntry: string;
     Abilities: {
         Name: string;
-        isHidden: boolean;
+        IsHidden: boolean;
     }[];
     Moves: {
         Name: string;
