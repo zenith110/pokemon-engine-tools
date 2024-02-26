@@ -1,35 +1,19 @@
 export interface Trainer {
     ID: string;
     Name: string;
-    Types: string[];
-    DexEntry: string;
-    Abilities: {
-        Name: string;
-        isHidden: boolean;
-    }[];
-    Moves: {
-        Name: string;
+    Sprite: string;
+    ClassType: string;
+    Pokemons: {
+        Species: string;
         Level: number;
-        Method: string;
-    }[];
-    Evolutions: {
-        Name: string;
-        Methods: string[];
-        ID: string;
-    }[];
-    Stats: {
-        Hp: number;
+        Moves: string[];
+        HeldItem: string;
+        HP: number;
         Attack: number;
         Defense: number;
+        Speed: number;
         SpecialAttack: number;
         SpecialDefense: number;
-        Speed: number;
-    };
-    AssetData: {
-        Front: string;
-        Back: string;
-        ShinyFront: string;
-        ShinyBack: string;
-        Icon: string;
-    };
+        ID: number;
+    }[];
 }
