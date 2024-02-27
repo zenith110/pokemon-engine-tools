@@ -9,6 +9,7 @@ const TrainerEditor = () => {
     const [trainers, setTrainers] = useState([]);
     const [selectedTrainer, setSelectedTrainer] = useState();
     const [classTypes, setClassTypes] = useState([])
+    const [editedTrainer, setEditedTrainer] = useState()
     const navigate = useNavigate();
     useEffect(() => { 
         const fetchTrainers = async() => {
