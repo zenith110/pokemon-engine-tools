@@ -1,6 +1,8 @@
 import { useState} from "react"
 import { CreateTrainerData } from "../../../../../wailsjs/go/main/App"
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from "react-router-dom";
+
 const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex, pokemonsCount, pokemonIndex, dictData}) => {
     const [move1, setMove1] = useState(currentlySelectedPokemon.Moves[0].Name)
     const [move2, setMove2] = useState(currentlySelectedPokemon.Moves[0].Name)
@@ -14,7 +16,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
     const [specialDef, setSpecialDef] = useState(currentlySelectedPokemon.SpecialDefense)
     const [speed, setSpeed] = useState(currentlySelectedPokemon.Speed)
     const [level, setLevel] = useState(0)
-    
+    const navigate = useNavigate();
     const createData = () => {
         const moves = []
         moves.push(move1)
@@ -67,12 +69,15 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         }
         console.log(finalData)
         CreateTrainerData(finalData)
-        dictData.setNewTrainer(false)
+        navigate(-2)
     }
     return(
         <>
         <br/>
-        <img src={currentlySelectedPokemon? `data:image/png;base64,${currentlySelectedPokemon?.Icon}` : ''} alt="pokemon sprite"/>
+        <div className="flex items-center justify-center">
+            <img src={currentlySelectedPokemon? `data:image/png;base64,${currentlySelectedPokemon?.FrontSprite}` : ''} alt="pokemon sprite"/>
+        </div>
+        <br/>
         <label>HP:</label>
         <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(e.target.value)}></input>
         <br/>
@@ -145,8 +150,9 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         )}
         </select>
         <br/>
-        {pokemonIndex < pokemonsCount ? <button onClick={() => createData()}>Next</button> : <></>}
-        {pokemonIndex == pokemonsCount ? <button onClick={() => submitData()}>Finish</button> : <></>}
+        <br/>
+        {pokemonIndex < pokemonsCount ? <button onClick={() => createData()} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">Next</button> : <></>}
+        {pokemonIndex == pokemonsCount ? <button onClick={() => submitData()} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">Finish</button> : <></>}
         </>
     )
 }

@@ -13,6 +13,7 @@ export namespace main {
 	    moves: string[];
 	    heldItem: string;
 	    id: string;
+	    front: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PokemonJson(source);
@@ -31,6 +32,7 @@ export namespace main {
 	        this.moves = source["moves"];
 	        this.heldItem = source["heldItem"];
 	        this.id = source["id"];
+	        this.front = source["front"];
 	    }
 	}
 	
@@ -39,6 +41,7 @@ export namespace main {
 	    sprite: string;
 	    id: string;
 	    pokemons: PokemonJson[];
+	    classType: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TrainerJson(source);
@@ -50,6 +53,7 @@ export namespace main {
 	        this.sprite = source["sprite"];
 	        this.id = source["id"];
 	        this.pokemons = this.convertValues(source["pokemons"], PokemonJson);
+	        this.classType = source["classType"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

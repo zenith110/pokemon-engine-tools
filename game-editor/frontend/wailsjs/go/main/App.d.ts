@@ -13,7 +13,7 @@ export function ParsePokemonData():Promise<Array<main.PokemonTrainerEditor>>;
 
 export function ParseTrainerClass():Promise<models.TrainerClasses>;
 
-export function ParseTrainers():Promise<models.TrainerToml>;
+export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 
 export function SetDataFolder():Promise<void>;
 

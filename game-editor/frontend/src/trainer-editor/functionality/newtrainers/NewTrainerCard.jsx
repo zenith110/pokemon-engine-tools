@@ -3,7 +3,7 @@ import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites
 import TrainerPokemonsGenerator from "./TrainerPokemonsGenerator"
 import TrainerClasses from "./TrainerClasses";
 import TrainerSprites from "./TrainerSprites";
-const NewTrainerCard = ({ setNewTrainer }) => {
+const NewTrainerCard = () => {
     const [classTypes, setClassTypes] = useState([])
     const [pokemonSpecies, setPokemonSpecies] = useState([])
     const [pokemonCount, setPokemonCount] = useState(0)
@@ -11,7 +11,6 @@ const NewTrainerCard = ({ setNewTrainer }) => {
     const [trainerSprites, setTrainerSprites] = useState([])
     const [dictData, setDictData ] = useState({
         "name": "",
-        "setNewTrainer": setNewTrainer,
         "classType": "",
         "pokemons": []
     })
@@ -39,7 +38,7 @@ const NewTrainerCard = ({ setNewTrainer }) => {
     }, []) 
     
     return(
-        <>
+        <div className="text-black">
         <label>Trainer name: </label>
         <input type="text" onChange={(event) => setDictData(dictData => ({...dictData, name: event.target.value}))}></input>
         <br/>
@@ -50,11 +49,12 @@ const NewTrainerCard = ({ setNewTrainer }) => {
         <br/>
         <label>Total amount of pokemon: </label>
         <input type="number"  min="1" max="6" onChange={(event) => setPokemonCount(event.target.value)}/>
+        
         <br/>
         {
             pokemonSpecies.length >= 1 && heldItemsList.length >= 1 ? <TrainerPokemonsGenerator pokemonSpeciesList={pokemonSpecies} heldItemsList={heldItemsList} pokemonsCount={pokemonCount} dictData={dictData} setDictData={setDictData}/> : <></>
         }
-        </>
+        </div>
     )
 }
 export default NewTrainerCard

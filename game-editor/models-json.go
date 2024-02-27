@@ -17,6 +17,7 @@ type PokemonJson struct {
 	Moves          []string `json:"moves"`
 	HeldItem       string   `json:"heldItem"`
 	ID             string   `json:"id"`
+	Front          string   `json:"front"`
 }
 
 type TrainerJson struct {
@@ -24,7 +25,7 @@ type TrainerJson struct {
 	Sprite    string        `json:"sprite"`
 	Id        string        `json:"id"`
 	Pokemons  []PokemonJson `json:"pokemons"`
-	ClassType string        `toml:"classType"`
+	ClassType string        `json:"classType"`
 }
 
 type OptionsConfig struct {

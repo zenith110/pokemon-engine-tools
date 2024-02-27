@@ -1,9 +1,9 @@
 export interface Trainer {
-    ID: string;
-    Name: string;
-    Sprite: string;
-    ClassType: string;
-    Pokemons: {
+    id: string;
+    name: string;
+    sprite: string;
+    classType: string;
+    pokemons: {
         Species: string;
         Level: number;
         Moves: string[];
