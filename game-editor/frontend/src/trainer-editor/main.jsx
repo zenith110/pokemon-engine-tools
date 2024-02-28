@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import React from "react";
-import { ParseTrainers, ParseTrainerClass } from "../../wailsjs/go/main/App";
+import { ParseTrainers, ParseTrainerClass, UpdateTrainer} from "../../wailsjs/go/main/App";
 
 //\import { Trainer } from "./trainer.models";
 
@@ -10,6 +10,9 @@ const TrainerEditor = () => {
     const [selectedTrainer, setSelectedTrainer] = useState();
     const [classTypes, setClassTypes] = useState([])
     const [editedTrainer, setEditedTrainer] = useState()
+    const [trainerName, setTrainerName] = useState("")
+    const [trainerClass, setTrainerClass] = useState("")
+    const [pokemons, setPokemons] = useState([])
     const navigate = useNavigate();
     useEffect(() => { 
         const fetchTrainers = async() => {
@@ -44,15 +47,15 @@ const TrainerEditor = () => {
                 <label>Trainer name: </label>
             </div>
             <div className="text-black flex items-center justify-center">
-                <input defaultValue={selectedTrainer?.name? selectedTrainer.name : ''}/>
+                <input defaultValue={selectedTrainer?.name? selectedTrainer.name : ''} onChange={(e) => setTrainerName(e.target.value)}/>
             </div>
             <br/>
             <label>Trainer class</label>
             <div className="text-black flex items-center justify-center">
-                <select name="trainerClasses" defaultValue={selectedTrainer?.classType? selectedTrainer.classType : ''}>
+                <select name="trainerClasses" defaultValue={selectedTrainer?.classType? selectedTrainer.classType : ''} onChange={(e) => setClassTypes(e.target.value)}>
                 <option value={"placeholder"} disabled>Select a trainer class</option>
                 {classTypes.map((trainerClass) =>
-                    <option value={trainerClass.Name} key={trainerClass.Name}>{trainerClass.Name}</option>
+                    <option value={trainerClass.Name} key={trainerClass.id}>{trainerClass.Name}</option>
                 )}
                 </select>
             </div>
@@ -62,7 +65,16 @@ const TrainerEditor = () => {
                 </div>
             )}
            <br/>
-           <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black">Save</button>
+           <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black" onClick={()=> {
+                let updatedTrainer = {
+                    "name": trainerName,
+                    "sprite": selectedTrainer.sprite,
+                    "classType": selectedTrainer.classType,
+                    "id": selectedTrainer.id,
+                    "pokemons": selectedTrainer.pokemons
+                }
+                UpdateTrainer(updatedTrainer)
+           }}>Save</button>
            <br/>
            <br/>
            <button onClick={() => navigate("new-trainer")} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black">New trainer</button>

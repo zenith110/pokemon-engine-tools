@@ -18,3 +18,5 @@ export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 export function SetDataFolder():Promise<void>;
 
 export function SetMapTileset():Promise<void>;
+
+export function UpdateTrainer(arg1:main.TrainerJson):Promise<void>;

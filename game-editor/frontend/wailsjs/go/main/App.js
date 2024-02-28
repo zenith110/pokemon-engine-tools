@@ -33,3 +33,7 @@ export function SetDataFolder() {
 export function SetMapTileset() {
   return window['go']['main']['App']['SetMapTileset']();
 }
+
+export function UpdateTrainer(arg1) {
+  return window['go']['main']['App']['UpdateTrainer'](arg1);
+}
