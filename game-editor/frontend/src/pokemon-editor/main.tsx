@@ -13,6 +13,7 @@ export default function PokemonEditor():React.ReactElement {
     const [abilities, setAbilities] = useState<string[]>([]);
     const [hiddenAbility, setHiddenAbility] = useState<string>();
     const [isTypeModalOpen, setIsTypeModalOpen] = useState<boolean>(false);
+    const pokemonTypes: string[] = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
     const regex: RegExp = /^[0-9\b]{0,3}$/;
     
 
@@ -36,10 +37,10 @@ export default function PokemonEditor():React.ReactElement {
 
     return (
 
-        <div className="flex flex-col grow h-[91.5vh] w-screen border-2 border-red-800">
+        <div className="flex flex-col grow h-[91.5vh] w-screen border-red-800">
             <div className="flex flex-row h-5/6 border-orange-600">
                 <div className="flex flex-col w-5/12 justify-around border-green-500">
-                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 grow border-yellow-400 bg-offWhite items-stretch text-black">
+                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 grow border-yellow-400 bg-offWhite items-stretch text-black ml-1 mt-2">
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" />
@@ -78,8 +79,10 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                         <div className="flex flex-row justify-center">
                             <p className="bg-blueWhale px-6 py-3 rounded-l-2xl pl-10 items-center">Type:</p>
-                            <button onClick={() => {setIsTypeModalOpen(true)}} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
-                        </div> 
+                        <button onClick={() => { setIsTypeModalOpen(true) }} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40 hover:bg-wildBlueYonder">
+                            {selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???'}
+                        </button>  
+                    </div>
                     <Dialog
                         open={isTypeModalOpen}
                         onClose={() => setIsTypeModalOpen(false)}
@@ -87,24 +90,84 @@ export default function PokemonEditor():React.ReactElement {
                     >
                         <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
 
-                            {/* Full-screen container to center the panel */}
-                            <div className="fixed inset-0 flex w-full items-center justify-center">
-                                {/* The actual dialog panel  */}
-                                <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-tealBlue">
-                                    <Dialog.Title className="bg-blueWhale rounded-t-lg">
-                                        Edit Type
-                                    </Dialog.Title>
+                        <div className="fixed inset-0 flex w-screen items-center justify-center">
+                            
+                            <Dialog.Panel className="mx-auto w-1/2 rounded-2xl bg-tealBlue">
+                                
+                                <Dialog.Title className="bg-blueWhale rounded-t-2xl p-2">
+                                       
+                                    <div className="flex flex-row justify-center">
+                                        <div className="grow ml-6 font-medium">
+                                            Edit Type
+                                        </div>
+                                        
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6" onClick={() => setIsTypeModalOpen(false)}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
+                                    </div>
+                                    
 
-                                    <Dialog.Description>
-                                        Dummy Text until I put in type changing
-                                    </Dialog.Description>
-                                </Dialog.Panel>
-                        </div>
+                                </Dialog.Title>
+
+                                <div className="flex flex-row justify-around py-4">
+                                    <div className="flex flex-row items-center">
+                                        <h3>Type 1:</h3>
+                                        <Select
+                                            isClearable={false}
+                                            isDisabled={false}
+                                            isLoading={false}
+                                            isRtl={false}
+                                            isSearchable={false}
+                                            isMulti={false}
+                                            options={pokemonTypes.map(type => ({ value: type, label: type }))}
+                                            defaultValue={{ value: selectedPokemon?.Types[0], label: selectedPokemon?.Types[0] }}
+                                            className="text-black"
+                                            onChange={(e) => { 
+                                                setSelectedPokemon(prevState => ({
+                                                    ...(prevState as Pokemon),
+                                                    Types: [e?.value as string, prevState?.Types[1] as string]
+                                                }));
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="flex flex-row items-center">
+                                        <h3>Type 2 (Optional):</h3>
+                                        <Select
+                                            isClearable={false}
+                                            isDisabled={false}
+                                            isLoading={false}
+                                            isRtl={false}
+                                            isSearchable={false}
+                                            isMulti={false} 
+                                            options={[ { value: "None", label: "None" }, ...pokemonTypes.map(type => ({ value: type, label: type}))]}
+                                            defaultValue={{ value: selectedPokemon?.Types[1] ? selectedPokemon?.Types[1] : "None", label: selectedPokemon?.Types[1] ? selectedPokemon?.Types[1] : "None" }}
+                                            className="text-black"
+                                            onChange={(e) => { 
+                                                if (e?.value === "None") {
+                                                    setSelectedPokemon(prevState => ({
+                                                        ...(prevState as Pokemon),
+                                                        Types: [prevState?.Types[0] as string]
+                                                    }));
+                                                } else {
+                                                    setSelectedPokemon(prevState => ({
+                                                        ...(prevState as Pokemon),
+                                                        Types: [prevState?.Types[0] as string, e?.value as string]
+                                                    }));
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-row items-center justify-center py-2">
+                                    <button onClick={() => setIsTypeModalOpen(false)} className="px-12 bg-white text-black rounded-lg  hover:bg-offWhite">Save</button>
+                                </div>
+                            </Dialog.Panel>
+                            </div>
                     </Dialog>
                 </div>
                 
-                <div className="border-2 border-yellow-400 w-2/3 flex flex-col">
-                    <div className="border-green-500 border-2 flex flex-row justify-around">
+                <div className="border-yellow-400 mt-2 w-2/3 flex flex-col">
+                    <div className="border-green-500 flex flex-row justify-around">
                         <div className="flex flex-col mx-4">
                             <h4 className="bg-blueWhale rounded-t-lg py-1 px-4">Level-Up Moves</h4>
                             <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-tealBlue">
@@ -123,11 +186,11 @@ export default function PokemonEditor():React.ReactElement {
                             <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1 hover:bg-wildBlueYonder"> Edit</button>
                         </div>
                         <div className="flex flex-col mx-4">
-                            <h4 className="bg-blueWhale rounded-t-lg py-1 px-8 text-nowrap">Tutor Moves</h4>
+                            <h4 className="bg-blueWhale rounded-t-lg py-1 px-8 text-nowrap">Tutor/Egg Moves</h4>
                             <div className="h-24 overflow-auto w-full overscroll-none bg-tealBlue">
                                 {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                     selectedPokemon?.Moves
-                                        .filter(move => move.Method === "tutor")
+                                        .filter(move => move.Method === "tutor" || move.Method === "egg")
                                         .map((move, index) => (
                                             <p className="" key={index}>{move.Name}</p>
                                         ))
@@ -158,6 +221,7 @@ export default function PokemonEditor():React.ReactElement {
                     <div className="border-green-500 border-4 flex flex-row justify-around h-full">
                         <div className="flex flex-col justify-center border-2 border-pink-600 bg-offWhite text-black rounded-xl w-5/12">
                             Evolution line here
+                            <img src={selectedPokemon? `data:image/gif;base64,${selectedPokemon.Icon}` : ''} />
                         </div>
                         <div className="border-blue-500 border-4 flex flex-col justify-evenly w-5/12">
                             <div>

@@ -8,7 +8,7 @@ const TrainerSprites = ({ trainerSprites, dictData, setDictData }) => {
     const [trainerImage, setTrainerImage] = useState("")
     return(
         <div>
-        <div className="text-black flex flex-row justify-around py-6 flex items-center justify-center">
+        <div className="text-black flex flex-row py-6 items-center justify-center">
          <select name="trainerSprites" onChange={(e) => SetImage(e)} defaultValue={"placeholder"}>
             <option value={"placeholder"} disabled>Select a trainer sprite</option>
             {trainerSprites.map((trainerSprite) =>
