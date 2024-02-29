@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Pokemon } from "./pokemon.model";
 import Select from "react-select";
 import React from "react";
+import { Dialog } from "@headlessui/react";
 
 export default function PokemonEditor():React.ReactElement {
     const navigate = useNavigate();
@@ -11,7 +12,10 @@ export default function PokemonEditor():React.ReactElement {
     const [selectedPokemon, setSelectedPokemon] = useState<Pokemon>();
     const [abilities, setAbilities] = useState<string[]>([]);
     const [hiddenAbility, setHiddenAbility] = useState<string>();
-    const regex:RegExp = /^[0-9\b]{0,3}$/;
+    const [isTypeModalOpen, setIsTypeModalOpen] = useState<boolean>(false);
+    const regex: RegExp = /^[0-9\b]{0,3}$/;
+    
+
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
         setPokemonSpecies(data);
@@ -33,15 +37,15 @@ export default function PokemonEditor():React.ReactElement {
     return (
 
         <div className="flex flex-col grow h-[91.5vh] w-screen border-2 border-red-800">
-            <div className="flex flex-row border-4 h-5/6 border-orange-600">
-                <div className="flex flex-col border-2 w-5/12 justify-around border-green-500">
-                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 border-2 grow border-yellow-400 bg-offWhite items-stretch text-black">
+            <div className="flex flex-row h-5/6 border-orange-600">
+                <div className="flex flex-col w-5/12 justify-around border-green-500">
+                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 grow border-yellow-400 bg-offWhite items-stretch text-black">
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" />
                         <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="Shiny Back Sprite" />
                     </div>
-                    <div className="text-black border-2 border-yellow-500 flex flex-row justify-around py-6">
+                    <div className="text-black border-yellow-500 flex flex-row justify-around py-6">
                         <Select
                             options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: `${pokemon.ID}: ${pokemon.Name}`}))}
                             onChange={(e) => {
@@ -74,8 +78,29 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                         <div className="flex flex-row justify-center">
                             <p className="bg-blueWhale px-6 py-3 rounded-l-2xl pl-10 items-center">Type:</p>
-                            <button onClick={() => {console.log("Add this later")}} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
+                            <button onClick={() => {setIsTypeModalOpen(true)}} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
                         </div> 
+                    <Dialog
+                        open={isTypeModalOpen}
+                        onClose={() => setIsTypeModalOpen(false)}
+                        className="relative z-50"
+                    >
+                        <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+
+                            {/* Full-screen container to center the panel */}
+                            <div className="fixed inset-0 flex w-full items-center justify-center">
+                                {/* The actual dialog panel  */}
+                                <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-tealBlue">
+                                    <Dialog.Title className="bg-blueWhale rounded-t-lg">
+                                        Edit Type
+                                    </Dialog.Title>
+
+                                    <Dialog.Description>
+                                        Dummy Text until I put in type changing
+                                    </Dialog.Description>
+                                </Dialog.Panel>
+                        </div>
+                    </Dialog>
                 </div>
                 
                 <div className="border-2 border-yellow-400 w-2/3 flex flex-col">
@@ -225,7 +250,7 @@ export default function PokemonEditor():React.ReactElement {
                                     
                             }}} max={255} min={5}/>
                     </div>
-                </div>
+            </div>
                 <div className="flex flex-row items-center">
                     <button onClick={() => console.log("Add Later")} className="px-12 py-1 mr-[6vw] bg-blueWhale rounded-lg  hover:bg-wildBlueYonder">Save</button>
                     <button onClick={() => console.log("Add Later")} className="px-12 py-1 bg-blueWhale rounded-lg  hover:bg-wildBlueYonder">Reset</button> 
