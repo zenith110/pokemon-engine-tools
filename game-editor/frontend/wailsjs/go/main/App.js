@@ -6,6 +6,10 @@ export function CreateTrainerData(arg1) {
   return window['go']['main']['App']['CreateTrainerData'](arg1);
 }
 
+export function GrabAllMoves() {
+  return window['go']['main']['App']['GrabAllMoves']();
+}
+
 export function GrabTrainerSprites() {
   return window['go']['main']['App']['GrabTrainerSprites']();
 }

@@ -23,6 +23,7 @@ const TrainerEditor = () => {
             let data = await ParseTrainerClass()
             setClassTypes(data.Data)
         }
+        
         fetchTrainers()
         fetchClassTypes()
     }, []) 

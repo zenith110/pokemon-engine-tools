@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/wailsapp/wails/v2 v2.7.1
-	github.com/zenith110/pokemon-go-engine v0.0.0-20240129001417-0a9db3a3ba5e
+	github.com/zenith110/pokemon-go-engine v0.0.0-20240229223612-e3d2dcbc3bb6
 )
 
 require (
@@ -32,7 +32,7 @@ require (
 	github.com/wailsapp/go-webview2 v1.0.10 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect

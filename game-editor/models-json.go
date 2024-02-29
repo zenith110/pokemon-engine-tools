@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/zenith110/pokemon-go-engine/models"
-	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
 type PokemonJson struct {
@@ -56,7 +55,7 @@ type PokemonTrainerEditor struct {
 	Speed          int
 	SpecialDefense int
 	Attack         int
-	Moves          []Models.Moves
+	Moves          []models.Moves
 	ID             string
 	Abilities      []models.Abilities
 	Evolutions     []Evolution

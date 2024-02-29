@@ -238,3 +238,24 @@ func (a *App) GrabTrainerSprites() []TrainerSprite {
 	}
 	return trainerSpritesResult
 }
+
+func (a *App) GrabAllMoves() Models.AllMoves {
+	movesFileName := fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory.DataDirectory)
+	fmt.Print(movesFileName)
+	moves, err := os.Open(movesFileName)
+	if err != nil {
+		fmt.Printf("Error is %v", err)
+	}
+	defer moves.Close()
+	var movesData Models.AllMoves
+	b, err := io.ReadAll(moves)
+	if err != nil {
+		panic(fmt.Errorf("error is %v", err))
+	}
+
+	err = toml.Unmarshal(b, &movesData)
+	if err != nil {
+		panic(err)
+	}
+	return movesData
+}
