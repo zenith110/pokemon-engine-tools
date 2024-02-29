@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (a *App) SetMapTileset() {
+func (a *App) SetMapTileset() string {
 
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select tileset file",
@@ -20,5 +18,6 @@ func (a *App) SetMapTileset() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(selection)
+
+	return CreateBase64Image(selection)
 }

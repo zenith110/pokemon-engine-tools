@@ -14,6 +14,7 @@ export namespace main {
 	    heldItem: string;
 	    id: string;
 	    front: string;
+	    icon: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PokemonJson(source);
@@ -33,6 +34,7 @@ export namespace main {
 	        this.heldItem = source["heldItem"];
 	        this.id = source["id"];
 	        this.front = source["front"];
+	        this.icon = source["icon"];
 	    }
 	}
 	

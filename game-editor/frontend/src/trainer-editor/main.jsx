@@ -31,6 +31,7 @@ const TrainerEditor = () => {
            <div className="text-black flex items-center justify-center">
            <select name="trainers" onChange={(e) => {
                 const trainerData = trainers.find((trainer) => trainer.id === e.target.value);
+                console.log(selectedTrainer)
                 setSelectedTrainer(trainerData);
            }} defaultValue={"placeholder"}>
             <option value={"placeholder"} disabled>Select a trainer</option>
@@ -61,7 +62,7 @@ const TrainerEditor = () => {
             </div>
             {selectedTrainer?.pokemons.map((pokemon) =>
                 <div className="text-black flex items-center justify-center">
-                    <img src={pokemon? `data:image/png;base64,${pokemon?.front}` : ''} alt="Sprite" />
+                    <img src={pokemon? `data:image/gif;base64,${pokemon?.icon}` : ''} alt="Sprite" />
                 </div>
             )}
            <br/>

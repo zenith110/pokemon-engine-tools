@@ -18,6 +18,7 @@ type PokemonJson struct {
 	HeldItem       string   `json:"heldItem"`
 	ID             string   `json:"id"`
 	Front          string   `json:"front"`
+	Icon           string   `json:"icon"`
 }
 
 type TrainerJson struct {

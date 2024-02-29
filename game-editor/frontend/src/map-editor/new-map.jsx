@@ -2,13 +2,14 @@ import { SetMapTileset } from "../../wailsjs/go/main/App";
 import { useState } from "react";
 import React from "react";
 
-const NewMap:React.FC = () => {
-    const [tileset, setTileset] = useState<string>("")
-    const [mapName, setMapName] = useState<string>("")
-    const [xAxisSize, setXAxisSize] = useState<number>(0)
-    const [yAxisSize, setYAxisSize] = useState<number>(0)
+const NewMap = () => {
+    const [tileset, setTileset] = useState("")
+    const [mapName, setMapName] = useState("")
+    const [xAxisSize, setXAxisSize] = useState(0)
+    const [yAxisSize, setYAxisSize] = useState(0)
     const setMapTilesetButton = async() => {
-        await SetMapTileset()
+        let data = await SetMapTileset()
+        setTileset(data)
     }
     return(
         <>
@@ -25,6 +26,11 @@ const NewMap:React.FC = () => {
         <input type="number" onChange={(e) => setYAxisSize(Number(e.target.value))}></input>
         <br/>
         <button onClick={() => setMapTilesetButton()}>Tileset</button>
+        <spoiler>
+            <div className="text-black flex items-center justify-center">
+                <img src={tileset? `data:image/png;base64,${tileset}` : ''} alt="Tileset" />
+            </div>
+        </spoiler>
         <br/>
         <button>Submit</button>
         </>
