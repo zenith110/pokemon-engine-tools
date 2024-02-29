@@ -37,10 +37,10 @@ export default function PokemonEditor():React.ReactElement {
 
     return (
 
-        <div className="flex flex-col grow h-[91.5vh] w-screen border-2 border-red-800">
+        <div className="flex flex-col grow h-[91.5vh] w-screen border-red-800">
             <div className="flex flex-row h-5/6 border-orange-600">
                 <div className="flex flex-col w-5/12 justify-around border-green-500">
-                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 grow border-yellow-400 bg-offWhite items-stretch text-black ml-1 mt-1">
+                    <div className="rounded-2xl grid grid-rows-2 grid-cols-2 grow border-yellow-400 bg-offWhite items-stretch text-black ml-1 mt-2">
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" />
@@ -79,8 +79,10 @@ export default function PokemonEditor():React.ReactElement {
                     </div>
                         <div className="flex flex-row justify-center">
                             <p className="bg-blueWhale px-6 py-3 rounded-l-2xl pl-10 items-center">Type:</p>
-                            <button onClick={() => {setIsTypeModalOpen(true)}} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40">{ selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???' }</button>  
-                        </div> 
+                        <button onClick={() => { setIsTypeModalOpen(true) }} className="bg-tealBlue px-6 py-3 rounded-r-2xl min-w-40 hover:bg-wildBlueYonder">
+                            {selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???'}
+                        </button>  
+                    </div>
                     <Dialog
                         open={isTypeModalOpen}
                         onClose={() => setIsTypeModalOpen(false)}
@@ -164,8 +166,8 @@ export default function PokemonEditor():React.ReactElement {
                     </Dialog>
                 </div>
                 
-                <div className="border-2 border-yellow-400 w-2/3 flex flex-col">
-                    <div className="border-green-500 border-2 flex flex-row justify-around">
+                <div className="border-yellow-400 mt-2 w-2/3 flex flex-col">
+                    <div className="border-green-500 flex flex-row justify-around">
                         <div className="flex flex-col mx-4">
                             <h4 className="bg-blueWhale rounded-t-lg py-1 px-4">Level-Up Moves</h4>
                             <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-tealBlue">
@@ -184,11 +186,11 @@ export default function PokemonEditor():React.ReactElement {
                             <button onClick={() => {console.log("Add Later")}} className="bg-blueWhale rounded-b-lg py-1 hover:bg-wildBlueYonder"> Edit</button>
                         </div>
                         <div className="flex flex-col mx-4">
-                            <h4 className="bg-blueWhale rounded-t-lg py-1 px-8 text-nowrap">Tutor Moves</h4>
+                            <h4 className="bg-blueWhale rounded-t-lg py-1 px-8 text-nowrap">Tutor/Egg Moves</h4>
                             <div className="h-24 overflow-auto w-full overscroll-none bg-tealBlue">
                                 {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                     selectedPokemon?.Moves
-                                        .filter(move => move.Method === "tutor")
+                                        .filter(move => move.Method === "tutor" || move.Method === "egg")
                                         .map((move, index) => (
                                             <p className="" key={index}>{move.Name}</p>
                                         ))
