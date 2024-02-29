@@ -221,6 +221,7 @@ export default function PokemonEditor():React.ReactElement {
                     <div className="border-green-500 border-4 flex flex-row justify-around h-full">
                         <div className="flex flex-col justify-center border-2 border-pink-600 bg-offWhite text-black rounded-xl w-5/12">
                             Evolution line here
+                            <img src={selectedPokemon? `data:image/gif;base64,${selectedPokemon.Icon}` : ''} />
                         </div>
                         <div className="border-blue-500 border-4 flex flex-col justify-evenly w-5/12">
                             <div>
