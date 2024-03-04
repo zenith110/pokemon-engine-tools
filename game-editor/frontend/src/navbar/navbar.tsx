@@ -8,7 +8,8 @@ const navigation = [
   { name: 'Trainers', href: '/trainer-editor', current: false },
   { name: 'Pokemon', href: '/pokemon-editor', current: false },
   { name: 'Map', href: '/map-editor', current: false },
-  { name: 'Overworld Editor', href: '/ow-editor', current: false }
+  { name: 'Overworld', href: '/ow-editor', current: false },
+  { name: 'Move', href: '/move', current: false }
 ];
 
 function classNames(...classes:string[]) {

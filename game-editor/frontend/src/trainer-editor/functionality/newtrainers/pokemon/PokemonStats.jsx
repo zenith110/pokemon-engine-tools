@@ -67,9 +67,9 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             "id": uuidv4(),
             "pokemons": dictData.pokemons
         }
-        console.log(finalData)
+        
         CreateTrainerData(finalData)
-        navigate(-2)
+        navigate(-1)
     }
     return(
         <>
