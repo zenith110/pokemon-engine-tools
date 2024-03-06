@@ -3,6 +3,8 @@
 import {main} from '../models';
 import {models} from '../models';
 
+export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
+
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
 
 export function GrabAllMoves():Promise<models.AllMoves>;

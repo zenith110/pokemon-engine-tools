@@ -8,7 +8,7 @@ import TrainerEditor from "./trainer-editor/main";
 import MapEditor from "./map-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
 import Navbar from "./navbar/navbar";
-import NewMap from "./map-editor/new-map"
+import NewMap from "./map-editor/New-Map"
 import NewTrainerCard from "./trainer-editor/functionality/newtrainers/NewTrainerCard";
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);

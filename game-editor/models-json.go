@@ -70,3 +70,21 @@ type TrainerSprite struct {
 	Name string
 	Path string
 }
+
+type MapInput struct {
+	Name            string
+	XAxisMax        int
+	YAxisMax        int
+	TilesetLocation string
+}
+
+type MapOutput struct {
+	Name            string `toml:"name"`
+	XAxisMax        int    `toml:"xaxismax"`
+	YAxisMax        int    `toml:"yaxismax"`
+	TilesetLocation string `toml:"tilesetlocation"`
+}
+
+type MapData struct {
+	Map []MapOutput `toml:"map"`
+}
