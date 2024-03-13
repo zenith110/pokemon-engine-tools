@@ -45,3 +45,7 @@ export function SetMapTileset() {
 export function UpdateTrainer(arg1) {
   return window['go']['main']['App']['UpdateTrainer'](arg1);
 }
+
+export function UpdateTrainerSprite() {
+  return window['go']['main']['App']['UpdateTrainerSprite']();
+}

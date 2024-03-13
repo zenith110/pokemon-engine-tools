@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/pelletier/go-toml/v2"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
@@ -111,4 +112,20 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 	} else {
 		UpdateTrainerToml(a, data)
 	}
+}
+
+func (a *App) UpdateTrainerSprite() string {
+	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select tileset file",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Images (*.png)",
+				Pattern:     "*.png",
+			},
+		},
+	})
+	if err != nil {
+		panic(fmt.Errorf("error has occured while updating trainer sprite!\n"))
+	}
+	return selection
 }

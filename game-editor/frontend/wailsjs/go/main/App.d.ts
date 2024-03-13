@@ -24,3 +24,5 @@ export function SetDataFolder():Promise<void>;
 export function SetMapTileset():Promise<string>;
 
 export function UpdateTrainer(arg1:main.TrainerJson):Promise<void>;
+
+export function UpdateTrainerSprite():Promise<string>;
