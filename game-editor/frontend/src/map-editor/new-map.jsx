@@ -12,6 +12,8 @@ const NewMap = () => {
         setTileset(data)
     }
     const createMapData = async() => {
+        
+        
         let mapData = {
             "Name": mapName,
             "XAxisMax": xAxisSize,

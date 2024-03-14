@@ -9,6 +9,8 @@ export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
 
 export function GrabAllMoves():Promise<models.AllMoves>;
 
+export function GrabMusicTracks():Promise<Array<main.Song>>;
+
 export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
 
 export function ParseHeldItems():Promise<Array<main.HeldItem>>;
@@ -26,3 +28,5 @@ export function SetMapTileset():Promise<string>;
 export function UpdateTrainer(arg1:main.TrainerJson):Promise<void>;
 
 export function UpdateTrainerSprite():Promise<string>;
+
+export function UploadNewSong():Promise<void>;

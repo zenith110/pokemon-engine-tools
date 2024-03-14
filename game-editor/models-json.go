@@ -70,6 +70,10 @@ type TrainerSprite struct {
 	Name string
 	Path string
 }
+type Song struct {
+	Name string
+	Path string
+}
 
 type MapInput struct {
 	Name            string

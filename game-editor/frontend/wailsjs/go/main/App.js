@@ -14,6 +14,10 @@ export function GrabAllMoves() {
   return window['go']['main']['App']['GrabAllMoves']();
 }
 
+export function GrabMusicTracks() {
+  return window['go']['main']['App']['GrabMusicTracks']();
+}
+
 export function GrabTrainerSprites() {
   return window['go']['main']['App']['GrabTrainerSprites']();
 }
@@ -48,4 +52,8 @@ export function UpdateTrainer(arg1) {
 
 export function UpdateTrainerSprite() {
   return window['go']['main']['App']['UpdateTrainerSprite']();
+}
+
+export function UploadNewSong() {
+  return window['go']['main']['App']['UploadNewSong']();
 }

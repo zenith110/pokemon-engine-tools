@@ -116,7 +116,7 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 
 func (a *App) UpdateTrainerSprite() string {
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select tileset file",
+		Title: "Select trainer image",
 		Filters: []runtime.FileFilter{
 			{
 				DisplayName: "Images (*.png)",

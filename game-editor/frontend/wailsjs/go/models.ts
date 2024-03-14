@@ -39,6 +39,7 @@ export namespace main {
 	    }
 	}
 	
+	
 	export class TrainerJson {
 	    name: string;
 	    sprite: string;
