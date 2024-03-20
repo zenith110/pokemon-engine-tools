@@ -11,6 +11,7 @@ import Navbar from "./navbar/navbar";
 import NewMap from "./map-editor/New-Map"
 import NewTrainerCard from "./trainer-editor/functionality/newtrainers/NewTrainerCard";
 import Jukebox from "./jukebox/main";
+import MoveEditor from "./move-editor/main";
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
@@ -25,6 +26,7 @@ root.render(
                 <Route path="/pokemon-editor" element={<PokemonEditor/>} />
                 <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
                 <Route path="/jukebox" element={<Jukebox/>}/>
+                <Route path="/move-editor" element={<MoveEditor/>}/>
             </Routes>
         </HashRouter>
     </React.StrictMode>

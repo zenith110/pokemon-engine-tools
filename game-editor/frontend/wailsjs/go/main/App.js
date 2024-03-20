@@ -26,6 +26,10 @@ export function ParseHeldItems() {
   return window['go']['main']['App']['ParseHeldItems']();
 }
 
+export function ParseMoves() {
+  return window['go']['main']['App']['ParseMoves']();
+}
+
 export function ParsePokemonData() {
   return window['go']['main']['App']['ParsePokemonData']();
 }

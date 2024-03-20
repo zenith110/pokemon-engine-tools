@@ -17,7 +17,6 @@ func (a *App) GrabMusicTracks() []Song {
 	}
 	var musicTrackResults []Song
 	for _, song := range musicTracks {
-		fmt.Print(song.Name())
 		songData := Song{
 			Name: song.Name(),
 			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory.DataDirectory, song.Name())),
