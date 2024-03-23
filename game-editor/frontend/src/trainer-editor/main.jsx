@@ -45,7 +45,7 @@ const TrainerEditor = () => {
     const [level, setLevel] = useState(0)
 
     const navigate = useNavigate();
-    let subtitle;
+    
     const [modalIsOpen, setIsOpen] = useState(false);
     const openModal = () => {
         setIsOpen(true);
@@ -77,9 +77,8 @@ const TrainerEditor = () => {
            <div className="text-black flex items-center justify-center">
            <select name="trainers" onChange={(e) => {
                 const trainerData = trainers.find((trainer) => trainer.id === e.target.value);
-                console.log(selectedTrainer)
                 setSelectedTrainer(trainerData);
-           }} defaultValue={"placeholder"}>
+           }} defaultValue={selectedTrainer?.classType ? selectedTrainer?.classType : "placeholder"}>
             <option value={"placeholder"} disabled>Select a trainer</option>
             {trainers?.map((trainer) =>
                 <option value={trainer.id} key={trainer.id}>{trainer.name}</option>
@@ -99,7 +98,7 @@ const TrainerEditor = () => {
             <br/>
             <label>Trainer class</label>
             <div className="text-black flex items-center justify-center">
-                <select name="trainerClasses" defaultValue={selectedTrainer?.classType? selectedTrainer.classType : ''} onChange={(e) => setClassTypes(e.target.value)}>
+                <select name="trainerClasses" defaultValue={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} value={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} onChange={(e) => setClassTypes(e.target.value)}>
                 <option value={"placeholder"} disabled>Select a trainer class</option>
                 {classTypes.map((trainerClass) =>
                     <option value={trainerClass.Name} key={trainerClass.id}>{trainerClass.Name}</option>

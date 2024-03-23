@@ -62,4 +62,5 @@ func (a *App) startup(ctx context.Context) {
 	} else {
 		fmt.Print("First time loading settings.json!")
 	}
+	
 }

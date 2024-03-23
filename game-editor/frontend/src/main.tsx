@@ -8,10 +8,11 @@ import TrainerEditor from "./trainer-editor/main";
 import MapEditor from "./map-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
 import Navbar from "./navbar/navbar";
-import NewMap from "./map-editor/New-Map"
+import NewMap from "./map-editor/new-map"
 import NewTrainerCard from "./trainer-editor/functionality/newtrainers/NewTrainerCard";
 import Jukebox from "./jukebox/main";
 import MoveEditor from "./move-editor/main";
+import ScriptEditor from "./script-editor/main";
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
@@ -27,6 +28,7 @@ root.render(
                 <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
                 <Route path="/jukebox" element={<Jukebox/>}/>
                 <Route path="/move-editor" element={<MoveEditor/>}/>
+                <Route path="/script-editor" element={<ScriptEditor/>}/>
             </Routes>
         </HashRouter>
     </React.StrictMode>
