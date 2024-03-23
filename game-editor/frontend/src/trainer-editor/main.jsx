@@ -98,7 +98,7 @@ const TrainerEditor = () => {
             <br/>
             <label>Trainer class</label>
             <div className="text-black flex items-center justify-center">
-                <select name="trainerClasses" defaultValue={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} value={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} onChange={(e) => setClassTypes(e.target.value)}>
+                <select name="trainerClasses" defaultValue={'placeholder'} value={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} onChange={(e) => setClassTypes(e.target.value)}>
                 <option value={"placeholder"} disabled>Select a trainer class</option>
                 {classTypes.map((trainerClass) =>
                     <option value={trainerClass.Name} key={trainerClass.id}>{trainerClass.Name}</option>
