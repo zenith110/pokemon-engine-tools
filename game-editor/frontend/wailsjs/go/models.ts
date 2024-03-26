@@ -2,6 +2,8 @@ export namespace main {
 	
 	
 	
+	
+	
 	export class PokemonJson {
 	    species: string;
 	    level: number;

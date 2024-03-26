@@ -24,7 +24,8 @@ func CreateBase64File(file string) string {
 	base64String += toBase64(bytes)
 	return base64String
 }
-func (a *App) ParsePokemonData() []PokemonTrainerEditor {
+
+func ParsePokemonFile(a *App) Models.PokemonToml {
 	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.dataDirectory.DataDirectory))
 
 	if err != nil {
@@ -43,7 +44,9 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	if err != nil {
 		panic(err)
 	}
-
+	return pokemons
+}
+func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *App) []PokemonTrainerEditor {
 	var trainerEditorPokemons []PokemonTrainerEditor
 
 	for pokemon := range pokemons.Pokemon {
@@ -106,24 +109,34 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 
 	return trainerEditorPokemons
 }
-
-func (a *App) ParseTrainerClass() Models.TrainerClasses {
+func (a *App) ParsePokemonData() []PokemonTrainerEditor {
+	pokemons := ParsePokemonFile(a)
+	return CreatePokemonTrainerEditorData(pokemons, a)
+}
+func ParseTrainerClassFile(a *App) []byte {
 	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainerclasses.toml", a.dataDirectory.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
-	var trainerclasses Models.TrainerClasses
+
 	bytes, err := io.ReadAll(file)
 	if err != nil {
 		panic(err)
 	}
-	err = toml.Unmarshal(bytes, &trainerclasses)
+	return bytes
+}
+func ParseTrainerClassModel(trainerclasses Models.TrainerClasses, bytes []byte) Models.TrainerClasses {
+	err := toml.Unmarshal(bytes, &trainerclasses)
 	if err != nil {
 		panic(err)
 	}
-
 	return trainerclasses
+}
+func (a *App) ParseTrainerClass() Models.TrainerClasses {
+	bytes := ParseTrainerClassFile(a)
+	var trainerclasses Models.TrainerClasses
+	return ParseTrainerClassModel(trainerclasses, bytes)
 }
 
 func (a *App) ParseHeldItems() []HeldItem {

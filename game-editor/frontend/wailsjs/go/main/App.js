@@ -18,6 +18,10 @@ export function GrabMusicTracks() {
   return window['go']['main']['App']['GrabMusicTracks']();
 }
 
+export function GrabPokemonImages(arg1) {
+  return window['go']['main']['App']['GrabPokemonImages'](arg1);
+}
+
 export function GrabTrainerSprites() {
   return window['go']['main']['App']['GrabTrainerSprites']();
 }
