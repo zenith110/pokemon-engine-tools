@@ -92,3 +92,15 @@ type MapOutput struct {
 type MapData struct {
 	Map []MapOutput `toml:"map"`
 }
+
+type ImageRetrivalJson struct {
+	Id string
+}
+
+type PokemonImages struct {
+	Front      string
+	Back       string
+	ShinyFront string
+	ShinyBack  string
+	Icon       string
+}

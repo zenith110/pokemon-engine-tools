@@ -22,6 +22,9 @@ func (a *App) SetMapTileset() string {
 			},
 		},
 	})
+	if err != nil {
+		panic(err)
+	}
 	formattedTilesetName := strings.ReplaceAll(selection, "\\", "/")
 
 	splittedTilesetName := strings.Split(formattedTilesetName, "/")
@@ -31,6 +34,7 @@ func (a *App) SetMapTileset() string {
 	if err != nil {
 		panic(err)
 	}
+
 	// close fi on exit and check for its returned error
 	defer func() {
 		if err := fi.Close(); err != nil {
@@ -79,7 +83,6 @@ func (a *App) SetMapTileset() string {
 }
 
 func (a *App) CreateMapConfig(mapJson MapInput) {
-
 	mapOutput := MapOutput{
 		Name:            mapJson.Name,
 		XAxisMax:        mapJson.XAxisMax,
