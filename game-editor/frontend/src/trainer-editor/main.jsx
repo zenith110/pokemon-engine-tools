@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import UpdatingPokemon from "./UpdatingPokemon";
 
 
-import { ParseTrainers, ParseTrainerClass, UpdateTrainer, ParsePokemonData} from "../../wailsjs/go/main/App";
+import { ParseTrainers, ParseTrainerClass, UpdateTrainer, ParsePokemonData, UpdateTrainerSprite, ParseHeldItems} from "../../wailsjs/go/main/App";
 
 //\import { Trainer } from "./trainer.models";
 
@@ -13,8 +13,9 @@ const TrainerEditor = () => {
     const [classTypes, setClassTypes] = useState([])
     const [trainerName, setTrainerName] = useState("")
     const [trainerClass, setTrainerClass] = useState("")
-    const [updatedPokemons, setUpdatedPokemons] = useState([])
     const [pokemonSpecies, setPokemonSpecies] = useState([])
+    const [trainerSprite, setTrainerSprite] = useState("")
+    const [heldItems, setHeldItems] = useState([])
     const navigate = useNavigate();
     
     useEffect(() => { 
@@ -30,9 +31,15 @@ const TrainerEditor = () => {
             let data = await ParsePokemonData()
             setPokemonSpecies(data)
         }
+        const heldItems = async() => {
+            let data = await ParseHeldItems()
+            console.log(data)
+            setHeldItems(data)
+        }
         fetchPokemonSpecies();
-        fetchTrainers()
-        fetchClassTypes()
+        fetchTrainers();
+        fetchClassTypes();
+        heldItems();
     }, []) 
     return(
         <>
@@ -48,7 +55,10 @@ const TrainerEditor = () => {
             </select>
             </div>
             <div className="text-black flex items-center justify-center">
-                <img src={selectedTrainer? `data:image/png;base64,${selectedTrainer?.sprite}` : ''} alt="Trainer Sprite" />
+                <button onClick={async() => {
+                    let sprite = await UpdateTrainerSprite()
+                    setTrainerSprite(sprite)
+                }}><img src={selectedTrainer? `data:image/png;base64,${selectedTrainer?.sprite}` : ''} alt="Trainer Sprite" /></button>
             </div>
             <br/>
             <div className="text-white flex items-center justify-center">
@@ -68,13 +78,13 @@ const TrainerEditor = () => {
                 </select>
             </div>
             {selectedTrainer?.pokemons.map((pokemon, index) =>
-                <UpdatingPokemon selectedTrainer={selectedTrainer} pokemonSpecies={pokemonSpecies} setSelectedTrainer={setSelectedTrainer} index={index} pokemon={pokemon}/>
+                <UpdatingPokemon selectedTrainer={selectedTrainer} pokemonSpecies={pokemonSpecies} setSelectedTrainer={setSelectedTrainer} index={index} pokemon={pokemon} heldItems={heldItems}/>
             )}
            <br/>
            <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black" onClick={()=> {
                 let updatedTrainer = {
                     "name": trainerName,
-                    "sprite": selectedTrainer.sprite,
+                    "sprite": trainerSprite,
                     "classType": trainerClass,
                     "id": selectedTrainer.id,
                     "pokemons": selectedTrainer.pokemons

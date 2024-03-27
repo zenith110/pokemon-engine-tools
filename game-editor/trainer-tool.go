@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -14,6 +15,7 @@ import (
 func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 	var pokemons []Models.Pokemons
 	for index := range trainerJson.Pokemons {
+
 		pokemon := Models.Pokemons{
 			Species:        trainerJson.Pokemons[index].Species,
 			Level:          trainerJson.Pokemons[index].Level,
@@ -95,6 +97,9 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 					Defense:        trainerJson.Pokemons[pokemonIndex].Defense,
 					SpecialAttack:  trainerJson.Pokemons[pokemonIndex].SpecialAttack,
 					SpecialDefense: trainerJson.Pokemons[pokemonIndex].SpecialDefense,
+					Moves:          trainerJson.Pokemons[pokemonIndex].Moves,
+					Level:          trainerJson.Pokemons[pokemonIndex].Level,
+					HeldItem:       trainerJson.Pokemons[pokemonIndex].HeldItem,
 				}
 				pokemons = append(pokemons, pokemon)
 			}
@@ -102,6 +107,7 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 			trainers.Trainers[trainer].Pokemons = pokemons
 			trainers.Trainers[trainer].ClassType = trainerJson.ClassType
 			trainers.Trainers[trainer].Sprite = trainerJson.Sprite
+
 		}
 	}
 
@@ -133,7 +139,11 @@ func (a *App) UpdateTrainerSprite() string {
 	if err != nil {
 		panic(fmt.Errorf("error has occured while updating trainer sprite"))
 	}
-	return selection
+	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
+	selectionSplit := strings.Split(selectionUpdated, "/")
+	selectionFinal := selectionSplit[len(selectionSplit)-1]
+	fmt.Print(selectionFinal)
+	return selectionFinal
 }
 
 func (a *App) GrabPokemonImages(imageData ImageRetrivalJson) PokemonImages {

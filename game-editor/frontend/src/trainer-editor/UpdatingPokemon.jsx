@@ -12,7 +12,7 @@ const customStyles = {
     },
   };
 
-const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, index, pokemon}) => {
+const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, index, pokemon, heldItems}) => {
     const [selectedPokemon, setSelectedPokemon] = useState({});
     const [clickedPokemon, setClickedPokemon] = useState({});
     
@@ -32,6 +32,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
     const [species, setSpecies] = useState(pokemon?.species)
     const [modalIsOpen, setIsOpen] = useState(false);
     const [id, setId] = useState(pokemon?.id)
+    
     const openModal = () => {
         setIsOpen(true);
     }
@@ -128,7 +129,17 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         <label>Speed: </label>
                         <input type="number" defaultValue={clickedPokemon?.speed} onChange={(e) => setSpeed(e.target.value)}></input>
                         <br/>
-                        
+                        <label>Level: </label>
+                        <input type="number" defaultValue={clickedPokemon?.level} onChange={(e) => setLevel(e.target.value)}></input>
+                        <br/>
+                        <label>Held Item: </label>
+                        <select name="heldItem" defaultValue={pokemon?.heldItem ? pokemon?.heldItem : "placeholder"} onChange={(e) => setHeldItem(e.target.value)}>
+                        <option value={"placeholder"} disabled>Select a held item</option>
+                        {heldItems.map((heldItem) =>
+                            <option value={heldItem.Name} key={heldItem.Name}>{heldItem.Name}</option> 
+                        )}
+                        </select>
+                        <br/>
                         <button onClick={async () => {
                             const data = {
                                 Id: id
@@ -148,11 +159,13 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                                 ],
                                 icon: images.Icon,
                                 front: images.Front,
-                                id: id
-
+                                id: id,
+                                level: parseInt(level),
+                                heldItem: heldItem
                             }
                             
                             selectedTrainer.pokemons[index] = updatedSelectedPokemon
+                            console.log(selectedTrainer)
                             setSelectedTrainer(selectedTrainer)
                             
                             closeModal()
