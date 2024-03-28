@@ -21,11 +21,12 @@ type PokemonJson struct {
 }
 
 type TrainerJson struct {
-	Name      string        `json:"name"`
-	Sprite    string        `json:"sprite"`
-	Id        string        `json:"id"`
-	Pokemons  []PokemonJson `json:"pokemons"`
-	ClassType string        `json:"classType"`
+	Name       string        `json:"name"`
+	Sprite     string        `json:"sprite"`
+	SpriteName string        `json:"spritename"`
+	Id         string        `json:"id"`
+	Pokemons   []PokemonJson `json:"pokemons"`
+	ClassType  string        `json:"classType"`
 }
 
 type OptionsConfig struct {

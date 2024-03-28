@@ -2,7 +2,6 @@ import { useState } from "react"
 const TrainerSprites = ({ trainerSprites, dictData, setDictData }) => {
     const SetImage = (e) => {
         setTrainerImage(e.target.value)
-        console.log(e.target.options[e.target.selectedIndex].value)
         setDictData(dictData => ({...dictData, sprite: e.target.options[e.target.selectedIndex].text}))
     }
     const [trainerImage, setTrainerImage] = useState("")
