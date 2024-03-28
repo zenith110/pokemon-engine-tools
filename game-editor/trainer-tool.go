@@ -107,7 +107,6 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 			trainers.Trainers[trainer].Pokemons = pokemons
 			trainers.Trainers[trainer].ClassType = trainerJson.ClassType
 			trainers.Trainers[trainer].Sprite = trainerJson.Sprite
-
 		}
 	}
 
@@ -115,7 +114,7 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 	if err != nil {
 		panic(fmt.Errorf("error had occured while creating trainer data!\n%v", err))
 	}
-
+	os.Remove(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory))
 	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory), os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v", err)

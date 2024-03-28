@@ -45,6 +45,7 @@ export namespace main {
 	export class TrainerJson {
 	    name: string;
 	    sprite: string;
+	    spritename: string;
 	    id: string;
 	    pokemons: PokemonJson[];
 	    classType: string;
@@ -57,6 +58,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.sprite = source["sprite"];
+	        this.spritename = source["spritename"];
 	        this.id = source["id"];
 	        this.pokemons = this.convertValues(source["pokemons"], PokemonJson);
 	        this.classType = source["classType"];

@@ -221,16 +221,20 @@ func (a *App) ParseTrainers() []TrainerJson {
 				ID:             trainers.Trainers[trainer].Pokemons[pokemon].ID,
 				Icon:           CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
 				Moves:          trainers.Trainers[trainer].Pokemons[pokemon].Moves,
+				Level:          trainers.Trainers[trainer].Pokemons[pokemon].Level,
+				HeldItem:       trainers.Trainers[trainer].Pokemons[pokemon].HeldItem,
 			}
 			pokemons = append(pokemons, pokemonData)
 
 		}
+
 		trainerData := TrainerJson{
-			Name:      trainers.Trainers[trainer].Name,
-			Sprite:    CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Sprite)),
-			Id:        trainers.Trainers[trainer].ID,
-			ClassType: trainers.Trainers[trainer].ClassType,
-			Pokemons:  pokemons,
+			Name:       trainers.Trainers[trainer].Name,
+			Sprite:     CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Sprite)),
+			SpriteName: trainers.Trainers[trainer].Sprite,
+			Id:         trainers.Trainers[trainer].ID,
+			ClassType:  trainers.Trainers[trainer].ClassType,
+			Pokemons:   pokemons,
 		}
 		trainersData = append(trainersData, trainerData)
 	}

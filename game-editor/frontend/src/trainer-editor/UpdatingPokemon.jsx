@@ -21,7 +21,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
     const [move2, setMove2] = useState(pokemon?.moves[1])
     const [move3, setMove3] = useState(pokemon?.moves[2])
     const [move4, setMove4] = useState(pokemon?.moves[3]) 
-    const [heldItem, setHeldItem] = useState("")
+    const [heldItem, setHeldItem] = useState(pokemon?.heldItem)
     const [hp, setHp] = useState(pokemon?.hp)
     const [attack, setAttack] = useState(pokemon?.attack)
     const [defense, setDefense] = useState(pokemon?.defense)
@@ -59,7 +59,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                     style={customStyles}
                     contentLabel="Pokemon Modal"
                     >
-                        <div className="text-black justify-center">
+                        <div className="text-black">
                         <img src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} alt="Sprite" />
                         <select name="pokemons" defaultValue={clickedPokemon?.species} onChange={(e) => {
                              const pokemonData = pokemonSpecies.find((pokemon) => pokemon.Name === e.target.value)
