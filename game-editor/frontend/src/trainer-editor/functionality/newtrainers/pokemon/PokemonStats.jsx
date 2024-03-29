@@ -72,38 +72,39 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         navigate(-1)
     }
     return(
-        <>
+        <div>
         <br/>
         <div className="flex items-center justify-center">
             <img src={currentlySelectedPokemon? `data:image/png;base64,${currentlySelectedPokemon?.FrontSprite}` : ''} alt="pokemon sprite"/>
         </div>
-        <br/>
-        <label>HP:</label>
-        <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label max={300}>Attack:</label>
-        <input value={currentlySelectedPokemon.Attack} type="number" onChange={(e) => setAttack(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label>Defense:</label>
-        <input type="number" value={currentlySelectedPokemon.Defense} max={300} onChange={(e) => setDefense(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label>SpecialAtk:</label>
-        <input type="number" value={currentlySelectedPokemon.SpecialAttack} max={300} onChange={(e) => setSpecialAtk(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label>SpecialDef:</label>
-        <input type="number" value={currentlySelectedPokemon.SpecialDefense} max={300} onChange={(e) => setSpecialDef(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label>Speed:</label>
-        <input type="number" value={currentlySelectedPokemon.Speed} max={300} onChange={(e) => setSpeed(e.target.value)}></input>
-        <br/>
-        <br/>
-        <label>Level: </label>
-        <input type="number" max={100} min={1} onChange={(e) => setLevel(e.target.value)}></input>
+            <br />
+            <div className="text-left">
+                <label>HP:</label>
+                <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(e.target.value)}></input>
+                <label max={300}>Attack:</label>
+                <input value={currentlySelectedPokemon.Attack} type="number" onChange={(e) => setAttack(e.target.value)}></input>
+                <br/>
+                <br/>
+                <label>Defense:</label>
+                <input type="number" value={currentlySelectedPokemon.Defense} max={300} onChange={(e) => setDefense(e.target.value)}></input>
+                <br/>
+                <br/>
+                <label>SpecialAtk:</label>
+                <input type="number" value={currentlySelectedPokemon.SpecialAttack} max={300} onChange={(e) => setSpecialAtk(e.target.value)}></input>
+                <br/>
+                <br/>
+                <label>SpecialDef:</label>
+                <input type="number" value={currentlySelectedPokemon.SpecialDefense} max={300} onChange={(e) => setSpecialDef(e.target.value)}></input>
+                <br/>
+                <br/>
+                <label>Speed:</label>
+                <input type="number" value={currentlySelectedPokemon.Speed} max={300} onChange={(e) => setSpeed(e.target.value)}></input>
+                <br/>
+                <br/>
+                <label>Level: </label>
+                <input type="number" max={100} min={1} onChange={(e) => setLevel(e.target.value)}></input>
+            </div>
+        
         <br/>
         <br/>
         <label>Move1:</label>
@@ -153,7 +154,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <br/>
         {pokemonIndex < pokemonsCount ? <button onClick={() => createData()} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">Next</button> : <></>}
         {pokemonIndex == pokemonsCount ? <button onClick={() => submitData()} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">Finish</button> : <></>}
-        </>
+        </div>
     )
 }
 export default PokemonStats
