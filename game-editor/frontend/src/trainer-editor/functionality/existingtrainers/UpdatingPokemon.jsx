@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { GrabPokemonImages } from "../../wailsjs/go/main/App"
+import { GrabPokemonImages } from "../../../../wailsjs/go/main/App"
 import Modal from 'react-modal';
 const customStyles = {
     content: {
@@ -60,10 +60,11 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                     contentLabel="Pokemon Modal"
                     >
                         <div className="text-black">
-                        <img src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} alt="Sprite" />
+                        <div>
+                            <img src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} alt="Sprite" style={{ alignSelf: 'center', textAlign: 'center', display: 'block', margin: 'auto'}}/>
+                        </div>
                         <select name="pokemons" defaultValue={clickedPokemon?.species} onChange={(e) => {
                              const pokemonData = pokemonSpecies.find((pokemon) => pokemon.Name === e.target.value)
-                             console.log(pokemonData)
                              setSpecies(pokemonData.Name)
                              setSelectedPokemon(pokemonData)
                              setId(pokemonData.ID)
@@ -103,42 +104,45 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         <br/>
                         <label>Move4:</label>
                         <br/>
-                        <select name="moves4" defaultValue={pokemon?.moves[3]} onChange={(e) => setMove4(e.target.value)}>
+                        <select name="moves4" defaultValue={pokemon?.moves[3]} onChange={(e) => setMove4(e.target.value)} >
                         <option value={"placeholder"} disabled>Select a move</option>
                         {selectedPokemon?.Moves?.map((move) =>
                             <option value={move.Name} key={move.Name}>{move.Name}</option> 
                         )}
                         </select>
                         <br/>
-                        
-                        <label>HP: </label>
-                        <input type="number" defaultValue={clickedPokemon?.hp} onChange={(e) => setHp(e.target.value)}></input>
+                        <div className="textAlign-center"> 
+                        <label>HP:</label>
+                        <input type="number" defaultValue={clickedPokemon?.hp} onChange={(e) => setHp(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
-                        <label>Attack: </label>
-                        <input type="number" defaultValue={clickedPokemon?.attack} onChange={(e) => setAttack(e.target.value)}></input>
+                        <label>Attack:</label>
+                        <input type="number" defaultValue={clickedPokemon?.attack} onChange={(e) => setAttack(e.target.value)} style={{ textAlign: 'center'}} />
                         <br/>
-                        <label>Defense: </label>
-                        <input type="number" defaultValue={clickedPokemon?.defense} onChange={(e) => setDefense(e.target.value)}></input>
+                        <label>Defense:</label>
+                        <input type="number" defaultValue={clickedPokemon?.defense} onChange={(e) => setDefense(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
-                        <label>SpecialAttack: </label>
-                        <input type="number" defaultValue={clickedPokemon?.specialAttack} onChange={(e) => setSpecialAttack(e.target.value)}></input>
+                        <label>SpecialAtk:</label>
+                        <input type="number" defaultValue={clickedPokemon?.specialAttack} onChange={(e) => setSpecialAttack(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
-                        <label>SpecialDefense: </label>
-                        <input type="number" defaultValue={clickedPokemon?.specialDefense} onChange={(e) => setSpecialDefense(e.target.value)}></input>
+                        <label>SpecialDefense:</label>
+                        <input type="number" defaultValue={clickedPokemon?.specialDefense} onChange={(e) => setSpecialDefense(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
-                        <label>Speed: </label>
-                        <input type="number" defaultValue={clickedPokemon?.speed} onChange={(e) => setSpeed(e.target.value)}></input>
+                        <label>Speed:</label>
+                        <input type="number" defaultValue={clickedPokemon?.speed} onChange={(e) => setSpeed(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
                         <label>Level: </label>
-                        <input type="number" defaultValue={clickedPokemon?.level} onChange={(e) => setLevel(e.target.value)}></input>
+                        <input type="number" defaultValue={clickedPokemon?.level} onChange={(e) => setLevel(e.target.value)} style={{ textAlign: 'center'}}/>
+                        </div>
                         <br/>
-                        <label>Held Item: </label>
+                        <label>Held Item </label>
+                        <br/>
                         <select name="heldItem" defaultValue={pokemon?.heldItem ? pokemon?.heldItem : "placeholder"} onChange={(e) => setHeldItem(e.target.value)}>
                         <option value={"placeholder"} disabled>Select a held item</option>
                         {heldItems.map((heldItem) =>
                             <option value={heldItem.Name} key={heldItem.Name}>{heldItem.Name}</option> 
                         )}
                         </select>
+                        <br/>
                         <br/>
                         <button onClick={async () => {
                             const data = {
@@ -165,7 +169,6 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                             }
                             
                             selectedTrainer.pokemons[index] = updatedSelectedPokemon
-                            console.log(selectedTrainer)
                             setSelectedTrainer(selectedTrainer)
                             
                             closeModal()

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { UpdateTrainer, UpdateTrainerSprite } from "../../../../wailsjs/go/main/App";
-import UpdatingPokemon from "../../UpdatingPokemon";
+import UpdatingPokemon from "./UpdatingPokemon";
 const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTrainer, classTypes}) => {
     const [trainerName, setTrainerName] = useState(selectedTrainer?.name)
     const [trainerClass, setTrainerClass] = useState(selectedTrainer?.classType)
@@ -42,7 +42,6 @@ const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTraine
                     "id": selectedTrainer.id,
                     "pokemons": selectedTrainer.pokemons
                 }
-                console.log(updatedTrainer)
                 UpdateTrainer(updatedTrainer)
            }}>Save</button>
         </div>
