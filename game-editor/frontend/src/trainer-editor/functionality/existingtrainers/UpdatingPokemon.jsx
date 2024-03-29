@@ -75,8 +75,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                             )}
                         </select>
                         <br/>
-                        <label>Move1:</label>
-                        <br/>
+                        <label>Move 1:</label>
                         <select name="moves1" defaultValue={pokemon?.moves[0]} onChange={(e) => setMove1(e.target.value)}>
                         <option value={"placeholder"} disabled>Select a move</option>
                         {selectedPokemon?.Moves?.map((move) =>
@@ -84,8 +83,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         )}
                         </select>
                         <br/>
-                        <label>Move2:</label>
-                        <br/>
+                        <label>Move 2:</label>
                         <select name="moves2" defaultValue={pokemon?.moves[1]} onChange={(e) => setMove2(e.target.value)}>
                         <option value={"placeholder"} disabled>Select a move</option>
                         {selectedPokemon?.Moves?.map((move) =>
@@ -93,8 +91,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         )}
                         </select>
                         <br/>
-                        <label>Move3:</label>
-                        <br/>
+                        <label>Move 3:</label>
                         <select name="moves3" defaultValue={pokemon?.moves[2]} onChange={(e) => setMove3(e.target.value)}>
                         <option value={"placeholder"} disabled>Select a move</option>
                         {selectedPokemon?.Moves?.map((move) =>
@@ -102,8 +99,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         )}
                         </select>
                         <br/>
-                        <label>Move4:</label>
-                        <br/>
+                        <label>Move 4:</label>
                         <select name="moves4" defaultValue={pokemon?.moves[3]} onChange={(e) => setMove4(e.target.value)} >
                         <option value={"placeholder"} disabled>Select a move</option>
                         {selectedPokemon?.Moves?.map((move) =>
@@ -124,7 +120,7 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         <label>SpecialAtk:</label>
                         <input type="number" defaultValue={clickedPokemon?.specialAttack} onChange={(e) => setSpecialAttack(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
-                        <label>SpecialDefense:</label>
+                        <label>SpecialDef:</label>
                         <input type="number" defaultValue={clickedPokemon?.specialDefense} onChange={(e) => setSpecialDefense(e.target.value)} style={{ textAlign: 'center'}}/>
                         <br/>
                         <label>Speed:</label>
