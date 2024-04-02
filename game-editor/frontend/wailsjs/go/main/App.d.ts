@@ -11,8 +11,6 @@ export function GrabAllMoves():Promise<models.AllMoves>;
 
 export function GrabMusicTracks():Promise<Array<main.Song>>;
 
-export function GrabPokemonImages(arg1:main.ImageRetrivalJson):Promise<main.PokemonImages>;
-
 export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
 
 export function ParseHeldItems():Promise<Array<main.HeldItem>>;

@@ -223,6 +223,7 @@ func (a *App) ParseTrainers() []TrainerJson {
 				Moves:          trainers.Trainers[trainer].Pokemons[pokemon].Moves,
 				Level:          trainers.Trainers[trainer].Pokemons[pokemon].Level,
 				HeldItem:       trainers.Trainers[trainer].Pokemons[pokemon].HeldItem,
+				Cry:            CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/cries/%s.wav", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
 			}
 			pokemons = append(pokemons, pokemonData)
 

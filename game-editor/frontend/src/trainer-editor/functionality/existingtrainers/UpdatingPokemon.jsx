@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { GrabPokemonImages } from "../../../../wailsjs/go/main/App"
 import Modal from 'react-modal';
 const customStyles = {
     content: {
@@ -61,7 +60,10 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                     >
                         <div className="text-black">
                         <div>
-                            <img src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} alt="Sprite" style={{ alignSelf: 'center', textAlign: 'center', display: 'block', margin: 'auto'}}/>
+                            <button onClick={() => {
+                                var test = new Audio(`data:audio/wav;base64,${clickedPokemon.cry}`)
+                                test.play();
+                            }}><img src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} alt="Sprite" style={{ alignSelf: 'center', textAlign: 'center', display: 'block', margin: 'auto'}}/></button>
                         </div>
                         <select name="pokemons" defaultValue={clickedPokemon?.species} onChange={(e) => {
                              const pokemonData = pokemonSpecies.find((pokemon) => pokemon.Name === e.target.value)
@@ -141,10 +143,6 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                         <br/>
                         <br/>
                         <button onClick={async () => {
-                            const data = {
-                                Id: id
-                            }
-                            let images = await GrabPokemonImages(data)
                             
                             let updatedSelectedPokemon = {
                                 species: species, 
@@ -157,8 +155,8 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
                                 moves: [
                                     move1, move2, move3, move4
                                 ],
-                                icon: images.Icon,
-                                front: images.Front,
+                                icon: pokemon?.Icon,
+                                front: pokemon?.Front,
                                 id: id,
                                 level: parseInt(level),
                                 heldItem: heldItem

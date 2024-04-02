@@ -42,7 +42,6 @@ const TrainerEditor = () => {
            <select name="trainers" onChange={(e) => {
                 const trainerData = trainers.find((trainer) => trainer.id === e.target.value);
                 setSelectedTrainer(trainerData);
-                console.log(selectedTrainer)
            }} defaultValue={selectedTrainer?.classType ? selectedTrainer?.classType : "placeholder"}>
             <option value={"placeholder"} disabled>Select a trainer</option>
             {trainers?.map((trainer) =>

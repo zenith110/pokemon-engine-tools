@@ -18,6 +18,7 @@ type PokemonJson struct {
 	ID             string   `json:"id"`
 	Front          string   `json:"front"`
 	Icon           string   `json:"icon"`
+	Cry            string   `json:"cry"`
 }
 
 type TrainerJson struct {
@@ -96,12 +97,4 @@ type MapData struct {
 
 type ImageRetrivalJson struct {
 	Id string
-}
-
-type PokemonImages struct {
-	Front      string
-	Back       string
-	ShinyFront string
-	ShinyBack  string
-	Icon       string
 }

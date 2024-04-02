@@ -2,8 +2,6 @@ export namespace main {
 	
 	
 	
-	
-	
 	export class PokemonJson {
 	    species: string;
 	    level: number;
@@ -18,6 +16,7 @@ export namespace main {
 	    id: string;
 	    front: string;
 	    icon: string;
+	    cry: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PokemonJson(source);
@@ -38,6 +37,7 @@ export namespace main {
 	        this.id = source["id"];
 	        this.front = source["front"];
 	        this.icon = source["icon"];
+	        this.cry = source["cry"];
 	    }
 	}
 	

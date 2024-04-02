@@ -144,14 +144,3 @@ func (a *App) UpdateTrainerSprite() string {
 	fmt.Print(selectionFinal)
 	return selectionFinal
 }
-
-func (a *App) GrabPokemonImages(imageData ImageRetrivalJson) PokemonImages {
-	pokemonImages := PokemonImages{
-		Front:      CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, imageData.Id)),
-		Back:       CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, imageData.Id)),
-		ShinyFront: CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, imageData.Id)),
-		ShinyBack:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, imageData.Id)),
-		Icon:       CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory.DataDirectory, imageData.Id, imageData.Id)),
-	}
-	return pokemonImages
-}
