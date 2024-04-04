@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
 import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems} from "../../wailsjs/go/main/App";
 import Trainer from "./functionality/existingtrainers/Trainer";
@@ -39,15 +40,22 @@ const TrainerEditor = () => {
     return(
         <>
            <div className="text-black flex items-center justify-center">
-           <select name="trainers" onChange={(e) => {
-                const trainerData = trainers.find((trainer) => trainer.id === e.target.value);
+           <Select name="trainers"
+           options={trainers?.map(trainer => ({ value: trainer.id, label: `${trainer.name}`}))} 
+           onChange={(e) => {
+                const trainerData = trainers.find((trainer) => trainer.id === e?.value);
                 setSelectedTrainer(trainerData);
-           }} defaultValue={selectedTrainer?.classType ? selectedTrainer?.classType : "placeholder"}>
-            <option value={"placeholder"} disabled>Select a trainer</option>
-            {trainers?.map((trainer) =>
-                <option value={trainer.id} key={trainer.id}>{trainer.name}</option>
-            )}
-            </select>
+                }}
+                isClearable={false}
+                isDisabled={false}
+                isLoading={false}
+                isRtl={false}
+                isSearchable={true}
+                isMulti={false}
+                classNames={{
+                    control: () => "rounded-2xl"
+                }}
+            />
             </div>
             {selectedTrainer ? <Trainer selectedTrainer={selectedTrainer} heldItems={heldItems} pokemonSpecies={pokemonSpecies} setSelectedTrainer={setSelectedTrainer} classTypes={classTypes}/> : <></>}
            <br/>

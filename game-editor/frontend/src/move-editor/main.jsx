@@ -1,6 +1,6 @@
 import { useState, useEffect} from "react";
 import { ParseMoves } from "../../wailsjs/go/main/App";
-
+import Select from "react-select"
 import UpdateMove from "./UpdateMove";
 const MoveEditor = () => {
     const [moves, setMoves] = useState([])
@@ -14,15 +14,21 @@ const MoveEditor = () => {
     },[])
     return(
         <div className="text-black">
-             <select name="moves" defaultValue="Select move" onChange={(e) => {
-                const move = moves.find((moveData) => moveData.Name === e.target.value)
+             <Select name="moves" onChange={(e) => {
+                const move = moves.find((moveData) => moveData.Name === e?.value)
                 setSelectedMove(move)   
-                }}>
-                <option value={"placeholder"} disabled>Select a move</option>
-                {moves.map((move) =>
-                    <option value={move.Name} key={move.Name}>{move.Name}</option>
-                )}
-            </select>
+                }}
+                isClearable={false}
+                isDisabled={false}
+                isLoading={false}
+                isRtl={false}
+                isSearchable={true}
+                isMulti={false}
+                classNames={{
+                    control: () => "rounded-2xl"
+                }}
+                options={moves?.map(move => ({ value: move.Name, label: `${move.Name}`}))} 
+            />
             {selectedMove? <UpdateMove selectedMove={selectedMove}/> : <div/>}
             <br/>
             <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">New Move</button>
