@@ -1,13 +1,14 @@
 import { useState, useEffect} from "react";
 import { ParseMoves } from "../../wailsjs/go/main/App";
 
+import UpdateMove from "./UpdateMove";
 const MoveEditor = () => {
     const [moves, setMoves] = useState([])
     const [selectedMove, setSelectedMove] = useState({})
     useEffect(() => {
         const fetchMoves = async() => {
             let data = await ParseMoves();
-            setMoves(data.Move)
+            setMoves(data.Move);
         }
         fetchMoves()
     },[])
@@ -22,6 +23,9 @@ const MoveEditor = () => {
                     <option value={move.Name} key={move.Name}>{move.Name}</option>
                 )}
             </select>
+            {selectedMove? <UpdateMove selectedMove={selectedMove}/> : <div/>}
+            <br/>
+            <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">New Move</button>
         </div>
     )
 }

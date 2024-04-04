@@ -141,6 +141,5 @@ func (a *App) UpdateTrainerSprite() string {
 	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
 	selectionSplit := strings.Split(selectionUpdated, "/")
 	selectionFinal := selectionSplit[len(selectionSplit)-1]
-	fmt.Print(selectionFinal)
 	return selectionFinal
 }
