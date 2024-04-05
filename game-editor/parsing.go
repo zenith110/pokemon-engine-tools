@@ -12,7 +12,6 @@ import (
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	Models "github.com/zenith110/pokemon-go-engine/models"
-	"gopkg.in/src-d/go-git.v4"
 )
 
 func toBase64(byte []byte) string {
@@ -278,14 +277,4 @@ func (a *App) GrabAllMoves() Models.AllMoves {
 		panic(err)
 	}
 	return movesData
-}
-
-func (a *App) CreateProject() {
-	_, err := git.PlainClone("", false, &git.CloneOptions{
-		URL:      "https://github.com/zenith110/pokemon-go-engine",
-		Progress: os.Stdout,
-	})
-	if err != nil {
-		fmt.Printf("error is: %v", err)
-	}
 }
