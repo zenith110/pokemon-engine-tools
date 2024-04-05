@@ -6,6 +6,10 @@ export function CreateMapConfig(arg1) {
   return window['go']['main']['App']['CreateMapConfig'](arg1);
 }
 
+export function CreateProject() {
+  return window['go']['main']['App']['CreateProject']();
+}
+
 export function CreateTrainerData(arg1) {
   return window['go']['main']['App']['CreateTrainerData'](arg1);
 }

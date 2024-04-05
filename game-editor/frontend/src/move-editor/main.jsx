@@ -15,7 +15,7 @@ const MoveEditor = () => {
     return(
         <div className="text-black">
              <Select name="moves" onChange={(e) => {
-                const move = moves.find((moveData) => moveData.Name === e?.value)
+                const move = moves.find((moveData) => moveData.Id === e?.value)
                 setSelectedMove(move)   
                 }}
                 isClearable={false}
@@ -27,7 +27,7 @@ const MoveEditor = () => {
                 classNames={{
                     control: () => "rounded-2xl"
                 }}
-                options={moves?.map(move => ({ value: move.Name, label: `${move.Name}`}))} 
+                options={moves?.map(move => ({ value: move.Id, label: `${move.Name}`}))} 
             />
             {selectedMove? <UpdateMove selectedMove={selectedMove}/> : <div/>}
             <br/>

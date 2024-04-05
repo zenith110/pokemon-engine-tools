@@ -95,6 +95,17 @@ type MapData struct {
 	Map []MapOutput `toml:"map"`
 }
 
-type ImageRetrivalJson struct {
-	Id string
+type ProjectCreation struct {
+	Name      string `json:"name"`
+	ID        string `json:"id"`
+	Directory string `json:"directory"`
+}
+
+type UpdatedMove struct {
+	Power    int    `json:"power"`
+	PP       int    `json:"pp"`
+	Accuracy int    `json:"accuracy"`
+	Type     string `json:"type"`
+	Name     string `json:"name"`
+	Id       string `json:"id"`
 }
