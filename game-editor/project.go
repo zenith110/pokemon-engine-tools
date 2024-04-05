@@ -19,12 +19,19 @@ func (a *App) GrabProjectWorkspace() string {
 	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
 	return selectionUpdated
 }
-func (a *App) CreateProject(projectCreationData ProjectCreation) {
+func (a *App) CreateProject(projectCreationData ProjectCreation) bool {
 	_, err := git.PlainClone(projectCreationData.Directory, false, &git.CloneOptions{
 		URL:      "https://github.com/zenith110/pokemon-go-engine",
 		Progress: os.Stdout,
 	})
 	if err != nil {
 		fmt.Printf("error is: %v", err)
+		return false
 	}
+	err = os.RemoveAll(fmt.Sprintf("%s/.git", projectCreationData.Directory))
+	if err != nil {
+		fmt.Printf("error is: %v", err)
+		return false
+	}
+	return true
 }

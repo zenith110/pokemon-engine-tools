@@ -5,13 +5,15 @@ import {models} from '../models';
 
 export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
 
-export function CreateProject():Promise<void>;
+export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
 
 export function GrabAllMoves():Promise<models.AllMoves>;
 
 export function GrabMusicTracks():Promise<Array<main.Song>>;
+
+export function GrabProjectWorkspace():Promise<string>;
 
 export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
 
@@ -28,6 +30,8 @@ export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 export function SetDataFolder():Promise<void>;
 
 export function SetMapTileset():Promise<string>;
+
+export function UpdateMove(arg1:main.UpdatedMove):Promise<void>;
 
 export function UpdateTrainer(arg1:main.TrainerJson):Promise<void>;
 

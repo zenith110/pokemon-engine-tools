@@ -5,25 +5,31 @@ import { GrabProjectWorkspace, CreateProject} from "../../wailsjs/go/main/App";
 const NewProject = () => {
     const [projectName, setProjectName] = useState("");
     const [projectDirectory, setProjectDirectory] = useState("")
-
+    const [status, setStatus] = useState("");
     return(
         <div>
             <label>Project name:</label>
-            <input onChange={(e) => setProjectName(e.target.value)}></input>
             <br/>
-            <label>Project Directory:</label>
+            <input onChange={(e) => setProjectName(e.target.value)} className="text-black"></input>
+            <br/>
             <button onClick={async() => {
                 let data = await GrabProjectWorkspace();
                 setProjectDirectory(data)
-            }}></button>
+            }}>Project Directory</button>
+            <br/>
             <button onClick={async() => {
                 let data = {
                     "name": projectName,
                     "directory": projectDirectory,
                     "id": uuidv4()
                 }
-                await CreateProject(data)
+                setStatus(`${projectName} is being created!`)
+                let gitRepoCreationStatus = await CreateProject(data)
+                if(gitRepoCreationStatus === true){
+                    setStatus(`${projectName} has been created!`)
+                }
             }}>Submit</button>
+            <p>{status}</p>
         </div>
     )
 }

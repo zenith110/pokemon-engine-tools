@@ -6,8 +6,8 @@ export function CreateMapConfig(arg1) {
   return window['go']['main']['App']['CreateMapConfig'](arg1);
 }
 
-export function CreateProject() {
-  return window['go']['main']['App']['CreateProject']();
+export function CreateProject(arg1) {
+  return window['go']['main']['App']['CreateProject'](arg1);
 }
 
 export function CreateTrainerData(arg1) {
@@ -20,6 +20,10 @@ export function GrabAllMoves() {
 
 export function GrabMusicTracks() {
   return window['go']['main']['App']['GrabMusicTracks']();
+}
+
+export function GrabProjectWorkspace() {
+  return window['go']['main']['App']['GrabProjectWorkspace']();
 }
 
 export function GrabTrainerSprites() {
@@ -52,6 +56,10 @@ export function SetDataFolder() {
 
 export function SetMapTileset() {
   return window['go']['main']['App']['SetMapTileset']();
+}
+
+export function UpdateMove(arg1) {
+  return window['go']['main']['App']['UpdateMove'](arg1);
 }
 
 export function UpdateTrainer(arg1) {
