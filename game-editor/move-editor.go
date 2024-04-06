@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/pelletier/go-toml/v2"
 	Models "github.com/zenith110/pokemon-go-engine/models"
@@ -48,20 +49,30 @@ func (a *App) UpdateMove(updatedMove UpdatedMove) {
 	}
 	err = toml.Unmarshal(bytes, &moves)
 	if err != nil {
-		fmt.Printf("Error has occured reading unmarshling into struct %v", err)
+		fmt.Printf("Error has occured reading unmarshling into struct %v\n", err)
 	}
-
+	for move := range moves.Move {
+		id := strconv.Itoa(moves.Move[move].ID)
+		if id == updatedMove.Id {
+			fmt.Print("hi")
+			moves.Move[move].Accuracy = updatedMove.Accuracy
+			moves.Move[move].Pp = updatedMove.PP
+			moves.Move[move].Power = updatedMove.Power
+			moves.Move[move].Type = updatedMove.Type
+			moves.Move[move].Name = updatedMove.Name
+		}
+	}
 	data, err := toml.Marshal(moves)
 	if err != nil {
 		panic(fmt.Errorf("error had occured while creating move data!\n%v", err))
 	}
-	os.Remove(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory.DataDirectory))
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory.DataDirectory), os.O_CREATE, 0644)
+	os.Remove(fmt.Sprintf("%s/data/toml/moves2.toml", a.dataDirectory.DataDirectory))
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/moves2.toml", a.dataDirectory.DataDirectory), os.O_CREATE, 0644)
 	if err != nil {
-		log.Fatalf("Error occured while opening file %v", err)
+		log.Fatalf("Error occured while opening file %v\n", err)
 	}
 	defer f.Close()
 	if _, err := f.Write(data); err != nil {
-		fmt.Printf("Error occured while writing data %v", err)
+		fmt.Printf("Error occured while writing data %v\n", err)
 	}
 }

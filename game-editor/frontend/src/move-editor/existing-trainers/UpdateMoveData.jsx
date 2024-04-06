@@ -1,10 +1,11 @@
 import { useState } from "react"
-const UpdateMove = ({ selectedMove }) => {
-    const [power, setPower] = useState(0)
-    const [pp, setPP] = useState(0)
-    const [accuracy, setAccuracy ] = useState(0)
-    const [moveType, setMoveType] = useState("")
-    const [name, setName] = useState("")
+import { UpdateMove } from "../../../wailsjs/go/main/App";
+const UpdateMoveData = ({ selectedMove }) => {
+    const [power, setPower] = useState(selectedMove? selectedMove.Power : 0)
+    const [pp, setPP] = useState(selectedMove?  selectedMove.Pp : 0)
+    const [accuracy, setAccuracy ] = useState(selectedMove? selectedMove.Accuracy : 0)
+    const [moveType, setMoveType] = useState(selectedMove? selectedMove.Type : "Normal")
+    const [name, setName] = useState(selectedMove? selectedMove.Name : "Tackle")
     return(
         <div>
             <br/>
@@ -30,15 +31,16 @@ const UpdateMove = ({ selectedMove }) => {
             <br/>
             <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white" onClick={async() => {
                 let data = {
-                    "power": power, 
-                    "pp": pp, 
-                    "accuracy": accuracy,
+                    "power": parseInt(power), 
+                    "pp": parseInt(pp), 
+                    "accuracy": parseInt(accuracy),
                     "type": moveType, 
                     "name": name,
-                    "id": selectedMove?.Id
+                    "id": selectedMove?.ID.toString()
                 }
+                await UpdateMove(data)
             }}>Save</button>
         </div>
     )
 }
-export default UpdateMove
+export default UpdateMoveData

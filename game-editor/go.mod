@@ -7,7 +7,7 @@ toolchain go1.22.1
 require (
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/wailsapp/wails/v2 v2.8.0
-	github.com/zenith110/pokemon-go-engine v0.0.0-20240405003832-6459c53d0729
+	github.com/zenith110/pokemon-go-engine v0.0.0-20240406161830-adc31298e993
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
 

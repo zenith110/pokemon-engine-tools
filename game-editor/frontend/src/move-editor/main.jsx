@@ -1,7 +1,7 @@
 import { useState, useEffect} from "react";
 import { ParseMoves } from "../../wailsjs/go/main/App";
 import Select from "react-select"
-import UpdateMove from "./UpdateMove";
+import UpdateMoveData from "./existing-trainers/UpdateMoveData";
 const MoveEditor = () => {
     const [moves, setMoves] = useState([])
     const [selectedMove, setSelectedMove] = useState({})
@@ -29,7 +29,7 @@ const MoveEditor = () => {
                 }}
                 options={moves?.map(move => ({ value: move.Id, label: `${move.Name}`}))} 
             />
-            {selectedMove? <UpdateMove selectedMove={selectedMove}/> : <div/>}
+            {selectedMove? <UpdateMoveData selectedMove={selectedMove}/> : <div/>}
             <br/>
             <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white">New Move</button>
         </div>
