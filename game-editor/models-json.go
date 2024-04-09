@@ -102,10 +102,11 @@ type ProjectCreation struct {
 }
 
 type UpdatedMove struct {
-	Power    int    `json:"power"`
-	PP       int    `json:"pp"`
-	Accuracy int    `json:"accuracy"`
-	Type     string `json:"type"`
-	Name     string `json:"name"`
-	Id       string `json:"id"`
+	Power       int    `json:"power"`
+	PP          int    `json:"pp"`
+	Accuracy    int    `json:"accuracy"`
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	Id          string `json:"id"`
+	Description string `json:"description"`
 }

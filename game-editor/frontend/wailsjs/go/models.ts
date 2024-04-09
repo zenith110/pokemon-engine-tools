@@ -106,6 +106,7 @@ export namespace main {
 	    type: string;
 	    name: string;
 	    id: string;
+	    description: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdatedMove(source);
@@ -119,6 +120,7 @@ export namespace main {
 	        this.type = source["type"];
 	        this.name = source["name"];
 	        this.id = source["id"];
+	        this.description = source["description"];
 	    }
 	}
 

@@ -1,33 +1,26 @@
-import { useState } from "react"
 import { UpdateMove } from "../../../wailsjs/go/main/App";
-const UpdateMoveData = ({ selectedMove }) => {
-    const [power, setPower] = useState(selectedMove? selectedMove.Power : 0)
-    const [pp, setPP] = useState(selectedMove?  selectedMove.Pp : 0)
-    const [accuracy, setAccuracy ] = useState(selectedMove? selectedMove.Accuracy : 0)
-    const [moveType, setMoveType] = useState(selectedMove? selectedMove.Type : "Normal")
-    const [name, setName] = useState(selectedMove? selectedMove.Name : "Tackle")
+const UpdateMoveData = ({ selectedMove, power, setPower, pp, setPP, accuracy, setAccuracy, moveType, setMoveType, name, setName}) => {
     return(
         <div>
             <br/>
             <br/>
             <label>Power: </label>
-            <input type="number" defaultValue={selectedMove? selectedMove.Power : 0} onChange={(e) => setPower(e.target.value)}></input>
+            <input type="number" value={power} onChange={(e) => setPower(e.target.value)}></input>
             <br/>
             <label>PP: </label>
-            <input type="number" defaultValue={selectedMove? selectedMove.Pp : 0} onChange={(e) => setPP(e.target.value)}></input>
+            <input type="number" value={pp? pp : 0} onChange={(e) => setPP(e.target.value)}></input>
             <br/>
             <label>Accuracy: </label>
-            <input type="number" defaultValue={selectedMove? selectedMove.Accuracy : 0} onChange={(e) => setAccuracy(e.target.value)}></input>
+            <input type="number" value={accuracy? accuracy : 0} onChange={(e) => setAccuracy(e.target.value)}></input>
             <br/>
             <label>Type: </label>
-            <input defaultValue={selectedMove? selectedMove.Type : ""} onChange={(e) => setMoveType(e.target.value)}></input>
+            <input value={moveType? moveType : ""} onChange={(e) => setMoveType(e.target.value)}></input>
             <br/>
             <label>Name: </label>
-            <input defaultValue={selectedMove? selectedMove.Name : ""} onChange={(e) => setName(e.target.value)}></input>
+            <input value={name? name : ""} onChange={(e) => setName(e.target.value)}></input>
             <br/>
-            <label>Description: </label>
-            <input defaultValue={selectedMove.Descriptions? selectedMove.Descriptions[0].Description : ""}></input>
-            <br/>
+            {/* <label>Description: </label>
+            <input defaultValue={selectedMove.Descriptions? selectedMove.Descriptions[0].Description : ""} key={selectedMove.Descriptions[0].Description}></input> */}
             <br/>
             <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white" onClick={async() => {
                 let data = {
@@ -38,6 +31,7 @@ const UpdateMoveData = ({ selectedMove }) => {
                     "name": name,
                     "id": selectedMove?.ID.toString()
                 }
+                console.log(data)
                 await UpdateMove(data)
             }}>Save</button>
         </div>
