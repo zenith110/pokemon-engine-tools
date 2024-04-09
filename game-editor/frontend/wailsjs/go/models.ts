@@ -41,6 +41,22 @@ export namespace main {
 	    }
 	}
 	
+	export class ProjectCreation {
+	    name: string;
+	    id: string;
+	    directory: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProjectCreation(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.id = source["id"];
+	        this.directory = source["directory"];
+	    }
+	}
 	
 	export class TrainerJson {
 	    name: string;
@@ -81,6 +97,31 @@ export namespace main {
 		    }
 		    return a;
 		}
+	}
+	
+	export class UpdatedMove {
+	    power: number;
+	    pp: number;
+	    accuracy: number;
+	    type: string;
+	    name: string;
+	    id: string;
+	    description: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdatedMove(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.power = source["power"];
+	        this.pp = source["pp"];
+	        this.accuracy = source["accuracy"];
+	        this.type = source["type"];
+	        this.name = source["name"];
+	        this.id = source["id"];
+	        this.description = source["description"];
+	    }
 	}
 
 }

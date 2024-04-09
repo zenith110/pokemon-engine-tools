@@ -1,6 +1,5 @@
 import React from 'react';
 import { SetDataFolder } from '../wailsjs/go/main/App';
-
 const App: React.FC = () => {
     const OptionsMenu = async() => {
         await SetDataFolder()
@@ -12,7 +11,6 @@ const App: React.FC = () => {
             <div className='flex w-screen justify-center'>
                 <button onClick={() => OptionsMenu()} className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black hover:bg-wildBlueYonder">Select Folder</button>
             </div>
-           
         </div>
     )
 }
