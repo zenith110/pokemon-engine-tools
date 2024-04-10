@@ -19,8 +19,6 @@ const UpdateMoveData = ({ selectedMove, power, setPower, pp, setPP, accuracy, se
             <label>Name: </label>
             <input value={name? name : ""} onChange={(e) => setName(e.target.value)}></input>
             <br/>
-            {/* <label>Description: </label>
-            <input defaultValue={selectedMove.Descriptions? selectedMove.Descriptions[0].Description : ""} key={selectedMove.Descriptions[0].Description}></input> */}
             <br/>
             <button className="file: bg-blueWhale rounded border-1 border-solid w-1/6 border-black text-white" onClick={async() => {
                 let data = {
@@ -31,7 +29,6 @@ const UpdateMoveData = ({ selectedMove, power, setPower, pp, setPP, accuracy, se
                     "name": name,
                     "id": selectedMove?.ID.toString()
                 }
-                console.log(data)
                 await UpdateMove(data)
             }}>Save</button>
         </div>
