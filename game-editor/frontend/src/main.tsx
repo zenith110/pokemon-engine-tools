@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 
 import "./style.css";
-import App from "./App";
 import TrainerEditor from "./trainer-editor/main";
 import PokemonEditor from "./pokemon-editor/main";
 import Navbar from "./navbar/navbar";
@@ -11,6 +10,7 @@ import NewTrainerCard from "./trainer-editor/functionality/newtrainers/NewTraine
 import Jukebox from "./jukebox/main";
 import MoveEditor from "./move-editor/main";
 import ScriptEditor from "./script-editor/main";
+import Homepage from "./homepage/main"
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
@@ -18,14 +18,14 @@ root.render(
         <HashRouter>
             <Navbar /> 
             <Routes>
-                <Route path="/" element={<App />} />
-                <Route path="/trainer-editor" element={<TrainerEditor />} />
-                <Route path="/pokemon-editor" element={<PokemonEditor/>} />
-                <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
-                <Route path="/jukebox" element={<Jukebox/>}/>
-                <Route path="/move-editor" element={<MoveEditor/>}/>
-                <Route path="/script-editor" element={<ScriptEditor/>}/>
-            </Routes>
+                 <Route path="/" element={<Homepage />} />
+                 <Route path="/trainer-editor" element={<TrainerEditor />} />
+                 <Route path="/pokemon-editor" element={<PokemonEditor/>} />
+                 <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
+                 <Route path="/jukebox" element={<Jukebox/>}/>
+                 <Route path="/move-editor" element={<MoveEditor/>}/>
+                 <Route path="/script-editor" element={<ScriptEditor/>}/>
+             </Routes>
         </HashRouter>
     </React.StrictMode>
 )

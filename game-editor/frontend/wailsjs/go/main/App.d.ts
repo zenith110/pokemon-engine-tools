@@ -23,11 +23,13 @@ export function ParseMoves():Promise<models.AllMoves>;
 
 export function ParsePokemonData():Promise<Array<main.PokemonTrainerEditor>>;
 
+export function ParseProjects():Promise<Array<models.Project>>;
+
 export function ParseTrainerClass():Promise<models.TrainerClasses>;
 
 export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 
-export function SetDataFolder():Promise<void>;
+export function SelectProject(arg1:main.ProjectSelect):Promise<void>;
 
 export function SetMapTileset():Promise<string>;
 

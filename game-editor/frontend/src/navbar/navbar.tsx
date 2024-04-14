@@ -3,15 +3,6 @@ import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const navigation = [
-  { name: 'Home', href: '/', current: false },
-  { name: 'Trainers', href: '/trainer-editor', current: false },
-  { name: 'Pokemon', href: '/pokemon-editor', current: false },
-  { name: 'Overworld', href: '/ow-editor', current: false },
-  { name: 'Move', href: '/move-editor', current: false },
-  { name: 'Jukebox', href: '/jukebox', current: false },
-  { name: 'Script', href: '/script-editor', current: false}
-];
 
 function classNames(...classes:string[]) {
   return classes.filter(Boolean).join(' ')
@@ -20,6 +11,15 @@ function classNames(...classes:string[]) {
 export default function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const navigation = [
+    { name: 'Projects', href: '/', current: false},
+    { name: 'Trainers', href: '/trainer-editor', current: false },
+    { name: 'Pokemon', href: '/pokemon-editor', current: false },
+    { name: 'Overworld', href: '/ow-editor', current: false },
+    { name: 'Move', href: '/move-editor', current: false },
+    { name: 'Jukebox', href: '/jukebox', current: false },
+   { name: 'Script', href: '/script-editor', current: false}
+  ]
 
   return (
     <Disclosure as="nav" className="bg-blueWhale">

@@ -53,7 +53,7 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 	}
 
 	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func CheckFileExist(filepath string) bool {
 
 func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory))
 	if err != nil {
 		log.Fatalf("Error has occured while opening file to edit %v", err)
 	}
@@ -114,8 +114,8 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 	if err != nil {
 		panic(fmt.Errorf("error had occured while creating trainer data!\n%v", err))
 	}
-	os.Remove(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory))
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory), os.O_CREATE, 0644)
+	os.Remove(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory))
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory), os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v", err)
 	}

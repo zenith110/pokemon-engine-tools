@@ -42,6 +42,10 @@ export function ParsePokemonData() {
   return window['go']['main']['App']['ParsePokemonData']();
 }
 
+export function ParseProjects() {
+  return window['go']['main']['App']['ParseProjects']();
+}
+
 export function ParseTrainerClass() {
   return window['go']['main']['App']['ParseTrainerClass']();
 }
@@ -50,8 +54,8 @@ export function ParseTrainers() {
   return window['go']['main']['App']['ParseTrainers']();
 }
 
-export function SetDataFolder() {
-  return window['go']['main']['App']['SetDataFolder']();
+export function SelectProject(arg1) {
+  return window['go']['main']['App']['SelectProject'](arg1);
 }
 
 export function SetMapTileset() {
