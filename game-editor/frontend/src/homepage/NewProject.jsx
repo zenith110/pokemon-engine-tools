@@ -2,7 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 import { GrabProjectWorkspace, CreateProject} from "../../wailsjs/go/main/App";
-const NewProject = () => {
+const NewProject = ({ setClickedNewProject }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDirectory, setProjectDirectory] = useState("")
     const [status, setStatus] = useState("");
@@ -27,6 +27,7 @@ const NewProject = () => {
                 let gitRepoCreationStatus = await CreateProject(data)
                 if(gitRepoCreationStatus === true){
                     setStatus(`${projectName} has been created!`)
+                    setClickedNewProject(false)
                 }
             }}>Submit</button>
             <p>{status}</p>

@@ -57,6 +57,28 @@ export namespace main {
 	        this.directory = source["directory"];
 	    }
 	}
+	export class ProjectSelect {
+	    CreatedDateTime: string;
+	    FolderLocation: string;
+	    ID: string;
+	    LastUsed: string;
+	    Name: string;
+	    VersionOfEngine: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProjectSelect(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.CreatedDateTime = source["CreatedDateTime"];
+	        this.FolderLocation = source["FolderLocation"];
+	        this.ID = source["ID"];
+	        this.LastUsed = source["LastUsed"];
+	        this.Name = source["Name"];
+	        this.VersionOfEngine = source["VersionOfEngine"];
+	    }
+	}
 	
 	export class TrainerJson {
 	    name: string;

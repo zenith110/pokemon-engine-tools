@@ -11,7 +11,7 @@ import (
 )
 
 func (a *App) GrabMusicTracks() []Song {
-	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", a.dataDirectory.DataDirectory))
+	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", a.dataDirectory))
 	if err != nil {
 		fmt.Printf("Error is %v", err)
 	}
@@ -19,7 +19,7 @@ func (a *App) GrabMusicTracks() []Song {
 	for _, song := range musicTracks {
 		songData := Song{
 			Name: song.Name(),
-			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory.DataDirectory, song.Name())),
+			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, song.Name())),
 		}
 		musicTrackResults = append(musicTrackResults, songData)
 	}
@@ -57,7 +57,7 @@ func (a *App) UploadNewSong() {
 	r := bufio.NewReader(fi)
 
 	// open output file
-	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory.DataDirectory, songName))
+	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, songName))
 	if err != nil {
 		panic(err)
 	}

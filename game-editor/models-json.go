@@ -110,3 +110,24 @@ type UpdatedMove struct {
 	Id          string `json:"id"`
 	Description string `json:"description"`
 }
+
+type GithubInfo struct {
+	Ref    string `json:"ref"`
+	NodeID string `json:"node_id"`
+	URL    string `json:"url"`
+	Object Object `json:"object"`
+}
+type Object struct {
+	Sha  string `json:"sha"`
+	Type string `json:"type"`
+	URL  string `json:"url"`
+}
+
+type ProjectSelect struct {
+	CreatedDateTime string `json:"CreatedDateTime"`
+	FolderLocation  string `json:"FolderLocation"`
+	ID              string `json:"ID"`
+	LastUsed        string `json:"LastUsed"`
+	Name            string `json:"Name"`
+	VersionOfEngine string `json:"VersionOfEngine"`
+}

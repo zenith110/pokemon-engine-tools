@@ -2,15 +2,12 @@ package main
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	Models "github.com/zenith110/pokemon-go-engine/models"
 )
 
@@ -26,7 +23,7 @@ func CreateBase64File(file string) string {
 }
 
 func ParsePokemonFile(a *App) Models.PokemonToml {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.dataDirectory))
 
 	if err != nil {
 		panic(err)
@@ -62,11 +59,11 @@ func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *App) []Pokem
 					Name:        strings.ToUpper(pokemons.Pokemon[pokemon].Evolutions[evolution].Name[:1]) + pokemons.Pokemon[pokemon].Evolutions[evolution].Name[1:],
 					Method1:     pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[0],
 					Method2:     pokemons.Pokemon[pokemon].Evolutions[evolution].Methods[1],
-					FrontSprite: CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					BackSprite:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					ShinyFront:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					ShinyBack:   CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					Icon:        CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					FrontSprite: CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					BackSprite:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyFront:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyBack:   CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					Icon:        CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
 					ID:          pokemons.Pokemon[pokemon].Evolutions[evolution].ID,
 				}
 				evolutions = append(evolutions, evolutionData)
@@ -75,11 +72,11 @@ func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *App) []Pokem
 					Name:        strings.ToUpper(pokemons.Pokemon[pokemon].Evolutions[evolution].Name[:1]) + pokemons.Pokemon[pokemon].Evolutions[evolution].Name[1:],
 					Method1:     "",
 					Method2:     "",
-					FrontSprite: CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					BackSprite:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					ShinyFront:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					ShinyBack:   CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
-					Icon:        CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					FrontSprite: CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					BackSprite:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyFront:  CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					ShinyBack:   CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
+					Icon:        CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.png", a.dataDirectory, pokemons.Pokemon[pokemon].Evolutions[evolution].ID, pokemons.Pokemon[pokemon].Evolutions[evolution].ID)),
 					ID:          pokemons.Pokemon[pokemon].Evolutions[evolution].ID,
 				}
 				evolutions = append(evolutions, evolutionData)
@@ -87,11 +84,11 @@ func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *App) []Pokem
 		}
 		trainerEditorPokemon := PokemonTrainerEditor{
 			Name:           strings.ToUpper(pokemons.Pokemon[pokemon].Species[:1]) + pokemons.Pokemon[pokemon].Species[1:],
-			FrontSprite:    CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
-			BackSprite:     CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
-			ShinyFront:     CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
-			ShinyBack:      CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID)),
-			Icon:           CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory.DataDirectory, pokemons.Pokemon[pokemon].ID, pokemons.Pokemon[pokemon].ID)),
+			FrontSprite:    CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory, pokemons.Pokemon[pokemon].ID)),
+			BackSprite:     CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/back/%s_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].ID)),
+			ShinyFront:     CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyfront/%s_front_shiny.png", a.dataDirectory, pokemons.Pokemon[pokemon].ID)),
+			ShinyBack:      CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/shinyback/%s_shiny_back.png", a.dataDirectory, pokemons.Pokemon[pokemon].ID)),
+			Icon:           CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory, pokemons.Pokemon[pokemon].ID, pokemons.Pokemon[pokemon].ID)),
 			HP:             pokemons.Pokemon[pokemon].Stats.Hp,
 			Defense:        pokemons.Pokemon[pokemon].Stats.Defense,
 			SpecialAttack:  pokemons.Pokemon[pokemon].Stats.SpecialAttack,
@@ -114,7 +111,7 @@ func (a *App) ParsePokemonData() []PokemonTrainerEditor {
 	return CreatePokemonTrainerEditorData(pokemons, a)
 }
 func ParseTrainerClassFile(a *App) []byte {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainerclasses.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainerclasses.toml", a.dataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -140,7 +137,7 @@ func (a *App) ParseTrainerClass() Models.TrainerClasses {
 }
 
 func (a *App) ParseHeldItems() []HeldItem {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/helditems.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/helditems.toml", a.dataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -167,31 +164,8 @@ func (a *App) ParseHeldItems() []HeldItem {
 	return heldItemsData
 }
 
-func (a *App) SetDataFolder() {
-	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select the engine directory",
-	})
-	if err != nil {
-		panic(err)
-	}
-	selection = strings.ReplaceAll(selection, "\\", "/")
-
-	options := OptionsConfig{
-		DataDirectory: selection,
-	}
-	content, err := json.Marshal(options)
-	if err != nil {
-		fmt.Println(err)
-	}
-	err = os.WriteFile("settings.json", content, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	a.dataDirectory, _ = SetupConfig()
-}
-
 func (a *App) ParseTrainers() []TrainerJson {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory.DataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -217,13 +191,13 @@ func (a *App) ParseTrainers() []TrainerJson {
 				SpecialDefense: trainers.Trainers[trainer].Pokemons[pokemon].SpecialDefense,
 				Attack:         trainers.Trainers[trainer].Pokemons[pokemon].Attack,
 				Defense:        trainers.Trainers[trainer].Pokemons[pokemon].Defense,
-				Front:          CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
+				Front:          CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/front/%s_front.png", a.dataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
 				ID:             trainers.Trainers[trainer].Pokemons[pokemon].ID,
-				Icon:           CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
+				Icon:           CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/icons/%s/%s.gif", a.dataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
 				Moves:          trainers.Trainers[trainer].Pokemons[pokemon].Moves,
 				Level:          trainers.Trainers[trainer].Pokemons[pokemon].Level,
 				HeldItem:       trainers.Trainers[trainer].Pokemons[pokemon].HeldItem,
-				Cry:            CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/cries/%s.wav", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
+				Cry:            CreateBase64File(fmt.Sprintf("%s/data/assets/pokemon/cries/%s.wav", a.dataDirectory, trainers.Trainers[trainer].Pokemons[pokemon].ID)),
 			}
 			pokemons = append(pokemons, pokemonData)
 
@@ -231,7 +205,7 @@ func (a *App) ParseTrainers() []TrainerJson {
 
 		trainerData := TrainerJson{
 			Name:       trainers.Trainers[trainer].Name,
-			Sprite:     CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory.DataDirectory, trainers.Trainers[trainer].Sprite)),
+			Sprite:     CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory, trainers.Trainers[trainer].Sprite)),
 			SpriteName: trainers.Trainers[trainer].Sprite,
 			Id:         trainers.Trainers[trainer].ID,
 			ClassType:  trainers.Trainers[trainer].ClassType,
@@ -243,7 +217,7 @@ func (a *App) ParseTrainers() []TrainerJson {
 }
 
 func (a *App) GrabTrainerSprites() []TrainerSprite {
-	trainerSprites, err := os.ReadDir(fmt.Sprintf("%s/data/assets/trainers_sprite", a.dataDirectory.DataDirectory))
+	trainerSprites, err := os.ReadDir(fmt.Sprintf("%s/data/assets/trainers_sprite", a.dataDirectory))
 	if err != nil {
 		fmt.Printf("Error is %v", err)
 	}
@@ -251,7 +225,7 @@ func (a *App) GrabTrainerSprites() []TrainerSprite {
 	for _, sprite := range trainerSprites {
 		trainerSprites := TrainerSprite{
 			Name: sprite.Name(),
-			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory.DataDirectory, sprite.Name())),
+			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/trainers_sprite/%s", a.dataDirectory, sprite.Name())),
 		}
 		trainerSpritesResult = append(trainerSpritesResult, trainerSprites)
 	}
@@ -259,7 +233,7 @@ func (a *App) GrabTrainerSprites() []TrainerSprite {
 }
 
 func (a *App) GrabAllMoves() Models.AllMoves {
-	movesFileName := fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory.DataDirectory)
+	movesFileName := fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory)
 	moves, err := os.Open(movesFileName)
 	if err != nil {
 		fmt.Printf("Error is %v", err)
