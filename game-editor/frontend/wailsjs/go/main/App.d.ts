@@ -21,6 +21,8 @@ export function ParseHeldItems():Promise<Array<main.HeldItem>>;
 
 export function ParseMoves():Promise<models.AllMoves>;
 
+export function ParseOverworldData():Promise<void>;
+
 export function ParsePokemonData():Promise<Array<main.PokemonTrainerEditor>>;
 
 export function ParseProjects():Promise<Array<models.Project>>;

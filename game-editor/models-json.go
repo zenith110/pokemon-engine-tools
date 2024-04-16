@@ -75,6 +75,7 @@ type TrainerSprite struct {
 type Song struct {
 	Name string
 	Path string
+	ID   string
 }
 
 type MapInput struct {

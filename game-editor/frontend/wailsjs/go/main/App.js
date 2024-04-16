@@ -38,6 +38,10 @@ export function ParseMoves() {
   return window['go']['main']['App']['ParseMoves']();
 }
 
+export function ParseOverworldData() {
+  return window['go']['main']['App']['ParseOverworldData']();
+}
+
 export function ParsePokemonData() {
   return window['go']['main']['App']['ParsePokemonData']();
 }
