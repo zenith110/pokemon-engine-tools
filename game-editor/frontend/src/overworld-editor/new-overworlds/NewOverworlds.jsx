@@ -11,31 +11,39 @@ const NewOverworlds = () => {
     return(
         <div>
             <div>
-                <button>Swimming Left Frame</button>
-                <button>Swimming Right Frame</button>
-                <button>Swimming Up Frame</button>
-                <button>Swimming Down Frame</button>
+                <label>Swimming frames</label>
+                <br/>
+                <button></button>
+                <button></button>
+                <button></button>
+                <button></button>
             </div>
             <br/> 
             <div>
-                <button>Running Left Frame</button>
-                <button>Running Right Frame</button>
-                <button>Running Up Frame</button>
-                <button>Running Down Frame</button>
+                <label>Running frames</label>
+                <br/>
+                <button></button>
+                <button></button>
+                <button></button>
+                <button></button>
             </div>
             <br/>
             <div>
-                <button>Walking Left Frame</button>
-                <button>Walking Right Frame</button>
-                <button>Walking Up Frame</button>
-                <button>Walking Down Frame</button>
+                <label>Walking frames</label>
+                <br/>
+                <button></button>
+                <button></button>
+                <button></button>
+                <button></button>
             </div>
             <br/>
             <div>
-                <button>Surfing Left Frame</button>
-                <button>Surfing Right Frame</button>
-                <button>Surfing Up Frame</button>
-                <button>Surfing Down Frame</button>
+                <label>Surfing frames</label>
+                <br/>
+                <button></button>
+                <button></button>
+                <button></button>
+                <button></button>
             </div>
             <br/>
             <button onClick={() => {
