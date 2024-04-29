@@ -4,6 +4,7 @@ import DownArrow from "../images/reshot-icon-down-arrow-P6BUA8L4DS.svg";
 import UpArrow from "../images/reshot-icon-up-arrow-XMEL8JGW5T.svg";
 import LeftArrow from "../images/reshot-icon-left-arrow-2RFCAW584E.svg";
 import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
+import FrameModal from "./FrameModal";
 const NewOverworlds = () => {
     const [name, setName] = useState("");
     const [swimmingFrames, setSwimmingFrames] = useState([])
@@ -22,37 +23,69 @@ const NewOverworlds = () => {
                 <br/>
                 <label>Swimming frames</label>
                 <br/>
-                <button><img src={UpArrow} width={32} height={32}/></button>
-                <button><img src={DownArrow} width={32} height={32}/></button>
-                <button><img src={LeftArrow} width={32} height={32}/></button>
-                <button><img src={RightArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Swimming"} nameOfOW={name} setFrames={setSwimmingFrames} Direction={"Up"}/>
+                }}><img src={UpArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Swimming"} nameOfOW={name} setFrames={setSwimmingFrames} Direction={"Down"}/>
+                }}><img src={DownArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Swimming"} nameOfOW={name} setFrames={setSwimmingFrames} Direction={"Left"}/>
+                }}><img src={LeftArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Swimming"} nameOfOW={name} setFrames={setSwimmingFrames} Direction={"Right"}/>
+                }}><img src={RightArrow} width={32} height={32}/></button>
             </div>
             <br/> 
             <div>
                 <label>Running frames</label>
                 <br/>
-                <button><img src={UpArrow} width={32} height={32}/></button>
-                <button><img src={DownArrow} width={32} height={32}/></button>
-                <button><img src={LeftArrow} width={32} height={32}/></button>
-                <button><img src={RightArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Running"} nameOfOW={name} setFrames={setRunningFrames} Direction={"Up"}/>
+                }}><img src={UpArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Running"} nameOfOW={name} setFrames={setRunningFrames} Direction={"Down"}/>
+                }}><img src={DownArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Running"} nameOfOW={name} setFrames={setRunningFrames} Direction={"Left"}/>
+                }}><img src={LeftArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Running"} nameOfOW={name} setFrames={setRunningFrames} Direction={"Right"}/>
+                }}><img src={RightArrow} width={32} height={32}/></button>
             </div>
             <br/>
             <div>
                 <label>Walking frames</label>
                 <br/>
-                <button><img src={UpArrow} width={32} height={32}/></button>
-                <button><img src={DownArrow} width={32} height={32}/></button>
-                <button><img src={LeftArrow} width={32} height={32}/></button>
-                <button><img src={RightArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Walking"} nameOfOW={name} setFrames={setWalkingFrames} Direction={"Up"}/>
+                }}><img src={UpArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Walking"} nameOfOW={name} setFrames={setWalkingFrames} Direction={"Down"}/>
+                }}><img src={DownArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Walking"} nameOfOW={name} setFrames={setWalkingFrames} Direction={"Left"}/>
+                }}><img src={LeftArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Walking"} nameOfOW={name} setFrames={setWalkingFrames} Direction={"Right"}/>
+                }}><img src={RightArrow} width={32} height={32}/></button>
             </div>
             <br/>
             <div>
                 <label>Surfing frames</label>
                 <br/>
-                <button><img src={UpArrow} width={32} height={32}/></button>
-                <button><img src={DownArrow} width={32} height={32}/></button>
-                <button><img src={LeftArrow} width={32} height={32}/></button>
-                <button><img src={RightArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Surfing"} nameOfOW={name} setFrames={setSurfingFrames} Direction={"Up"}/>
+                }}><img src={UpArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Surfing"} nameOfOW={name} setFrames={setSurfingFrames} Direction={"Down"}/>
+                }}><img src={DownArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Surfing"} nameOfOW={name} setFrames={setSurfingFrames} Direction={"Left"}/>
+                }}><img src={LeftArrow} width={32} height={32}/></button>
+                <button onClick={() => {
+                    <FrameModal typeOfFrame={"Surfing"} nameOfOW={name} setFrames={setSurfingFrames} Direction={"Right"}/>
+                }}><img src={RightArrow} width={32} height={32}/></button>
             </div>
             <br/>
             <button onClick={() => {
