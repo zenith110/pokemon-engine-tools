@@ -4,16 +4,17 @@ import DownArrow from "../images/reshot-icon-down-arrow-P6BUA8L4DS.svg";
 import UpArrow from "../images/reshot-icon-up-arrow-XMEL8JGW5T.svg";
 import LeftArrow from "../images/reshot-icon-left-arrow-2RFCAW584E.svg";
 import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
+
 import FrameModal from "./FrameModal";
+import { Checkbox } from "@material-tailwind/react";
+
 const NewOverworlds = () => {
     const [name, setName] = useState("");
-    const [swimmingFrames, setSwimmingFrames] = useState([])
-    const [walkingFrames, setWalkingFrames] = useState([])
-    const [runningFrames, setRunningFrames] = useState([])
+    const [swimmingFrames, setSwimmingFrames] = useState([]);
+    const [walkingFrames, setWalkingFrames] = useState([]);
+    const [runningFrames, setRunningFrames] = useState([]);
     const [isPlayer, setIsPlayer] = useState(false);
-    const [surfingFrames, setSurfingFrames] = useState([])
-    const [ID, setID] = useState("");
-    const [typeOfFrame, setTypeOfFrame] = useState();
+    const [surfingFrames, setSurfingFrames] = useState([]);
     return(
         <div>
             <div>
@@ -86,11 +87,20 @@ const NewOverworlds = () => {
                 <button onClick={() => {
                     <FrameModal typeOfFrame={"Surfing"} nameOfOW={name} setFrames={setSurfingFrames} Direction={"Right"}/>
                 }}><img src={RightArrow} width={32} height={32}/></button>
+                <br/>
+                <input type="checkbox" id="playerChoice" name="playerChoice" value="Player"/>
+                <label for="playerChoice">Is a playable character</label>
             </div>
             <br/>
             <button onClick={() => {
                 data = {
-                    "ID": uuidv4()
+                    "ID": uuidv4(),
+                    "Name": name,
+                    "SwimmingFrames": swimmingFrames,
+                    "RunningFrames": runningFrames,
+                    "WalkingFrames": walkingFrames,
+                    "SurfingFrames": surfingFrames,
+                    "IsPlayable": isPlayer
                 }
             }}>Save</button>
         </div>
