@@ -6,7 +6,6 @@ import LeftArrow from "../images/reshot-icon-left-arrow-2RFCAW584E.svg";
 import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
 
 import FrameModal from "./FrameModal";
-import { Checkbox } from "@material-tailwind/react";
 
 const NewOverworlds = () => {
     const [name, setName] = useState("");
