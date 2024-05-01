@@ -1,4 +1,5 @@
 import Modal from 'react-modal';
+import { useState } from "react";
 const customStyles = {
     content: {
       top: '50%',
@@ -11,6 +12,8 @@ const customStyles = {
   };
 
 const FrameModal = ({ typeOfFrame, nameOfOW, setFrames, direction, modalIsOpen, closeModal}) => {
+ const [currentFrameNumber, currentSetFrameNumber] = useState(0);
+ const [frameMax, setFrameMax] = useState(0)
  return(
     <div>
         <Modal
@@ -20,6 +23,10 @@ const FrameModal = ({ typeOfFrame, nameOfOW, setFrames, direction, modalIsOpen, 
             contentLabel="Example Modal"
         >
         <div className="text-black">
+            <label htmlForfor="frames">Number of frames:</label>
+            <br/>
+            <input type="number" id="frames" name="frames" min="1" max="9999" />
+            <br/>
             <button onClick={() => closeModal()}>Close</button>
         </div>
         </Modal>
