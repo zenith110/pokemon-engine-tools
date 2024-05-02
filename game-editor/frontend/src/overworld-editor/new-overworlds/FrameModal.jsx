@@ -20,7 +20,6 @@ const FrameModal = ({ typeOfFrame, nameOfOW, setFrames, direction, modalIsOpen, 
             isOpen={modalIsOpen}
             onRequestClose={closeModal}
             style={customStyles}
-            contentLabel="Example Modal"
         >
         <div className="text-black">
             <label htmlForfor="frames">Number of frames:</label>

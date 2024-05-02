@@ -8,7 +8,6 @@ import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
 import FrameModal from "./FrameModal";
 
 const NewOverworlds = () => {
-    const [name, setName] = useState("");
     const [swimmingFrames, setSwimmingFrames] = useState([]);
     const [walkingFrames, setWalkingFrames] = useState([]);
     const [runningFrames, setRunningFrames] = useState([]);
@@ -41,10 +40,6 @@ const NewOverworlds = () => {
     return(
         <div>
             <div>
-                <label>Name of OW</label>
-                <br/>
-                <input onChange={(e) => setName(e.target.value)}></input>
-                <br/>
                 <label>Swimming frames</label>
                 <br/>
                 <button onClick={() => {
