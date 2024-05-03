@@ -6,6 +6,10 @@ export function CreateMapConfig(arg1) {
   return window['go']['main']['App']['CreateMapConfig'](arg1);
 }
 
+export function CreateOverworldFrame(arg1, arg2) {
+  return window['go']['main']['App']['CreateOverworldFrame'](arg1, arg2);
+}
+
 export function CreateProject(arg1) {
   return window['go']['main']['App']['CreateProject'](arg1);
 }
@@ -28,6 +32,10 @@ export function GrabProjectWorkspace() {
 
 export function GrabTrainerSprites() {
   return window['go']['main']['App']['GrabTrainerSprites']();
+}
+
+export function ImportProject() {
+  return window['go']['main']['App']['ImportProject']();
 }
 
 export function ParseHeldItems() {

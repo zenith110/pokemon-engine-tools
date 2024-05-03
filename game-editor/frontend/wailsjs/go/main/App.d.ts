@@ -5,6 +5,8 @@ import {models} from '../models';
 
 export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
 
+export function CreateOverworldFrame(arg1:string,arg2:number):Promise<{[key: string]: string}>;
+
 export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
@@ -16,6 +18,8 @@ export function GrabMusicTracks():Promise<Array<main.Song>>;
 export function GrabProjectWorkspace():Promise<string>;
 
 export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
+
+export function ImportProject():Promise<void>;
 
 export function ParseHeldItems():Promise<Array<main.HeldItem>>;
 

@@ -1,7 +1,7 @@
 import Modal from 'react-modal';
 import { useState } from "react";
 
-import { CreateOverworldFrame } from "../../wailsjs/go/main/App";
+import { CreateOverworldFrame } from "../../../wailsjs/go/main/App";
 const customStyles = {
     content: {
       top: '50%',
@@ -30,6 +30,7 @@ const FrameModal = ({ typeOfFrame, nameOfOW, setFrames, direction, modalIsOpen, 
             <br/>
             <button onClick={async() => {
               let data = await CreateOverworldFrame();
+              console.log(data)
             }}>Upload Frame</button>
             {currentFrameNumber < frameMax ? <button>Continue</button> : <div></div>}
             <button onClick={() => closeModal()}>Close</button>
