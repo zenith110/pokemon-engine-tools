@@ -16,6 +16,7 @@ const customStyles = {
 const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOpen, closeModal, frames}) => {
  const [currentFrameNumber, currentSetFrameNumber] = useState(0);
  const [frameMax, setFrameMax] = useState(0)
+ const [frameImage, setFrameImage] = useState("")
  return(
     <div>
         <Modal
@@ -28,12 +29,14 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
             <br/>
             <input type="number" id="frames" name="frames" min="1" max="9999" />
             <br/>
+            <img src={frameImage? `data:image/png;base64,${frameImage}` : ''} alt={() => `${nameOfFolder} image`} />
             <button onClick={async() => {
               let data = await CreateOverworldFrame(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
               setFrames([
                 ...frames,
                 data
               ])
+              setFrameImage(data.sprite)
             }}>Upload Frame</button>
             {currentFrameNumber < frameMax ? <button>Continue</button> : <div></div>}
             <button onClick={() => closeModal()}>Close</button>

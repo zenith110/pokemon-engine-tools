@@ -117,7 +117,7 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 		panic(err)
 	}
 	frameData := make(map[string]string)
-	localPath := fmt.Sprintf("%s/%s/%d.png", basePath, frameSetName, frame)
+	localPath := fmt.Sprintf("%s/%d/%s/%d.png", basePath, frame, frameSetName, frame)
 	frameData["path"] = localPath
 	frameData["sprite"] = CreateBase64File(outputFile)
 	frameData["direction"] = direction
