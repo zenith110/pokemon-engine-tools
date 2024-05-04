@@ -3,9 +3,11 @@
 import {main} from '../models';
 import {models} from '../models';
 
+export function CheckOverworldId():Promise<number>;
+
 export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
 
-export function CreateOverworldFrame(arg1:string,arg2:number):Promise<{[key: string]: string}>;
+export function CreateOverworldFrame(arg1:string,arg2:number,arg3:number,arg4:string):Promise<{[key: string]: string}>;
 
 export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 

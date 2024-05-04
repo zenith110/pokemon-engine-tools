@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"strconv"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -13,9 +14,23 @@ import (
 func (a *App) ParseOverworldData() {
 
 }
+func (a *App) CheckOverworldId() int {
+	// Gets all the files of a directory
+	basePath := "data/assets/overworlds"
+	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+	entries, _ := os.ReadDir(filePath)
+	var newOverWorldFolderNumber = 0
+	if len(entries) <= 0 {
+		newOverWorldFolderNumber = 0
+	} else {
+		// Gets the number of current ows, and -1 for 0 indexing
+		newOverWorldFolderNumber = len(entries) - 1
+	}
+	return newOverWorldFolderNumber
+}
 
 // Creates a frame, returns base64 version of the frame + base location in game engine
-func (a *App) CreateOverworldFrame(frameSetName string, frame int) map[string]string {
+func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId int, direction string) map[string]string {
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select trainer image",
 		Filters: []runtime.FileFilter{
@@ -30,15 +45,13 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int) map[string]st
 	}
 
 	// Gets all the files of a directory
-	basePath := "data/assets/overworld"
+	basePath := "data/assets/overworlds"
 	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
-	entries, _ := os.ReadDir(filePath)
-	// Gets the number of current ows, and -1 for 0 indexing
-	newOverWorldFolderNumber := len(entries) - 1
+
 	// Creates new directory for the ow
-	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, newOverWorldFolderNumber)
+	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
 	if _, err := os.Stat(newOverWorldFolderPath); os.IsNotExist(err) {
-		os.Mkdir(newOverWorldFolderPath, fs.FileMode(os.O_CREATE))
+		os.MkdirAll(newOverWorldFolderPath, fs.FileMode(os.O_CREATE))
 	}
 	// Creates folder for the specific frametype
 	/*
@@ -48,9 +61,9 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int) map[string]st
 		running
 		surfing
 	*/
-	frameSetNameFilePath := fmt.Sprintf("%s/%s", newOverWorldFolderPath, frameSetName)
+	frameSetNameFilePath := fmt.Sprintf("%s/%s/%s", newOverWorldFolderPath, frameSetName, direction)
 	if _, err := os.Stat(frameSetNameFilePath); os.IsNotExist(err) {
-		os.Mkdir(frameSetNameFilePath, fs.FileMode(os.O_CREATE))
+		os.MkdirAll(frameSetNameFilePath, 0700)
 	}
 	fi, err := os.Open(selection)
 	if err != nil {
@@ -104,8 +117,10 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int) map[string]st
 		panic(err)
 	}
 	frameData := make(map[string]string)
-	localPath := fmt.Sprintf("%s/%d.png", basePath, frame)
+	localPath := fmt.Sprintf("%s/%s/%d.png", basePath, frameSetName, frame)
 	frameData["path"] = localPath
 	frameData["sprite"] = CreateBase64File(outputFile)
+	frameData["direction"] = direction
+	frameData["frameNumber"] = strconv.Itoa(frame)
 	return frameData
 }
