@@ -154,6 +154,7 @@ const NewOverworlds = () => {
             <br/>
             <button onClick={() => {
                 let data = {
+                    "Id": uuidv4(),
                     "OverworldId": folderName,
                     "SwimmingFrames": swimmingFrames,
                     "RunningFrames": runningFrames,
