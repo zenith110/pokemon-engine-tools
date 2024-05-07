@@ -16,7 +16,6 @@ const customStyles = {
 const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOpen, closeModal, frames}) => {
  const [currentFrameNumber, currentSetFrameNumber] = useState(0);
  const [frameMax, setFrameMax] = useState(0)
- const [frameImage, setFrameImage] = useState("")
  return(
     <div>
         <Modal
@@ -27,18 +26,23 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
         <div className="text-black">
             <label htmlForfor="frames">Number of frames:</label>
             <br/>
-            <input type="number" id="frames" name="frames" min="1" max="9999" />
+            <input type="number" id="frames" name="frames" min="1" max="9999" onChange={(e) => setFrameMax(e.target.value)}/>
             <br/>
-            <img src={frameImage? `data:image/png;base64,${frameImage}` : ''} alt={() => `${nameOfFolder} image`} />
+            <label htmlForfor="frames">Current frame:</label>
+            <br/>
+            <input type="number" id="currentFrame" name="currentFrame" min={currentFrameNumber} max={frameMax} onChange={(e) => currentSetFrameNumber(e.target.value)} value={currentFrameNumber}/>
+            <br/>
+            <img src={frames[currentFrameNumber]? `data:image/png;base64,${frames[currentFrameNumber]?.sprite}` : ''} alt={() => `${nameOfFolder} image`} />
             <button onClick={async() => {
               let data = await CreateOverworldFrame(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
               setFrames([
                 ...frames,
                 data
               ])
-              setFrameImage(data.sprite)
             }}>Upload Frame</button>
+            <br/>
             {currentFrameNumber < frameMax ? <button>Continue</button> : <div></div>}
+            <br/>
             <button onClick={() => closeModal()}>Close</button>
         </div>
         </Modal>

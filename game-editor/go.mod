@@ -7,7 +7,7 @@ toolchain go1.22.1
 require (
 	github.com/google/uuid v1.6.0
 	github.com/pelletier/go-toml/v2 v2.1.1
-	github.com/wailsapp/wails/v2 v2.8.1
+	github.com/wailsapp/wails/v2 v2.7.1
 	github.com/zenith110/pokemon-go-engine v0.0.0-20240415165453-cdc695ef457a
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
@@ -33,6 +33,7 @@ require (
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
