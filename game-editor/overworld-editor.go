@@ -3,11 +3,15 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image"
+	"image/gif"
 	"io"
 	"io/fs"
 	"os"
 	"strconv"
+	"strings"
 
+	"github.com/andybons/gogif"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -27,6 +31,27 @@ func (a *App) CheckOverworldId() int {
 		newOverWorldFolderNumber = len(entries) - 1
 	}
 	return newOverWorldFolderNumber
+}
+
+func CreateImagesArray(filePath string) []image.Image {
+	var images []image.Image
+	files, err := os.ReadDir(filePath)
+	if err != nil {
+		fmt.Printf("Error has occured while making image array!\nError is %v", err)
+	}
+	for _, file := range files {
+		if strings.Contains(file.Name(), ".png") {
+			overworldFramePath := fmt.Sprintf("%s/%s", filePath, file.Name())
+			f, err := os.Open(overworldFramePath)
+			if err != nil {
+				fmt.Printf("Error has occured while opening file %s!\nError is %v", file.Name(), err)
+			}
+			defer f.Close()
+			image, _, _ := image.Decode(f)
+			images = append(images, image)
+		}
+	}
+	return images
 }
 
 // Creates a frame, returns base64 version of the frame + base location in game engine
@@ -123,4 +148,38 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 	frameData["direction"] = direction
 	frameData["frameNumber"] = strconv.Itoa(frame)
 	return frameData
+}
+
+func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) {
+	// Gets all the files of a directory
+	basePath := "data/assets/overworlds"
+	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+
+	// Creates new directory for the ow
+	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
+	animatedOverworldBase := fmt.Sprintf("%s/%s/", newOverWorldFolderPath, frameSetName)
+	animatedOverworld, err := os.OpenFile(fmt.Sprintf("%s/%s/%s_%d.gif", newOverWorldFolderPath, frameSetName, frameSetName, frame), os.O_CREATE, 077)
+
+	if err != nil {
+		fmt.Printf("Error has been thrown while creating a gif!\nError is %v", err)
+	}
+
+	outputGif := &gif.GIF{
+		LoopCount: 0,
+	}
+
+	images := CreateImagesArray(animatedOverworldBase)
+
+	for _, imageBase := range images {
+		bounds := imageBase.Bounds()
+		palettedImage := image.NewPaletted(bounds, nil)
+		quantizer := gogif.MedianCutQuantizer{NumColor: 64}
+		quantizer.Quantize(palettedImage, bounds, imageBase, image.Point{})
+
+		// Add new frame to animated GIF
+		outputGif.Image = append(outputGif.Image, palettedImage)
+		outputGif.Delay = append(outputGif.Delay, 0)
+	}
+
+	gif.EncodeAll(animatedOverworld, outputGif)
 }

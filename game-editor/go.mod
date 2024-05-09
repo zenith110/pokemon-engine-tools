@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/andybons/gogif v0.0.0-20140526152223-16d573594812 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
