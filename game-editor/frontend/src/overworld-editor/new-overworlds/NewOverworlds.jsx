@@ -18,6 +18,7 @@ const NewOverworlds = () => {
     const [frameSet, setFrameSet] = useState();
     const [currentDirection, setCurrentDirection] = useState()
     const [folderName, setFolderName] = useState(0)
+    const [finalizedGifs, setFinalizedGifs] = useState({})
     useEffect(() => {
         const GetOverworldId = async() => {
             let data = await CheckOverworldId();

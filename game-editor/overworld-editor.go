@@ -57,7 +57,7 @@ func CreateImagesArray(filePath string) []image.Image {
 // Creates a frame, returns base64 version of the frame + base location in game engine
 func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId int, direction string) map[string]string {
 	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select trainer image",
+		Title: "Select overworld frame",
 		Filters: []runtime.FileFilter{
 			{
 				DisplayName: "Images (*.png)",
@@ -92,7 +92,7 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 	}
 	fi, err := os.Open(selection)
 	if err != nil {
-		panic(err)
+		fmt.Errorf("error has occured while opening file!\nerror is: %v", err)
 	}
 	// close file on exit and check for its returned error
 	defer func() {
@@ -150,7 +150,7 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 	return frameData
 }
 
-func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) {
+func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) string {
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
 	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
@@ -158,7 +158,9 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 	// Creates new directory for the ow
 	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
 	animatedOverworldBase := fmt.Sprintf("%s/%s/", newOverWorldFolderPath, frameSetName)
-	animatedOverworld, err := os.OpenFile(fmt.Sprintf("%s/%s/%s_%d.gif", newOverWorldFolderPath, frameSetName, frameSetName, frame), os.O_CREATE, 077)
+	animatedOverworldFileName := fmt.Sprintf("%s/%s/%s/%s_%d.gif", newOverWorldFolderPath, frameSetName, frameSetName, direction, overworldId)
+	// Creates a writer to be used for the gif
+	animatedOverworld, err := os.OpenFile(animatedOverworldFileName, os.O_CREATE, 077)
 
 	if err != nil {
 		fmt.Printf("Error has been thrown while creating a gif!\nError is %v", err)
@@ -168,6 +170,7 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 		LoopCount: 0,
 	}
 
+	// Goes through all the png files and adds them to an array to animate
 	images := CreateImagesArray(animatedOverworldBase)
 
 	for _, imageBase := range images {
@@ -182,4 +185,6 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 	}
 
 	gif.EncodeAll(animatedOverworld, outputGif)
+	overworldGif := CreateBase64File(animatedOverworldFileName)
+	return overworldGif
 }

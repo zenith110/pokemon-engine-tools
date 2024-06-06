@@ -13,6 +13,8 @@ export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
 
+export function CreteOverworldGif(arg1:string,arg2:number,arg3:number,arg4:string):Promise<string>;
+
 export function GrabAllMoves():Promise<models.AllMoves>;
 
 export function GrabMusicTracks():Promise<Array<main.Song>>;

@@ -22,6 +22,10 @@ export function CreateTrainerData(arg1) {
   return window['go']['main']['App']['CreateTrainerData'](arg1);
 }
 
+export function CreteOverworldGif(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['CreteOverworldGif'](arg1, arg2, arg3, arg4);
+}
+
 export function GrabAllMoves() {
   return window['go']['main']['App']['GrabAllMoves']();
 }

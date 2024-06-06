@@ -5,6 +5,7 @@ go 1.21.1
 toolchain go1.22.1
 
 require (
+	github.com/andybons/gogif v0.0.0-20140526152223-16d573594812
 	github.com/google/uuid v1.6.0
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/wailsapp/wails/v2 v2.7.1
@@ -14,7 +15,6 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/andybons/gogif v0.0.0-20140526152223-16d573594812 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect

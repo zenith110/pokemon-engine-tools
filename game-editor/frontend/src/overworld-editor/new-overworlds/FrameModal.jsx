@@ -1,7 +1,7 @@
 import Modal from 'react-modal';
 import { useState } from "react";
 
-import { CreateOverworldFrame } from "../../../wailsjs/go/main/App";
+import { CreateOverworldFrame, CreteOverworldGif  } from "../../../wailsjs/go/main/App";
 const customStyles = {
     content: {
       top: '50%',
@@ -24,17 +24,18 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
             style={customStyles}
         >
         <div className="text-black">
-            <label htmlForfor="frames">Number of frames:</label>
+            <label>Number of frames:</label>
             <br/>
             <input type="number" id="frames" name="frames" min="1" max="9999" onChange={(e) => setFrameMax(e.target.value)}/>
             <br/>
-            <label htmlForfor="frames">Current frame:</label>
+            <label>Current frame:</label>
             <br/>
             <input type="number" id="currentFrame" name="currentFrame" min={currentFrameNumber} max={frameMax} onChange={(e) => currentSetFrameNumber(e.target.value)} value={currentFrameNumber}/>
             <br/>
             <img src={frames[currentFrameNumber]? `data:image/png;base64,${frames[currentFrameNumber]?.sprite}` : ''} alt={() => `${nameOfFolder} image`} />
             <button onClick={async() => {
-              let data = await CreateOverworldFrame(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
+              console.log(currentFrameNumber)
+              let data = await CreateOverworldFrame(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
               setFrames([
                 ...frames,
                 data
@@ -43,7 +44,9 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
             <br/>
             {currentFrameNumber < frameMax ? <button>Continue</button> : <div></div>}
             <br/>
-            <button onClick={() => closeModal()}>Close</button>
+            { currentFrameNumber == frameMax ? <button onClick={async() => {
+              let data = await CreteOverworldGif(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
+            }}>Close</button> : <div></div>}
         </div>
         </Modal>
     </div>
