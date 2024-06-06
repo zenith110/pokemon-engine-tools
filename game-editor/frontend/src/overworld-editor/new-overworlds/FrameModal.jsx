@@ -34,7 +34,6 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
             <br/>
             <img src={frames[currentFrameNumber]? `data:image/png;base64,${frames[currentFrameNumber]?.sprite}` : ''} alt={() => `${nameOfFolder} image`} />
             <button onClick={async() => {
-              console.log(currentFrameNumber)
               let data = await CreateOverworldFrame(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
               setFrames([
                 ...frames,
@@ -42,10 +41,9 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
               ])
             }}>Upload Frame</button>
             <br/>
-            {currentFrameNumber < frameMax ? <button>Continue</button> : <div></div>}
             <br/>
             { currentFrameNumber == frameMax ? <button onClick={async() => {
-              let data = await CreteOverworldGif(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
+              await CreteOverworldGif(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
             }}>Close</button> : <div></div>}
         </div>
         </Modal>
