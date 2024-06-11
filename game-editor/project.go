@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	Models "github.com/zenith110/pokemon-go-engine/models"
@@ -173,4 +174,46 @@ func (a *App) SelectProject(project ProjectSelect) {
 	if _, err := f.Write(data); err != nil {
 		fmt.Printf("Error occured while writing data %v\n", err)
 	}
+}
+
+func (a *App) ImportProject() {
+	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select engine base directory",
+	})
+	if err != nil {
+		fmt.Printf("error is %v while importing a project!\n", err)
+	}
+
+	id := uuid.New()
+	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
+	currentTime := time.Now()
+	projectNameSplit := strings.Split(selectionUpdated, "/")
+	projectName := projectNameSplit[len(projectNameSplit)-1]
+	projectData := Models.Project{
+		Name:            projectName,
+		FolderLocation:  selectionUpdated,
+		VersionOfEngine: "",
+		CreatedDateTime: currentTime.UTC().String(),
+		ID:              id.String(),
+		LastUsed:        "N/A",
+	}
+	var projects []Models.Project
+	projects = append(projects, projectData)
+	projectDataToml := Models.Projects{
+		Project: projects,
+	}
+	data, err := toml.Marshal(projectDataToml)
+	if err != nil {
+		fmt.Printf("error while creating new project file! %v\n", err)
+	}
+
+	f, err := os.OpenFile("projects.toml", os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatalf("Error occured while opening file %v\n", err)
+	}
+	defer f.Close()
+	if _, err := f.Write(data); err != nil {
+		fmt.Printf("Error occured while writing data %v\n", err)
+	}
+	a.dataDirectory = selectionUpdated
 }

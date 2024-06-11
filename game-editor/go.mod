@@ -5,9 +5,11 @@ go 1.21.1
 toolchain go1.22.1
 
 require (
+	github.com/andybons/gogif v0.0.0-20140526152223-16d573594812
+	github.com/google/uuid v1.6.0
 	github.com/pelletier/go-toml/v2 v2.1.1
 	github.com/wailsapp/wails/v2 v2.7.1
-	github.com/zenith110/pokemon-go-engine v0.0.0-20240413233231-8a9468f104f0
+	github.com/zenith110/pokemon-go-engine v0.0.0-20240415165453-cdc695ef457a
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
 
@@ -17,7 +19,6 @@ require (
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
-	github.com/google/uuid v1.5.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect

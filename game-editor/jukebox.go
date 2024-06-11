@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -17,10 +18,13 @@ func (a *App) GrabMusicTracks() []Song {
 	}
 	var musicTrackResults []Song
 	for _, song := range musicTracks {
+		songId := 0
 		songData := Song{
 			Name: song.Name(),
 			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, song.Name())),
+			ID:   strconv.Itoa(songId),
 		}
+		songId += 1
 		musicTrackResults = append(musicTrackResults, songData)
 	}
 	return musicTrackResults

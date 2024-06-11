@@ -62,7 +62,6 @@ export default function PokemonEditor():React.ReactElement {
                                         ?.Name ? selected?.Abilities.find(ability => ability.IsHidden)
                                         ?.Name : undefined
                                 );
-                                console.log("selected pokemon: ", selectedPokemon);
                             }}
                             isClearable={false}
                             isDisabled={false}

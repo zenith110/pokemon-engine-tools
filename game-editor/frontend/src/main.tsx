@@ -11,6 +11,8 @@ import Jukebox from "./jukebox/main";
 import MoveEditor from "./move-editor/main";
 import ScriptEditor from "./script-editor/main";
 import Homepage from "./homepage/main"
+import OverworldEditor from "./overworld-editor/main"
+import NewOverworlds from "./overworld-editor/new-overworlds/NewOverworlds"
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
@@ -25,6 +27,8 @@ root.render(
                  <Route path="/jukebox" element={<Jukebox/>}/>
                  <Route path="/move-editor" element={<MoveEditor/>}/>
                  <Route path="/script-editor" element={<ScriptEditor/>}/>
+                 <Route path="/overworld-editor" element={<OverworldEditor/>}/>
+                 <Route path="/overworld-editor/new-overworld" element={<NewOverworlds/>}/>
              </Routes>
         </HashRouter>
     </React.StrictMode>

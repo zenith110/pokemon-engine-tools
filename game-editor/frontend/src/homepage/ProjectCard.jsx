@@ -19,7 +19,7 @@ const ProjectCard = ({ project }) => {
     return(
         <div>
             <Card className="mt-3 w-96 h-22 text-black content-center">
-            <CardHeader color="blue-gray" className="relative h-56 mt-6 w-96 text-black">
+            <CardHeader color="blue-gray" className="h-10 mt-0 w-15 text-black">
                 <h1>Project: {project.Name}</h1>
             </CardHeader>
             <CardBody>
@@ -27,10 +27,9 @@ const ProjectCard = ({ project }) => {
                     await SelectProject(project)
                 }}>Select</Button>
                 <br/>
-                {finalDate}
             </CardBody>
-            <CardFooter className="pt-0">
-                <Button>Read More</Button>
+            <CardFooter className="text-black">
+             {finalDate}
             </CardFooter>
             </Card>
         </div>

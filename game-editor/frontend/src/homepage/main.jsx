@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ParseProjects } from "../../wailsjs/go/main/App";
+import { ParseProjects, ImportProject} from "../../wailsjs/go/main/App";
 
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";
@@ -26,6 +26,7 @@ const  HomePage = () => {
                     <ProjectCard key={project.ID} project={project} />
                 </div> 
             )}
+            <button onClick={() => ImportProject()}>Import Project</button>
         </div>
     )
 }

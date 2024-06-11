@@ -15,10 +15,10 @@ export default function NavBar() {
     { name: 'Projects', href: '/', current: false},
     { name: 'Trainers', href: '/trainer-editor', current: false },
     { name: 'Pokemon', href: '/pokemon-editor', current: false },
-    { name: 'Overworld', href: '/ow-editor', current: false },
+    { name: 'Overworld', href: '/overworld-editor', current: false },
     { name: 'Move', href: '/move-editor', current: false },
     { name: 'Jukebox', href: '/jukebox', current: false },
-   { name: 'Script', href: '/script-editor', current: false}
+    { name: 'Script', href: '/script-editor', current: false}
   ]
 
   return (
