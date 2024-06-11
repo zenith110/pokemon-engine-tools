@@ -16,6 +16,7 @@ const customStyles = {
 const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOpen, closeModal, frames}) => {
  const [currentFrameNumber, currentSetFrameNumber] = useState(0);
  const [frameMax, setFrameMax] = useState(0)
+ const [gif, setGif] = useState("")
  return(
     <div>
         <Modal
@@ -43,8 +44,12 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
             <br/>
             <br/>
             { currentFrameNumber == frameMax ? <button onClick={async() => {
-              await CreteOverworldGif(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
-            }}>Close</button> : <div></div>}
+              let gifData = await CreteOverworldGif(typeOfFrame, parseInt(currentFrameNumber, 10), nameOfFolder, direction);
+              setGif(gifData)
+            }}>Create Gif</button> : <div/>}
+            <br/>
+            <img src={gif ? `data:image/gif;base64,${gif}` : ""}></img>
+            <button onClick={() => closeModal()}>Close</button>
         </div>
         </Modal>
     </div>

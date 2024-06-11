@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/gif"
+	"image/png"
 	"io"
 	"io/fs"
 	"os"
@@ -42,15 +43,21 @@ func CreateImagesArray(filePath string) []image.Image {
 	for _, file := range files {
 		if strings.Contains(file.Name(), ".png") {
 			overworldFramePath := fmt.Sprintf("%s/%s", filePath, file.Name())
+			fmt.Printf("File name is %s\n", overworldFramePath)
 			f, err := os.Open(overworldFramePath)
 			if err != nil {
 				fmt.Printf("Error has occured while opening file %s!\nError is %v", file.Name(), err)
 			}
 			defer f.Close()
-			image, _, _ := image.Decode(f)
+			image, err := png.Decode(f)
+			if err != nil {
+				fmt.Printf("Error occured while reading %s!\nError is %v", file.Name(), err)
+			}
+			fmt.Print(image)
 			images = append(images, image)
 		}
 	}
+	fmt.Print(images)
 	return images
 }
 
@@ -157,15 +164,15 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 
 	// Creates new directory for the ow
 	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
-	animatedOverworldBase := fmt.Sprintf("%s/%s/", newOverWorldFolderPath, frameSetName)
-	animatedOverworldFileName := fmt.Sprintf("%s/%s/%s/%s_%d.gif", newOverWorldFolderPath, frameSetName, frameSetName, direction, overworldId)
+	animatedOverworldBase := fmt.Sprintf("%s/%s/%s", newOverWorldFolderPath, frameSetName, direction)
+
+	animatedOverworldFileName := fmt.Sprintf("%s/%s/%s/%d.gif", newOverWorldFolderPath, frameSetName, direction, overworldId)
 	// Creates a writer to be used for the gif
-	animatedOverworld, err := os.OpenFile(animatedOverworldFileName, os.O_CREATE, 077)
+	animatedOverworld, err := os.Create(animatedOverworldFileName)
 
 	if err != nil {
 		fmt.Printf("Error has been thrown while creating a gif!\nError is %v", err)
 	}
-
 	outputGif := &gif.GIF{
 		LoopCount: 0,
 	}
@@ -183,8 +190,9 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 		outputGif.Image = append(outputGif.Image, palettedImage)
 		outputGif.Delay = append(outputGif.Delay, 0)
 	}
-
+	defer animatedOverworld.Close()
 	gif.EncodeAll(animatedOverworld, outputGif)
 	overworldGif := CreateBase64File(animatedOverworldFileName)
 	return overworldGif
+
 }
