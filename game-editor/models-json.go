@@ -132,3 +132,14 @@ type ProjectSelect struct {
 	Name            string `json:"Name"`
 	VersionOfEngine string `json:"VersionOfEngine"`
 }
+
+type OverworldDataJson struct {
+	ID             string          `json:"ID"`
+	OverworldId    string          `json:"OverworldId"`
+	SwimmingFrames models.Swimming `json:"SwimmingFrames"`
+	RunningFrames  models.Running  `json:"RunningFrames"`
+	WalkingFrames  models.Walking  `json:"WalkingFrames"`
+	IsPlayer       bool            `json:"IsPlayer"`
+	SurfingFrames  models.Surfing  `json:"SurfingFrames"`
+	Name           string          `json:"Name"`
+}

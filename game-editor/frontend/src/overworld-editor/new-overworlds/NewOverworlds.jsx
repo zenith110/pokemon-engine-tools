@@ -155,15 +155,16 @@ const NewOverworlds = () => {
             <br/>
             <button onClick={() => {
                 let data = {
-                    "Id": uuidv4(),
+                    "ID": uuidv4(),
                     "OverworldId": folderName,
                     "SwimmingFrames": swimmingFrames,
                     "RunningFrames": runningFrames,
                     "WalkingFrames": walkingFrames,
                     "SurfingFrames": surfingFrames,
-                    "IsPlayable": isPlayer
+                    "IsPlayer": isPlayer,
+                    "Name": folderName
                 }
-                console.log(data)
+               
             }}>Save</button>
         </div>
     )

@@ -8,12 +8,15 @@ import (
 	"image/png"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/andybons/gogif"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/zenith110/pokemon-go-engine/models"
 )
 
 func (a *App) ParseOverworldData() {
@@ -195,4 +198,34 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 	overworldGif := CreateBase64File(animatedOverworldFileName)
 	return overworldGif
 
+}
+
+func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
+	var overworlds []models.Overworld
+	overworld := models.Overworld{
+		Name:     overworldData.Name,
+		ID:       overworldData.ID,
+		IsPlayer: overworldData.IsPlayer,
+		Swimming: overworldData.SwimmingFrames,
+		Surfing:  overworldData.SurfingFrames,
+		Running:  overworldData.RunningFrames,
+		Walking:  overworldData.WalkingFrames,
+	}
+	overworlds = append(overworlds, overworld)
+	overworldsHolder := models.OverworldsHolder{
+		Overworlds: overworlds,
+	}
+	data, err := toml.Marshal(overworldsHolder)
+	if err != nil {
+		fmt.Printf("error while creating new project file! %v\n", err)
+	}
+
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/asset/toml/overworlds.toml", a.dataDirectory), os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatalf("Error occured while opening file %v\n", err)
+	}
+	defer f.Close()
+	if _, err := f.Write(data); err != nil {
+		fmt.Printf("Error occured while writing data %v\n", err)
+	}
 }
