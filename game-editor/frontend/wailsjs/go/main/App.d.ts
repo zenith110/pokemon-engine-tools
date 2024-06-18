@@ -3,11 +3,19 @@
 import {main} from '../models';
 import {models} from '../models';
 
+export function CheckOverworldId():Promise<number>;
+
 export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
+
+export function CreateOverworldFrame(arg1:string,arg2:number,arg3:number,arg4:string):Promise<{[key: string]: string}>;
+
+export function CreateOverworldTomlEntry(arg1:main.OverworldDataJson):Promise<void>;
 
 export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;
+
+export function CreteOverworldGif(arg1:string,arg2:number,arg3:number,arg4:string):Promise<string>;
 
 export function GrabAllMoves():Promise<models.AllMoves>;
 
@@ -17,17 +25,23 @@ export function GrabProjectWorkspace():Promise<string>;
 
 export function GrabTrainerSprites():Promise<Array<main.TrainerSprite>>;
 
+export function ImportProject():Promise<void>;
+
 export function ParseHeldItems():Promise<Array<main.HeldItem>>;
 
 export function ParseMoves():Promise<models.AllMoves>;
 
+export function ParseOverworldData():Promise<void>;
+
 export function ParsePokemonData():Promise<Array<main.PokemonTrainerEditor>>;
+
+export function ParseProjects():Promise<Array<models.Project>>;
 
 export function ParseTrainerClass():Promise<models.TrainerClasses>;
 
 export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 
-export function SetDataFolder():Promise<void>;
+export function SelectProject(arg1:main.ProjectSelect):Promise<void>;
 
 export function SetMapTileset():Promise<string>;
 

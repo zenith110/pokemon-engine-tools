@@ -5,22 +5,26 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 func (a *App) GrabMusicTracks() []Song {
-	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", a.dataDirectory.DataDirectory))
+	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", a.dataDirectory))
 	if err != nil {
 		fmt.Printf("Error is %v", err)
 	}
 	var musicTrackResults []Song
 	for _, song := range musicTracks {
+		songId := 0
 		songData := Song{
 			Name: song.Name(),
-			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory.DataDirectory, song.Name())),
+			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, song.Name())),
+			ID:   strconv.Itoa(songId),
 		}
+		songId += 1
 		musicTrackResults = append(musicTrackResults, songData)
 	}
 	return musicTrackResults
@@ -57,7 +61,7 @@ func (a *App) UploadNewSong() {
 	r := bufio.NewReader(fi)
 
 	// open output file
-	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory.DataDirectory, songName))
+	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, songName))
 	if err != nil {
 		panic(err)
 	}

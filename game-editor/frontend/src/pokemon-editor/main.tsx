@@ -20,7 +20,6 @@ export default function PokemonEditor():React.ReactElement {
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
         setPokemonSpecies(data);
-        console.log("list of Pokemon: ", pokemonSpecies);
     }
 
     const handleStatChange = (stat: string, val: number) => {
@@ -63,7 +62,6 @@ export default function PokemonEditor():React.ReactElement {
                                         ?.Name ? selected?.Abilities.find(ability => ability.IsHidden)
                                         ?.Name : undefined
                                 );
-                                console.log("selected pokemon: ", selectedPokemon);
                             }}
                             isClearable={false}
                             isDisabled={false}

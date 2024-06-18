@@ -2,6 +2,24 @@ export namespace main {
 	
 	
 	
+	export class OverworldDataJson {
+	    ID: string;
+	    OverworldId: string;
+	    IsPlayer: boolean;
+	    Name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OverworldDataJson(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
+	        this.OverworldId = source["OverworldId"];
+	        this.IsPlayer = source["IsPlayer"];
+	        this.Name = source["Name"];
+	    }
+	}
 	export class PokemonJson {
 	    species: string;
 	    level: number;
@@ -55,6 +73,28 @@ export namespace main {
 	        this.name = source["name"];
 	        this.id = source["id"];
 	        this.directory = source["directory"];
+	    }
+	}
+	export class ProjectSelect {
+	    CreatedDateTime: string;
+	    FolderLocation: string;
+	    ID: string;
+	    LastUsed: string;
+	    Name: string;
+	    VersionOfEngine: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ProjectSelect(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.CreatedDateTime = source["CreatedDateTime"];
+	        this.FolderLocation = source["FolderLocation"];
+	        this.ID = source["ID"];
+	        this.LastUsed = source["LastUsed"];
+	        this.Name = source["Name"];
+	        this.VersionOfEngine = source["VersionOfEngine"];
 	    }
 	}
 	

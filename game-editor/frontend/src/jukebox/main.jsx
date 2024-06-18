@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react";
 import { GrabMusicTracks, UploadNewSong } from "../../wailsjs/go/main/App";
+import Select from "react-select";
 const Jukebox = () => {
     const [songList, setSongList] = useState([]);
     const [song, setSong] = useState({})
@@ -17,15 +18,22 @@ const Jukebox = () => {
     }, [])
     return(
         <div className="text-black">
-            <select name="audio" onChange={(e) => {
-                    const song = songList.find((song) => song.Name === e.target.value);
+            <Select
+                 options={songList.map(song => ({ value: song.ID, label: `${song.ID}: ${song.Name}`}))}
+                 onChange={(e) => {
+                    const song = songList.find((song) => song.ID === e.value);
                     setSong(song);
-            }} defaultValue={"placeholder"}>
-                <option value={"placeholder"} disabled>Select a song</option>
-                {songList?.map((song) =>
-                    <option value={song.Name} key={song.Name}>{song.Name}</option>
-                )}
-            </select>
+                }}
+                isClearable={false}
+                isDisabled={false}
+                isLoading={false}
+                isRtl={false}
+                isSearchable={true}
+                isMulti={false}
+                classNames={{
+                    control: () => "rounded-2xl"
+                }}
+                />
             <br/>
             <br/>
             <div className="text-black flex items-center justify-center">

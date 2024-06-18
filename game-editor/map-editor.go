@@ -45,7 +45,7 @@ func (a *App) SetMapTileset() string {
 	r := bufio.NewReader(fi)
 
 	// open output file
-	fo, err := os.Create(fmt.Sprintf("%s/data/assets/tilesets/%s", a.dataDirectory.DataDirectory, tilesetName))
+	fo, err := os.Create(fmt.Sprintf("%s/data/assets/tilesets/%s", a.dataDirectory, tilesetName))
 	if err != nil {
 		panic(err)
 	}
@@ -101,7 +101,7 @@ func (a *App) CreateMapConfig(mapJson MapInput) {
 	}
 
 	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/maps.toml", a.dataDirectory.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/maps.toml", a.dataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}

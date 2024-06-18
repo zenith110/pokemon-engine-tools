@@ -41,7 +41,6 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
     }
     return(
         <div>
-            
                 <div className="text-black flex items-center justify-center">
                     <button onClick={(e) => {
                         let data = pokemonSpecies.find((pokemonSpeciesData) => pokemonSpeciesData.Name === pokemon.species)
