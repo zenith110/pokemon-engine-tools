@@ -26,14 +26,21 @@ func (a *App) CheckOverworldId() int {
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
 	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+
 	entries, _ := os.ReadDir(filePath)
 	var newOverWorldFolderNumber = 0
+
 	if len(entries) <= 0 {
 		newOverWorldFolderNumber = 0
-	} else {
-		// Gets the number of current ows, and -1 for 0 indexing
+	}
+	if len(entries) == 1 {
+		newOverWorldFolderNumber = 1
+	}
+	if len(entries) > 1 {
 		newOverWorldFolderNumber = len(entries) - 1
 	}
+
+	fmt.Print(newOverWorldFolderNumber)
 	return newOverWorldFolderNumber
 }
 

@@ -18,6 +18,7 @@ const NewOverworlds = () => {
     const [frameSet, setFrameSet] = useState();
     const [currentDirection, setCurrentDirection] = useState()
     const [folderName, setFolderName] = useState(0)
+    
     useEffect(() => {
         const GetOverworldId = async() => {
             let data = await CheckOverworldId();
@@ -147,7 +148,7 @@ const NewOverworlds = () => {
                     setFrameSet("surfing");
                 }}><img src={RightArrow} width={32} height={32}/></button>
                 <br/>
-                <input type="checkbox" id="playerChoice" name="playerChoice" value="Player"/>
+                <input type="checkbox" id="playerChoice" name="playerChoice" value="Player" onChange={(e) => setIsPlayer(e.target.checked)}/>
                 <label htmlFor="playerChoice">Is a playable character</label>
             {renderFrameModal(frameSet)}
             </div>
