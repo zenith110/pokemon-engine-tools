@@ -8,12 +8,15 @@ import (
 	"image/png"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/andybons/gogif"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/zenith110/pokemon-go-engine/models"
 )
 
 func (a *App) ParseOverworldData() {
@@ -43,7 +46,7 @@ func CreateImagesArray(filePath string) []image.Image {
 	for _, file := range files {
 		if strings.Contains(file.Name(), ".png") {
 			overworldFramePath := fmt.Sprintf("%s/%s", filePath, file.Name())
-			fmt.Printf("File name is %s\n", overworldFramePath)
+
 			f, err := os.Open(overworldFramePath)
 			if err != nil {
 				fmt.Printf("Error has occured while opening file %s!\nError is %v", file.Name(), err)
@@ -57,7 +60,7 @@ func CreateImagesArray(filePath string) []image.Image {
 			images = append(images, image)
 		}
 	}
-	fmt.Print(images)
+
 	return images
 }
 
@@ -195,4 +198,45 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 	overworldGif := CreateBase64File(animatedOverworldFileName)
 	return overworldGif
 
+}
+
+func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
+	fmt.Print(overworldData)
+	var overworlds []models.Overworld
+
+	overworld := models.Overworld{
+		Name:     overworldData.Name,
+		ID:       overworldData.ID,
+		IsPlayer: overworldData.IsPlayer,
+		Swimming: models.Swimming{
+			OverworldDirectionFrames: overworldData.SwimmingFrames,
+		},
+		Surfing: models.Surfing{
+			OverworldDirectionFrames: overworldData.SwimmingFrames,
+		},
+		Running: models.Running{
+			OverworldDirectionFrames: overworldData.RunningFrames,
+		},
+		Walking: models.Walking{
+			OverworldDirectionFrames: overworldData.WalkingFrames,
+		},
+	}
+	overworlds = append(overworlds, overworld)
+	overworldsHolder := models.OverworldsHolder{
+		Overworlds: overworlds,
+	}
+	data, err := toml.Marshal(overworldsHolder)
+	if err != nil {
+		fmt.Printf("error while creating overworld data! %v\n", err)
+	}
+
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/assets/toml/overworlds.toml", a.dataDirectory), os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatalf("Error occured while opening file %v\n", err)
+
+	}
+	defer f.Close()
+	if _, err := f.Write(data); err != nil {
+		fmt.Printf("Error occured while writing data %v\n", err)
+	}
 }
