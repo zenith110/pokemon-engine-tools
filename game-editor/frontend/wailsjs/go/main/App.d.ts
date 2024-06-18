@@ -9,6 +9,8 @@ export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
 
 export function CreateOverworldFrame(arg1:string,arg2:number,arg3:number,arg4:string):Promise<{[key: string]: string}>;
 
+export function CreateOverworldTomlEntry(arg1:main.OverworldDataJson):Promise<void>;
+
 export function CreateProject(arg1:main.ProjectCreation):Promise<boolean>;
 
 export function CreateTrainerData(arg1:main.TrainerJson):Promise<void>;

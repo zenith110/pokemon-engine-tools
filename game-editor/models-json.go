@@ -134,12 +134,12 @@ type ProjectSelect struct {
 }
 
 type OverworldDataJson struct {
-	ID             string          `json:"ID"`
-	OverworldId    string          `json:"OverworldId"`
-	SwimmingFrames models.Swimming `json:"SwimmingFrames"`
-	RunningFrames  models.Running  `json:"RunningFrames"`
-	WalkingFrames  models.Walking  `json:"WalkingFrames"`
-	IsPlayer       bool            `json:"IsPlayer"`
-	SurfingFrames  models.Surfing  `json:"SurfingFrames"`
-	Name           string          `json:"Name"`
+	ID             string `json:"ID"`
+	OverworldId    string `json:"OverworldId"`
+	SwimmingFrames []models.OverworldDirectionFrame
+	RunningFrames  []models.OverworldDirectionFrame
+	WalkingFrames  []models.OverworldDirectionFrame
+	IsPlayer       bool `json:"IsPlayer"`
+	SurfingFrames  []models.OverworldDirectionFrame
+	Name           string `json:"Name"`
 }

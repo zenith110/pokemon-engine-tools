@@ -18,7 +18,6 @@ const NewOverworlds = () => {
     const [frameSet, setFrameSet] = useState();
     const [currentDirection, setCurrentDirection] = useState()
     const [folderName, setFolderName] = useState(0)
-    const [finalizedGifs, setFinalizedGifs] = useState({})
     useEffect(() => {
         const GetOverworldId = async() => {
             let data = await CheckOverworldId();
@@ -156,13 +155,13 @@ const NewOverworlds = () => {
             <button onClick={async() => {
                 let data = {
                     "ID": uuidv4(),
-                    "OverworldId": folderName,
+                    "OverworldId": folderName.toString(),
                     "SwimmingFrames": swimmingFrames,
                     "RunningFrames": runningFrames,
                     "WalkingFrames": walkingFrames,
                     "SurfingFrames": surfingFrames,
                     "IsPlayer": isPlayer,
-                    "Name": folderName
+                    "Name": folderName.toString()
                 }
                await CreateOverworldTomlEntry(data)
             }}>Save</button>

@@ -46,7 +46,7 @@ func CreateImagesArray(filePath string) []image.Image {
 	for _, file := range files {
 		if strings.Contains(file.Name(), ".png") {
 			overworldFramePath := fmt.Sprintf("%s/%s", filePath, file.Name())
-			fmt.Printf("File name is %s\n", overworldFramePath)
+
 			f, err := os.Open(overworldFramePath)
 			if err != nil {
 				fmt.Printf("Error has occured while opening file %s!\nError is %v", file.Name(), err)
@@ -60,7 +60,7 @@ func CreateImagesArray(filePath string) []image.Image {
 			images = append(images, image)
 		}
 	}
-	fmt.Print(images)
+
 	return images
 }
 
@@ -201,15 +201,25 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 }
 
 func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
+	fmt.Print(overworldData)
 	var overworlds []models.Overworld
+
 	overworld := models.Overworld{
 		Name:     overworldData.Name,
 		ID:       overworldData.ID,
 		IsPlayer: overworldData.IsPlayer,
-		Swimming: overworldData.SwimmingFrames,
-		Surfing:  overworldData.SurfingFrames,
-		Running:  overworldData.RunningFrames,
-		Walking:  overworldData.WalkingFrames,
+		Swimming: models.Swimming{
+			OverworldDirectionFrames: overworldData.SwimmingFrames,
+		},
+		Surfing: models.Surfing{
+			OverworldDirectionFrames: overworldData.SwimmingFrames,
+		},
+		Running: models.Running{
+			OverworldDirectionFrames: overworldData.RunningFrames,
+		},
+		Walking: models.Walking{
+			OverworldDirectionFrames: overworldData.WalkingFrames,
+		},
 	}
 	overworlds = append(overworlds, overworld)
 	overworldsHolder := models.OverworldsHolder{
@@ -217,12 +227,13 @@ func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
 	}
 	data, err := toml.Marshal(overworldsHolder)
 	if err != nil {
-		fmt.Printf("error while creating new project file! %v\n", err)
+		fmt.Printf("error while creating overworld data! %v\n", err)
 	}
 
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/asset/toml/overworlds.toml", a.dataDirectory), os.O_CREATE|os.O_APPEND, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/assets/toml/overworlds.toml", a.dataDirectory), os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v\n", err)
+
 	}
 	defer f.Close()
 	if _, err := f.Write(data); err != nil {
