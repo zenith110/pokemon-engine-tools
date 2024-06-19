@@ -110,3 +110,7 @@ func (a *App) CreateMapConfig(mapJson MapInput) {
 		panic(err)
 	}
 }
+
+func (a *App) XMLParser() {
+
+}
