@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/lafriks/go-tiled"
@@ -83,10 +84,10 @@ func (a *App) SetMapTileset() string {
 	}
 	return tilesetName
 }
-func TiledParser(mapPath string, a *App, mapName string) string {
+func TiledParser(mapPath string, a *App, mapName string) map[string]string {
 	gameMap, err := tiled.LoadFile(mapPath)
 	if err != nil {
-		fmt.Errorf("error while loading map!\nerror is %v", err)
+		fmt.Printf("error while loading map!\nerror is %v", err)
 	}
 	renderer, err := render.NewRenderer(gameMap)
 	if err != nil {
@@ -99,7 +100,12 @@ func TiledParser(mapPath string, a *App, mapName string) string {
 	if err != nil {
 		fmt.Printf("Could not save tileset image!\nError is %v", err)
 	}
-	return CreateBase64File(mapFinalPath)
+	mapData := map[string]string{
+		"tilesetPicture": CreateBase64File(mapFinalPath),
+		"tilesetHeight":  strconv.Itoa(gameMap.Height),
+		"tilesetWidth":   strconv.Itoa(gameMap.Width),
+	}
+	return mapData
 }
 func (a *App) CreateMap(mapJson MapInput) string {
 	mapPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
@@ -114,12 +120,14 @@ func (a *App) CreateMap(mapJson MapInput) string {
 	if err != nil {
 		panic(err)
 	}
-	base64Picture := TiledParser(mapPath, a, mapJson.Name)
+	tiledData := TiledParser(mapPath, a, mapJson.Name)
+	xAxisMax, _ := strconv.Atoi(tiledData["tilesetWidth"])
+	yAxisMax, _ := strconv.Atoi(tiledData["tilesetHeight"])
 
 	mapOutput := MapOutput{
 		Name:            mapJson.Name,
-		XAxisMax:        mapJson.XAxisMax,
-		YAxisMax:        mapJson.YAxisMax,
+		XAxisMax:        xAxisMax,
+		YAxisMax:        yAxisMax,
 		TilesetLocation: mapJson.TilesetLocation,
 	}
 
@@ -143,5 +151,5 @@ func (a *App) CreateMap(mapJson MapInput) string {
 	if _, err := f.Write(data); err != nil {
 		panic(err)
 	}
-	return base64Picture
+	return tiledData["tilesetPicture"]
 }

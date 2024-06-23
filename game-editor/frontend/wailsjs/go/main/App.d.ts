@@ -5,7 +5,7 @@ import {models} from '../models';
 
 export function CheckOverworldId():Promise<number>;
 
-export function CreateMapConfig(arg1:main.MapInput):Promise<void>;
+export function CreateMap(arg1:main.MapInput):Promise<string>;
 
 export function CreateOverworldFrame(arg1:string,arg2:number,arg3:number,arg4:string):Promise<{[key: string]: string}>;
 

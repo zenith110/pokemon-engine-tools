@@ -18,7 +18,7 @@ export default function NavBar() {
     { name: 'Overworld', href: '/overworld-editor', current: false },
     { name: 'Move', href: '/move-editor', current: false },
     { name: 'Jukebox', href: '/jukebox', current: false },
-    { name: 'Script', href: '/script-editor', current: false}
+    { name: 'MapViewer', href: '/map-viewer', current: false}
   ]
 
   return (

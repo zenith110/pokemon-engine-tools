@@ -80,8 +80,6 @@ type Song struct {
 
 type MapInput struct {
 	Name            string
-	XAxisMax        int
-	YAxisMax        int
 	TilesetLocation string
 }
 

@@ -6,8 +6,8 @@ export function CheckOverworldId() {
   return window['go']['main']['App']['CheckOverworldId']();
 }
 
-export function CreateMapConfig(arg1) {
-  return window['go']['main']['App']['CreateMapConfig'](arg1);
+export function CreateMap(arg1) {
+  return window['go']['main']['App']['CreateMap'](arg1);
 }
 
 export function CreateOverworldFrame(arg1, arg2, arg3, arg4) {
