@@ -79,8 +79,8 @@ type Song struct {
 }
 
 type MapInput struct {
-	Name            string
-	TilesetLocation string
+	Name            string `json:"name"`
+	TilesetLocation string `json:"tilesetLocation"`
 }
 
 type MapOutput struct {
