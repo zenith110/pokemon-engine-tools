@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lafriks/go-tiled"
+	"github.com/lafriks/go-tiled/render"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -81,14 +83,46 @@ func (a *App) SetMapTileset() string {
 	}
 	return tilesetName
 }
+func TiledParser(mapPath string, a *App, mapName string) string {
+	gameMap, err := tiled.LoadFile(mapPath)
+	if err != nil {
+		fmt.Errorf("error while loading map!\nerror is %v", err)
+	}
+	renderer, err := render.NewRenderer(gameMap)
+	if err != nil {
+		fmt.Printf("map unsupported for rendering: %s", err.Error())
+		os.Exit(2)
+	}
+	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.dataDirectory, mapName)
+	mapAssetPath, _ := os.Open(mapFinalPath)
+	err = renderer.SaveAsPng(mapAssetPath)
+	if err != nil {
+		fmt.Printf("Could not save tileset image!\nError is %v", err)
+	}
+	return CreateBase64File(mapFinalPath)
+}
+func (a *App) CreateMap(mapJson MapInput) string {
+	mapPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select tiled .xml file",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "Map (*.xml)",
+				Pattern:     "*.xml",
+			},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	base64Picture := TiledParser(mapPath, a, mapJson.Name)
 
-func (a *App) CreateMapConfig(mapJson MapInput) {
 	mapOutput := MapOutput{
 		Name:            mapJson.Name,
 		XAxisMax:        mapJson.XAxisMax,
 		YAxisMax:        mapJson.YAxisMax,
 		TilesetLocation: mapJson.TilesetLocation,
 	}
+
 	var mapOutputs []MapOutput
 	mapOutputs = append(mapOutputs, mapOutput)
 	mapData := MapData{
@@ -109,20 +143,5 @@ func (a *App) CreateMapConfig(mapJson MapInput) {
 	if _, err := f.Write(data); err != nil {
 		panic(err)
 	}
-}
-
-func (a *App) XMLParser() {
-	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select tileset file",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Images (*.png)",
-				Pattern:     "*.png",
-			},
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Print(selection)
+	return base64Picture
 }
