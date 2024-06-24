@@ -6,9 +6,10 @@ const MapViewer = () => {
     return(
         <div>
            <label>Map name</label>
-           <input type="text" onChange={(e) => setMapName(e.target.value)}></input>
            <br/>
-           <button onChange={async() => {
+           <input type="text" onChange={(e) => setMapName(e.target.value)} className="text-black"></input>
+           <br/>
+           <button onClick={async() => {
                 let tilesetData = await SetMapTileset()
                 setTileset(tilesetData)
            }}>Select tileset</button>
