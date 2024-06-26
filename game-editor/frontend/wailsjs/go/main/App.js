@@ -6,8 +6,8 @@ export function CheckOverworldId() {
   return window['go']['main']['App']['CheckOverworldId']();
 }
 
-export function CreateMapConfig(arg1) {
-  return window['go']['main']['App']['CreateMapConfig'](arg1);
+export function CreateMap() {
+  return window['go']['main']['App']['CreateMap']();
 }
 
 export function CreateOverworldFrame(arg1, arg2, arg3, arg4) {
@@ -80,10 +80,6 @@ export function ParseTrainers() {
 
 export function SelectProject(arg1) {
   return window['go']['main']['App']['SelectProject'](arg1);
-}
-
-export function SetMapTileset() {
-  return window['go']['main']['App']['SetMapTileset']();
 }
 
 export function UpdateMove(arg1) {

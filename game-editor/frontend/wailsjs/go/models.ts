@@ -1,7 +1,6 @@
 export namespace main {
 	
 	
-	
 	export class OverworldDataJson {
 	    ID: string;
 	    OverworldId: string;

@@ -1,7 +1,7 @@
 import { useState, useEffect} from "react";
 import { ParseMoves } from "../../wailsjs/go/main/App";
 import Select from "react-select"
-import UpdateMoveData from "./existing-trainers/UpdateMoveData";
+import UpdateMoveData from "./existing-moves/UpdateMoveData";
 const MoveEditor = () => {
     const [moves, setMoves] = useState([])
     const [selectedMove, setSelectedMove] = useState({})
