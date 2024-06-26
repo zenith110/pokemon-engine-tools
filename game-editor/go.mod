@@ -10,7 +10,7 @@ require (
 	github.com/lafriks/go-tiled v0.12.0
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/wailsapp/wails/v2 v2.8.1
-	github.com/zenith110/pokemon-go-engine v0.0.0-20240619014345-f0f1af6d3f5c
+	github.com/zenith110/pokemon-go-engine v0.0.0-20240623193251-81902d17e796
 	gopkg.in/src-d/go-git.v4 v4.13.1
 )
 

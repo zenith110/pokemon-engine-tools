@@ -1,20 +1,6 @@
 export namespace main {
 	
 	
-	export class MapInput {
-	    name: string;
-	    tilesetLocation: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new MapInput(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.tilesetLocation = source["tilesetLocation"];
-	    }
-	}
 	export class OverworldDataJson {
 	    ID: string;
 	    OverworldId: string;

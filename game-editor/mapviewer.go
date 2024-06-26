@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -14,121 +12,72 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (a *App) SetMapTileset() string {
+func TiledParser(mapPath string, a *App) map[string]string {
 
-	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select tileset file",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Images (*.png)",
-				Pattern:     "*.png",
-			},
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-	formattedTilesetName := strings.ReplaceAll(selection, "\\", "/")
+	fileName := strings.Split(strings.Replace(mapPath, `\`, "/", -1), "/")
 
-	splittedTilesetName := strings.Split(formattedTilesetName, "/")
-	tilesetName := splittedTilesetName[len(splittedTilesetName)-1]
-
-	fi, err := os.Open(selection)
-	if err != nil {
-		panic(err)
-	}
-
-	// close fi on exit and check for its returned error
-	defer func() {
-		if err := fi.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	// make a read buffer
-	r := bufio.NewReader(fi)
-
-	// open output file
-	fo, err := os.Create(fmt.Sprintf("%s/data/assets/tilesets/%s", a.dataDirectory, tilesetName))
-	if err != nil {
-		panic(err)
-	}
-	// close fo on exit and check for its returned error
-	defer func() {
-		if err := fo.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	// make a write buffer
-	w := bufio.NewWriter(fo)
-
-	// make a buffer to keep chunks that are read
-	buf := make([]byte, 1024)
-	for {
-		// read a chunk
-		n, err := r.Read(buf)
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
-		if n == 0 {
-			break
-		}
-
-		// write a chunk
-		if _, err := w.Write(buf[:n]); err != nil {
-			panic(err)
-		}
-	}
-
-	if err = w.Flush(); err != nil {
-		panic(err)
-	}
-	return tilesetName
-}
-func TiledParser(mapPath string, a *App, mapName string) map[string]string {
+	finalFileName := strings.Replace(fileName[len(fileName)-1], ".tmx", "", -1)
 	gameMap, err := tiled.LoadFile(mapPath)
 	if err != nil {
-		fmt.Printf("error while loading map!\nerror is %v", err)
+		fmt.Printf("error parsing map: %s", err.Error())
+		os.Exit(2)
 	}
+
 	renderer, err := render.NewRenderer(gameMap)
 	if err != nil {
 		fmt.Printf("map unsupported for rendering: %s", err.Error())
 		os.Exit(2)
 	}
-	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.dataDirectory, mapName)
-	mapAssetPath, _ := os.Open(mapFinalPath)
-	err = renderer.SaveAsPng(mapAssetPath)
+	err = renderer.RenderVisibleLayers()
+	if err != nil {
+		fmt.Printf("layer unsupported for rendering: %s", err.Error())
+		os.Exit(2)
+	}
+	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.dataDirectory, finalFileName)
+
+	f, err := os.Create(mapFinalPath)
+	if err != nil {
+		fmt.Printf("Error occured while creating map!\n Error is %v\n", err)
+	}
+	defer f.Close()
+	err = renderer.SaveAsPng(f)
+
 	if err != nil {
 		fmt.Printf("Could not save tileset image!\nError is %v", err)
 	}
+
 	mapData := map[string]string{
-		"tilesetPicture": CreateBase64File(mapFinalPath),
-		"tilesetHeight":  strconv.Itoa(gameMap.Height),
-		"tilesetWidth":   strconv.Itoa(gameMap.Width),
+		"mapImage":      CreateBase64File(mapFinalPath),
+		"tilesetHeight": strconv.Itoa(gameMap.Height),
+		"tilesetWidth":  strconv.Itoa(gameMap.Width),
+		"tilesetPath":   gameMap.Tilesets[0].Source,
+		"mapName":       finalFileName,
 	}
+
 	return mapData
 }
-func (a *App) CreateMap(mapJson MapInput) string {
+func (a *App) CreateMap() string {
 	mapPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select tiled .xml file",
+		Title: "Select tiled .tmx file",
 		Filters: []runtime.FileFilter{
 			{
-				DisplayName: "Map (*.xml)",
-				Pattern:     "*.xml",
+				DisplayName: "Map (*.tmx)",
+				Pattern:     "*.tmx",
 			},
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
-	tiledData := TiledParser(mapPath, a, mapJson.Name)
+	tiledData := TiledParser(mapPath, a)
 	xAxisMax, _ := strconv.Atoi(tiledData["tilesetWidth"])
 	yAxisMax, _ := strconv.Atoi(tiledData["tilesetHeight"])
 
 	mapOutput := MapOutput{
-		Name:            mapJson.Name,
+		Name:            tiledData["mapName"],
 		XAxisMax:        xAxisMax,
 		YAxisMax:        yAxisMax,
-		TilesetLocation: mapJson.TilesetLocation,
+		TilesetLocation: tiledData["tilesetPath"],
 	}
 
 	var mapOutputs []MapOutput
@@ -151,5 +100,5 @@ func (a *App) CreateMap(mapJson MapInput) string {
 	if _, err := f.Write(data); err != nil {
 		panic(err)
 	}
-	return tiledData["tilesetPicture"]
+	return tiledData["mapImage"]
 }

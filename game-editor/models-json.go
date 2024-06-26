@@ -78,11 +78,6 @@ type Song struct {
 	ID   string
 }
 
-type MapInput struct {
-	Name            string `json:"name"`
-	TilesetLocation string `json:"tilesetLocation"`
-}
-
 type MapOutput struct {
 	Name            string `toml:"name"`
 	XAxisMax        int    `toml:"xaxismax"`

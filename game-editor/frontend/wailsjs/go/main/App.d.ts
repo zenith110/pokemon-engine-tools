@@ -5,7 +5,7 @@ import {models} from '../models';
 
 export function CheckOverworldId():Promise<number>;
 
-export function CreateMap(arg1:main.MapInput):Promise<string>;
+export function CreateMap():Promise<string>;
 
 export function CreateOverworldFrame(arg1:string,arg2:number,arg3:number,arg4:string):Promise<{[key: string]: string}>;
 
@@ -42,8 +42,6 @@ export function ParseTrainerClass():Promise<models.TrainerClasses>;
 export function ParseTrainers():Promise<Array<main.TrainerJson>>;
 
 export function SelectProject(arg1:main.ProjectSelect):Promise<void>;
-
-export function SetMapTileset():Promise<string>;
 
 export function UpdateMove(arg1:main.UpdatedMove):Promise<void>;
 
