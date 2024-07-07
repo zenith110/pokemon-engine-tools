@@ -16,7 +16,7 @@ import (
 	"github.com/andybons/gogif"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"github.com/zenith110/pokemon-go-engine/models"
+	"github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
 func (a *App) ParseOverworldData() {

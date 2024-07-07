@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	Models "github.com/zenith110/pokemon-go-engine/models"
+	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 	"gopkg.in/src-d/go-git.v4"
 )
 

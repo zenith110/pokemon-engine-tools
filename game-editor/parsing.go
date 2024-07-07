@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
-	Models "github.com/zenith110/pokemon-go-engine/models"
+	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
 func toBase64(byte []byte) string {

@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/pelletier/go-toml/v2"
-	Models "github.com/zenith110/pokemon-go-engine/models"
+	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
 func ParseMovesFile(file *os.File) Models.AllMoves {

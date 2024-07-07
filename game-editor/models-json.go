@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/zenith110/pokemon-go-engine/models"
+	"github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
 type PokemonJson struct {
