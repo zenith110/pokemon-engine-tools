@@ -1,9 +1,10 @@
 import {useState, useEffect} from "react";
 import { GrabMusicTracks, UploadNewSong } from "../../wailsjs/go/jukebox/JukeboxApp";
 import Select from "react-select";
+import { Song } from "../models/song";
 const Jukebox = () => {
-    const [songList, setSongList] = useState([]);
-    const [song, setSong] = useState({})
+    const [songList, setSongList] = useState<Song[]>([]);
+    const [song, setSong] = useState<Song | null>(null);
     const importSong = async() => {
         await UploadNewSong();
     }
@@ -21,8 +22,8 @@ const Jukebox = () => {
             <Select
                  options={songList.map(song => ({ value: song.ID, label: `${song.ID}: ${song.Name}`}))}
                  onChange={(e) => {
-                    const song = songList.find((song) => song.ID === e.value);
-                    setSong(song);
+                    const song = songList.find((song) => song.ID === e?.value);
+                    setSong(song || null);
                 }}
                 isClearable={false}
                 isDisabled={false}

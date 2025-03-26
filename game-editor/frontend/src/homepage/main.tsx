@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react"
 import { ParseProjects, ImportProject} from "../../wailsjs/go/core/App";
 import { Project } from "../models/project";

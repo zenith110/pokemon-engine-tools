@@ -9,5 +9,6 @@
   "include": [
     "src/*.tsx",
     "src/*.ts"
-  ]
+  ],
+  "exclude": ["wailsjs/*"]
 }
