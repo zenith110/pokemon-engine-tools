@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import { GrabMusicTracks, UploadNewSong } from "../../wailsjs/go/main/App";
+import { GrabMusicTracks, UploadNewSong } from "../../wailsjs/go/jukebox/JukeboxApp";
 import Select from "react-select";
 const Jukebox = () => {
     const [songList, setSongList] = useState([]);

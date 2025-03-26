@@ -5,7 +5,7 @@ import DownArrow from "../images/reshot-icon-down-arrow-P6BUA8L4DS.svg";
 import UpArrow from "../images/reshot-icon-up-arrow-XMEL8JGW5T.svg";
 import LeftArrow from "../images/reshot-icon-left-arrow-2RFCAW584E.svg";
 import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
-import { CheckOverworldId, CreateOverworldTomlEntry } from "../../../wailsjs/go/main/App";
+import { CheckOverworldId, CreateOverworldTomlEntry } from "../../../wailsjs/go/overworldeditor/OverworldEditorApp";
 import FrameModal from "./FrameModal";
 
 const NewOverworlds = () => {

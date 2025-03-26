@@ -1,5 +1,5 @@
 import { useState} from "react"
-import { CreateTrainerData } from "../../../../../wailsjs/go/main/App"
+import { CreateTrainerData } from "../../../../../wailsjs/go/trainereditor/TrainerEditorApp"
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
 

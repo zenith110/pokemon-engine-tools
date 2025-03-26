@@ -1,4 +1,4 @@
-package main
+package trainereditor
 
 import (
 	"fmt"
@@ -9,10 +9,22 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
-func (a *App) CreateTrainerData(trainerJson TrainerJson) {
+type TrainerEditorApp struct {
+	app *core.App
+}
+
+// NewJukeboxApp creates a new JukeboxApp struct
+func NewTrainerEditorApp(app *core.App) *TrainerEditorApp {
+	return &TrainerEditorApp{
+		app: app,
+	}
+}
+func (a *TrainerEditorApp) CreateTrainerData(trainerJson coreModels.TrainerJson) {
 	var pokemons []Models.Pokemons
 	for index := range trainerJson.Pokemons {
 
@@ -53,7 +65,7 @@ func (a *App) CreateTrainerData(trainerJson TrainerJson) {
 	}
 
 	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.app.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -67,9 +79,9 @@ func CheckFileExist(filepath string) bool {
 	return error == nil
 }
 
-func (a *App) UpdateTrainer(trainerJson TrainerJson) {
+func (a *TrainerEditorApp) UpdateTrainer(trainerJson coreModels.TrainerJson) {
 
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory))
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/trainers.toml", a.app.DataDirectory))
 	if err != nil {
 		log.Fatalf("Error has occured while opening file to edit %v", err)
 	}
@@ -114,8 +126,8 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 	if err != nil {
 		panic(fmt.Errorf("error had occured while creating trainer data!\n%v", err))
 	}
-	os.Remove(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory))
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.dataDirectory), os.O_CREATE, 0644)
+	os.Remove(fmt.Sprintf("%s/data/toml/trainers.toml", a.app.DataDirectory))
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/trainers.toml", a.app.DataDirectory), os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v", err)
 	}
@@ -125,8 +137,8 @@ func (a *App) UpdateTrainer(trainerJson TrainerJson) {
 	}
 }
 
-func (a *App) UpdateTrainerSprite() string {
-	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+func (a *TrainerEditorApp) UpdateTrainerSprite() string {
+	selection, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
 		Title: "Select trainer image",
 		Filters: []runtime.FileFilter{
 			{

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"encoding/json"
@@ -13,12 +13,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
 	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 	"gopkg.in/src-d/go-git.v4"
 )
 
 func (a *App) GrabProjectWorkspace() string {
-	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+	selection, err := runtime.OpenDirectoryDialog(a.Ctx, runtime.OpenDialogOptions{
 		Title: "Select engine base directory",
 	})
 	if err != nil {
@@ -28,7 +29,7 @@ func (a *App) GrabProjectWorkspace() string {
 	return selectionUpdated
 }
 
-func (a *App) CreateProject(projectCreationData ProjectCreation) bool {
+func (a *App) CreateProject(projectCreationData coreModels.ProjectCreation) bool {
 	githubEngineUrl := "https://api.github.com/repos/zenith110/pokemon-go-engine/git/refs/heads/main"
 	req, err := http.Get(githubEngineUrl)
 	if err != nil {
@@ -36,7 +37,7 @@ func (a *App) CreateProject(projectCreationData ProjectCreation) bool {
 	}
 	bodyData, _ := io.ReadAll(req.Body)
 
-	var project GithubInfo
+	var project coreModels.GithubInfo
 	if err := json.Unmarshal(bodyData, &project); err != nil {
 		panic(err)
 	}
@@ -87,7 +88,7 @@ func (a *App) CreateProject(projectCreationData ProjectCreation) bool {
 	if _, err := f.Write(data); err != nil {
 		fmt.Printf("Error occured while writing data %v\n", err)
 	}
-	a.dataDirectory = fullPath
+	a.DataDirectory = fullPath
 	return true
 }
 
@@ -123,8 +124,8 @@ func (a *App) ParseProjects() []Models.Project {
 	return projectsArray
 }
 
-func (a *App) SelectProject(project ProjectSelect) {
-	a.dataDirectory = project.FolderLocation
+func (a *App) SelectProject(project coreModels.ProjectSelect) {
+	a.DataDirectory = project.FolderLocation
 	projectsPath := "projects.toml"
 	projects, err := os.Open(projectsPath)
 	if err != nil {
@@ -177,7 +178,7 @@ func (a *App) SelectProject(project ProjectSelect) {
 }
 
 func (a *App) ImportProject() {
-	selection, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+	selection, err := runtime.OpenDirectoryDialog(a.Ctx, runtime.OpenDialogOptions{
 		Title: "Select engine base directory",
 	})
 	if err != nil {
@@ -215,5 +216,5 @@ func (a *App) ImportProject() {
 	if _, err := f.Write(data); err != nil {
 		fmt.Printf("Error occured while writing data %v\n", err)
 	}
-	a.dataDirectory = selectionUpdated
+	a.DataDirectory = selectionUpdated
 }

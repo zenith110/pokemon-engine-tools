@@ -1,7 +1,7 @@
 import Modal from 'react-modal';
 import { useState } from "react";
 
-import { CreateOverworldFrame, CreteOverworldGif  } from "../../../wailsjs/go/main/App";
+import { CreateOverworldFrame, CreteOverworldGif  } from "../../../wailsjs/go/overworldeditor/OverworldEditorApp";
 const customStyles = {
     content: {
       top: '50%',

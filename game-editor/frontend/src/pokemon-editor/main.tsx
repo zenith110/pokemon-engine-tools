@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ParsePokemonData } from "../../wailsjs/go/main/App";
+import { ParsePokemonData } from "../../wailsjs/go/parsing/ParsingApp";
 import { useEffect, useState } from "react";
 import { Pokemon } from "./pokemon.model";
 import Select from "react-select";
@@ -19,7 +19,16 @@ export default function PokemonEditor():React.ReactElement {
 
     const fetchPokemonSpecies = async() => {
         let data = await ParsePokemonData();
-        setPokemonSpecies(data);
+        setPokemonSpecies(data.map(pokemon => ({
+            ...pokemon,
+            DexEntry: "",
+            ID: String(pokemon.ID),
+            Evolutions: pokemon.Evolutions.map(evo => ({
+                ...evo,
+                Method1: evo.Method1 ? [evo.Method1] : [],
+                Method2: evo.Method2 ? [evo.Method2] : []
+            }))
+        })));
     }
 
     const handleStatChange = (stat: string, val: number) => {

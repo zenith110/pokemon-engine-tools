@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ParseMoves } from "../../wailsjs/go/main/App";
+import { ParseMoves } from "../../wailsjs/go/moveeditor/MoveEditorApp";
 import Select from "react-select";
 import UpdateMoveData from "./existing-moves/UpdateMoveData";
 import { Move } from "./move.model";
@@ -16,7 +16,10 @@ const MoveEditor = () => {
   useEffect(() => {
     const fetchMoves = async () => {
       let data = await ParseMoves();
-      setMoves(data.Move);
+      setMoves(data.Move.map(move => ({
+        ...move,
+        ID: String(move.ID)
+      })));
     };
     fetchMoves();
   }, []);

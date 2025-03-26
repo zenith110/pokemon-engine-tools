@@ -1,4 +1,4 @@
-package main
+package moveeditor
 
 import (
 	"fmt"
@@ -8,9 +8,21 @@ import (
 	"strconv"
 
 	"github.com/pelletier/go-toml/v2"
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
+type MoveEditorApp struct {
+	app *core.App
+}
+
+// NewJukeboxApp creates a new JukeboxApp struct
+func NewMoveEditorApp(app *core.App) *MoveEditorApp {
+	return &MoveEditorApp{
+		app: app,
+	}
+}
 func ParseMovesFile(file *os.File) Models.AllMoves {
 	var moves Models.AllMoves
 
@@ -25,8 +37,8 @@ func ParseMovesFile(file *os.File) Models.AllMoves {
 	}
 	return moves
 }
-func (a *App) ParseMoves() Models.AllMoves {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory))
+func (a *MoveEditorApp) ParseMoves() Models.AllMoves {
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/moves.toml", a.app.DataDirectory))
 	if err != nil {
 		panic(err)
 	}
@@ -35,8 +47,8 @@ func (a *App) ParseMoves() Models.AllMoves {
 	return moves
 }
 
-func (a *App) UpdateMove(updatedMove UpdatedMove) {
-	file, err := os.Open(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory))
+func (a *MoveEditorApp) UpdateMove(updatedMove coreModels.UpdatedMove) {
+	file, err := os.Open(fmt.Sprintf("%s/data/toml/moves.toml", a.app.DataDirectory))
 	if err != nil {
 		log.Fatalf("Error has occured while opening file to edit %v", err)
 	}
@@ -65,8 +77,8 @@ func (a *App) UpdateMove(updatedMove UpdatedMove) {
 	if err != nil {
 		panic(fmt.Errorf("error had occured while creating move data!\n%v", err))
 	}
-	os.Remove(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory))
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/moves.toml", a.dataDirectory), os.O_CREATE, 0644)
+	os.Remove(fmt.Sprintf("%s/data/toml/moves.toml", a.app.DataDirectory))
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/moves.toml", a.app.DataDirectory), os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v\n", err)
 	}

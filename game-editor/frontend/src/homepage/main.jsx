@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ParseProjects, ImportProject} from "../../wailsjs/go/main/App";
+import { ParseProjects, ImportProject} from "../../wailsjs/go/core/App";
 
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CreateMap } from "../../wailsjs/go/main/App";
+import { CreateMap } from "../../wailsjs/go/mapeditor/MapEditorApp";
 const MapViewer = () => {
     const [mapImage, setMapImage] = useState("")
     return(

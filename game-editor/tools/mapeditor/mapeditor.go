@@ -1,4 +1,4 @@
-package main
+package mapeditor
 
 import (
 	"fmt"
@@ -10,9 +10,23 @@ import (
 	"github.com/lafriks/go-tiled/render"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
+	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 )
 
-func TiledParser(mapPath string, a *App) map[string]string {
+type MapEditorApp struct {
+	app *core.App
+}
+
+// NewJukeboxApp creates a new JukeboxApp struct
+func NewMapEditorApp(app *core.App) *MapEditorApp {
+	return &MapEditorApp{
+		app: app,
+	}
+}
+
+func TiledParser(mapPath string, a *MapEditorApp) map[string]string {
 
 	fileName := strings.Split(strings.Replace(mapPath, `\`, "/", -1), "/")
 
@@ -33,7 +47,7 @@ func TiledParser(mapPath string, a *App) map[string]string {
 		fmt.Printf("layer unsupported for rendering: %s", err.Error())
 		os.Exit(2)
 	}
-	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.dataDirectory, finalFileName)
+	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.app.DataDirectory, finalFileName)
 
 	f, err := os.Create(mapFinalPath)
 	if err != nil {
@@ -47,7 +61,7 @@ func TiledParser(mapPath string, a *App) map[string]string {
 	}
 
 	mapData := map[string]string{
-		"mapImage":      CreateBase64File(mapFinalPath),
+		"mapImage":      parsing.CreateBase64File(mapFinalPath),
 		"tilesetHeight": strconv.Itoa(gameMap.Height),
 		"tilesetWidth":  strconv.Itoa(gameMap.Width),
 		"tilesetPath":   gameMap.Tilesets[0].Source,
@@ -56,8 +70,8 @@ func TiledParser(mapPath string, a *App) map[string]string {
 
 	return mapData
 }
-func (a *App) CreateMap() string {
-	mapPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+func (a *MapEditorApp) CreateMap() string {
+	mapPath, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
 		Title: "Select tiled .tmx file",
 		Filters: []runtime.FileFilter{
 			{
@@ -73,16 +87,16 @@ func (a *App) CreateMap() string {
 	xAxisMax, _ := strconv.Atoi(tiledData["tilesetWidth"])
 	yAxisMax, _ := strconv.Atoi(tiledData["tilesetHeight"])
 
-	mapOutput := MapOutput{
+	mapOutput := coreModels.MapOutput{
 		Name:            tiledData["mapName"],
 		XAxisMax:        xAxisMax,
 		YAxisMax:        yAxisMax,
 		TilesetLocation: tiledData["tilesetPath"],
 	}
 
-	var mapOutputs []MapOutput
+	var mapOutputs []coreModels.MapOutput
 	mapOutputs = append(mapOutputs, mapOutput)
-	mapData := MapData{
+	mapData := coreModels.MapData{
 		Map: mapOutputs,
 	}
 
@@ -92,7 +106,7 @@ func (a *App) CreateMap() string {
 	}
 
 	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/maps.toml", a.dataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -12,8 +12,8 @@ import (
 
 // App struct
 type App struct {
-	ctx           context.Context
-	dataDirectory string
+	Ctx           context.Context
+	DataDirectory string
 }
 
 // NewApp creates a new App application struct
@@ -23,8 +23,8 @@ func NewApp() *App {
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
+func (a *App) Startup(ctx context.Context) {
+	a.Ctx = ctx
 	projectLastUpdated, err := os.OpenFile("lastused.toml", os.O_CREATE, 0644)
 	if err != nil {
 		os.Create("lastused.toml")
@@ -43,5 +43,5 @@ func (a *App) startup(ctx context.Context) {
 	if projectsData.FolderLocation == "" {
 		fmt.Print("Ignoring")
 	}
-	a.dataDirectory = projectsData.FolderLocation
+	a.DataDirectory = projectsData.FolderLocation
 }

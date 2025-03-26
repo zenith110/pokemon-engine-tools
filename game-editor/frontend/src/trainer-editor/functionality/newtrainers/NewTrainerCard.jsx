@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites} from "../../../../wailsjs/go/main/App"
+import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites} from "../../../../wailsjs/go/parsing/ParsingApp"
 import TrainerPokemonsGenerator from "./TrainerPokemonsGenerator"
 import TrainerClasses from "./TrainerClasses";
 import TrainerSprites from "./TrainerSprites";

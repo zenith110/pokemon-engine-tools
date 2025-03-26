@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { UpdateTrainer, UpdateTrainerSprite } from "../../../../wailsjs/go/main/App";
+import { UpdateTrainer, UpdateTrainerSprite } from "../../../../wailsjs/go/trainereditor/TrainerEditorApp";
 import UpdatingPokemon from "./UpdatingPokemon";
 const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTrainer, classTypes}) => {
     const [trainerName, setTrainerName] = useState(selectedTrainer?.name)

@@ -6,7 +6,7 @@ import {
     Button,
   } from "@material-tailwind/react";
 
-import { SelectProject } from "../../wailsjs/go/main/App";
+import { SelectProject } from "../../wailsjs/go/core/App";
 const ProjectCard = ({ project }) => {
     let finalDate = ""
     if(project.LastUsed === "N/A"){

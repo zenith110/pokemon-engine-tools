@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"github.com/zenith110/pokemon-go-engine-toml-models/models"

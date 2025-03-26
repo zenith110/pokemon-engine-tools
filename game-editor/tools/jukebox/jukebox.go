@@ -1,4 +1,4 @@
-package main
+package jukebox
 
 import (
 	"bufio"
@@ -8,20 +8,36 @@ import (
 	"strconv"
 	"strings"
 
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
+	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
+
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-func (a *App) GrabMusicTracks() []Song {
-	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", a.dataDirectory))
+// JukeboxApp struct
+type JukeboxApp struct {
+	app *core.App
+}
+
+// NewJukeboxApp creates a new JukeboxApp struct
+func NewJukeboxApp(app *core.App) *JukeboxApp {
+	return &JukeboxApp{
+		app: app,
+	}
+}
+
+func (j *JukeboxApp) GrabMusicTracks() []coreModels.Song {
+	musicTracks, err := os.ReadDir(fmt.Sprintf("%s/data/assets/music", j.app.DataDirectory))
 	if err != nil {
 		fmt.Printf("Error is %v", err)
 	}
-	var musicTrackResults []Song
+	var musicTrackResults []coreModels.Song
 	for _, song := range musicTracks {
 		songId := 0
-		songData := Song{
+		songData := coreModels.Song{
 			Name: song.Name(),
-			Path: CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, song.Name())),
+			Path: parsing.CreateBase64File(fmt.Sprintf("%s/data/assets/music/%s", j.app.DataDirectory, song.Name())),
 			ID:   strconv.Itoa(songId),
 		}
 		songId += 1
@@ -30,8 +46,8 @@ func (a *App) GrabMusicTracks() []Song {
 	return musicTrackResults
 }
 
-func (a *App) UploadNewSong() {
-	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+func (j *JukeboxApp) UploadNewSong() {
+	selection, err := runtime.OpenFileDialog(j.app.Ctx, runtime.OpenDialogOptions{
 		Title: "Select song",
 		Filters: []runtime.FileFilter{
 			{
@@ -61,7 +77,7 @@ func (a *App) UploadNewSong() {
 	r := bufio.NewReader(fi)
 
 	// open output file
-	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", a.dataDirectory, songName))
+	fo, err := os.Create(fmt.Sprintf("%s/data/assets/music/%s", j.app.DataDirectory, songName))
 	if err != nil {
 		panic(err)
 	}

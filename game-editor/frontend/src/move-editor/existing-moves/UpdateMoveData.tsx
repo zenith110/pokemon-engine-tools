@@ -1,4 +1,4 @@
-import { UpdateMove } from "../../../wailsjs/go/main/App";
+import { UpdateMove } from "../../../wailsjs/go/moveeditor/MoveEditorApp";
 import { Dispatch, SetStateAction } from "react";
 import { Move } from "../move.model";
 

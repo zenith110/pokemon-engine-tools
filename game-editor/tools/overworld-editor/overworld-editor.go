@@ -1,4 +1,4 @@
-package main
+package overworldeditor
 
 import (
 	"bufio"
@@ -16,16 +16,29 @@ import (
 	"github.com/andybons/gogif"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	coreModels "github.com/zenith110/pokemon-engine-tools/models"
+	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 	"github.com/zenith110/pokemon-go-engine-toml-models/models"
 )
 
-func (a *App) ParseOverworldData() {
+type OverworldEditorApp struct {
+	app *core.App
+}
+
+// NewJukeboxApp creates a new JukeboxApp struct
+func NewOverworldEditorApp(app *core.App) *OverworldEditorApp {
+	return &OverworldEditorApp{
+		app: app,
+	}
+}
+func (a *OverworldEditorApp) ParseOverworldData() {
 
 }
-func (a *App) CheckOverworldId() int {
+func (a *OverworldEditorApp) CheckOverworldId() int {
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
-	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+	filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)
 
 	entries, _ := os.ReadDir(filePath)
 	var newOverWorldFolderNumber = 0
@@ -72,8 +85,8 @@ func CreateImagesArray(filePath string) []image.Image {
 }
 
 // Creates a frame, returns base64 version of the frame + base location in game engine
-func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId int, direction string) map[string]string {
-	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+func (a *OverworldEditorApp) CreateOverworldFrame(frameSetName string, frame int, overworldId int, direction string) map[string]string {
+	selection, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
 		Title: "Select overworld frame",
 		Filters: []runtime.FileFilter{
 			{
@@ -88,7 +101,7 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
-	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+	filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)
 
 	// Creates new directory for the ow
 	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
@@ -109,7 +122,7 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 	}
 	fi, err := os.Open(selection)
 	if err != nil {
-		fmt.Errorf("error has occured while opening file!\nerror is: %v", err)
+		fmt.Printf("error has occured while opening file!\nerror is: %v", err)
 	}
 	// close file on exit and check for its returned error
 	defer func() {
@@ -161,16 +174,16 @@ func (a *App) CreateOverworldFrame(frameSetName string, frame int, overworldId i
 	frameData := make(map[string]string)
 	localPath := fmt.Sprintf("%s/%d/%s/%d.png", basePath, frame, frameSetName, frame)
 	frameData["path"] = localPath
-	frameData["sprite"] = CreateBase64File(outputFile)
+	frameData["sprite"] = parsing.CreateBase64File(outputFile)
 	frameData["direction"] = direction
 	frameData["frameNumber"] = strconv.Itoa(frame)
 	return frameData
 }
 
-func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) string {
+func (a *OverworldEditorApp) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) string {
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
-	filePath := fmt.Sprintf("%s/%s", a.dataDirectory, basePath)
+	filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)
 
 	// Creates new directory for the ow
 	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)
@@ -202,12 +215,12 @@ func (a *App) CreteOverworldGif(frameSetName string, frame int, overworldId int,
 	}
 	defer animatedOverworld.Close()
 	gif.EncodeAll(animatedOverworld, outputGif)
-	overworldGif := CreateBase64File(animatedOverworldFileName)
+	overworldGif := parsing.CreateBase64File(animatedOverworldFileName)
 	return overworldGif
 
 }
 
-func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
+func (a *OverworldEditorApp) CreateOverworldTomlEntry(overworldData coreModels.OverworldDataJson) {
 	fmt.Print(overworldData)
 	var overworlds []models.Overworld
 
@@ -237,7 +250,7 @@ func (a *App) CreateOverworldTomlEntry(overworldData OverworldDataJson) {
 		fmt.Printf("error while creating overworld data! %v\n", err)
 	}
 
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/assets/toml/overworlds.toml", a.dataDirectory), os.O_CREATE|os.O_APPEND, 0644)
+	f, err := os.OpenFile(fmt.Sprintf("%s/data/assets/toml/overworlds.toml", a.app.DataDirectory), os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Fatalf("Error occured while opening file %v\n", err)
 
