@@ -5,10 +5,10 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true
+    
   },
   "include": [
     "src/*.tsx",
     "src/*.ts"
-  ],
-  "exclude": ["wailsjs/*"]
+  ]
 }
