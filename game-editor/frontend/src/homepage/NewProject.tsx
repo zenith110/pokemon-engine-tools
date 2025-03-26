@@ -2,7 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 import { GrabProjectWorkspace, CreateProject} from "../../wailsjs/go/core/App";
-const NewProject = ({ setClickedNewProject }) => {
+const NewProject = ({ setClickedNewProject }: { setClickedNewProject: (value: boolean) => void }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDirectory, setProjectDirectory] = useState("")
     const [status, setStatus] = useState("");

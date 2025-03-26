@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { ParseProjects, ImportProject} from "../../wailsjs/go/core/App";
+import { Project } from "../models/project";
 
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";
 import WelcomeMessage from "./WelcomeMessage";
 const  HomePage = () => {
-    const [projects, setProjects] = useState([])
+    const [projects, setProjects] = useState<Project[]>([])
     const [clickedNewProject, setClickedNewProject] = useState(false)
     useEffect(() => {
         const fetchProjects = async() => {
