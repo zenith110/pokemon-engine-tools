@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { UpdateTrainer, UpdateTrainerSprite } from "../../../../wailsjs/go/trainereditor/TrainerEditorApp";
 import UpdatingPokemon from "./UpdatingPokemon";
+import NewPokemon from "./NewPokemon";
+import NewTrainerClass from "./NewTrainerClass";
 import { models } from "../../../../wailsjs/go/models";
 
 interface TrainerProps {
@@ -9,12 +11,15 @@ interface TrainerProps {
     pokemonSpecies: models.PokemonTrainerEditor[];
     setSelectedTrainer: (trainer: models.TrainerJson) => void;
     classTypes: models.Data[];
+    setClassTypes: (classTypes: models.Data[]) => void;
 }
 
-const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTrainer, classTypes}: TrainerProps) => {
+const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTrainer, classTypes, setClassTypes}: TrainerProps) => {
     const [trainerName, setTrainerName] = useState(selectedTrainer?.name)
     const [trainerClass, setTrainerClass] = useState(selectedTrainer?.classType)
     const [trainerSprite, setTrainerSprite] = useState(selectedTrainer?.spritename)
+    const [isNewPokemonModalOpen, setIsNewPokemonModalOpen] = useState(false);
+    const [isNewTrainerClassModalOpen, setIsNewTrainerClassModalOpen] = useState(false);
     
     return(
         <div className="bg-slate-700 rounded-xl p-6 space-y-6">
@@ -45,18 +50,30 @@ const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTraine
                     </div>
 
                     <div className="flex flex-col items-center space-y-1">
-                        <label className="text-white text-sm">Trainer class</label>
-                        <select 
-                            name="trainerClasses" 
-                            defaultValue={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} 
-                            onChange={(e) => setTrainerClass(e.target.value)}
-                            className="px-3 py-1 rounded-lg bg-slate-800 text-white w-full border border-slate-600 focus:border-slate-500 focus:outline-none"
-                        >
-                            <option value={"placeholder"} disabled className="bg-slate-800 text-white">Select a trainer class</option>
-                            {classTypes.map((trainerClass) =>
-                                <option value={trainerClass.Name} key={trainerClass.Name} className="bg-slate-800 text-white">{trainerClass.Name}</option>
-                            )}
-                        </select>
+                        <div className="flex items-center space-x-2 w-full">
+                            <div className="flex-grow">
+                                <label className="text-white text-sm">Trainer class</label>
+                                <select 
+                                    name="trainerClasses" 
+                                    defaultValue={selectedTrainer?.classType? selectedTrainer.classType : 'placeholder'} 
+                                    onChange={(e) => setTrainerClass(e.target.value)}
+                                    className="px-3 py-1 rounded-lg bg-slate-800 text-white w-full border border-slate-600 focus:border-slate-500 focus:outline-none"
+                                >
+                                    <option value={"placeholder"} disabled className="bg-slate-800 text-white">Select a trainer class</option>
+                                    {classTypes.map((trainerClass) =>
+                                        <option value={trainerClass.Name} key={trainerClass.Name} className="bg-slate-800 text-white">{trainerClass.Name}</option>
+                                    )}
+                                </select>
+                            </div>
+                            <button
+                                onClick={() => setIsNewTrainerClassModalOpen(true)}
+                                className="mt-6 px-3 py-1 bg-tealBlue text-white rounded-lg hover:bg-wildBlueYonder transition-colors duration-200 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -77,6 +94,17 @@ const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTraine
                             />
                         </div>
                     ))}
+                    {selectedTrainer?.pokemons.length < 6 && (
+                        <button 
+                            onClick={() => setIsNewPokemonModalOpen(true)}
+                            className="bg-slate-700 rounded-lg p-4 shadow-md flex flex-col items-center justify-center hover:bg-slate-600 transition-colors duration-200 min-h-[200px]"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-tealBlue mb-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-white font-medium">New Pokemon</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -100,6 +128,22 @@ const Trainer = ({ selectedTrainer, heldItems, pokemonSpecies, setSelectedTraine
                     Save Changes
                 </button>
             </div>
+
+            <NewPokemon
+                selectedTrainer={selectedTrainer}
+                pokemonSpecies={pokemonSpecies}
+                setSelectedTrainer={setSelectedTrainer}
+                heldItems={heldItems}
+                isOpen={isNewPokemonModalOpen}
+                onRequestClose={() => setIsNewPokemonModalOpen(false)}
+            />
+
+            <NewTrainerClass
+                classTypes={classTypes}
+                setClassTypes={setClassTypes}
+                isOpen={isNewTrainerClassModalOpen}
+                onRequestClose={() => setIsNewTrainerClassModalOpen(false)}
+            />
         </div>
     )
 }

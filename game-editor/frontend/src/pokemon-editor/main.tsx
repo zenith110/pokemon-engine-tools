@@ -15,6 +15,10 @@ export default function PokemonEditor():React.ReactElement {
     const [selectValue, setSelectValue] = useState<{ value: string; label: string } | null>(null);
     const [currentEvoIndex, setCurrentEvoIndex] = useState<number>(0);
     const [currentAbilityIndex, setCurrentAbilityIndex] = useState<number>(0);
+<<<<<<< HEAD
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+=======
+>>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
     const pokemonTypes: string[] = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
     const regex: RegExp = /^[0-9\b]{0,3}$/;
     
@@ -75,6 +79,39 @@ export default function PokemonEditor():React.ReactElement {
     };
 
     const fetchPokemonSpecies = async() => {
+<<<<<<< HEAD
+        setIsLoading(true);
+        try {
+            let data = await ParsePokemonData();
+            if (data) {
+                const mappedData = data.map(pokemon => ({
+                    ...pokemon,
+                    DexEntry: "",
+                    ID: String(pokemon.ID),
+                    Evolutions: pokemon.Evolutions ? pokemon.Evolutions.map(evo => ({
+                        ...evo,
+                        Method1: evo.Method1 ? [evo.Method1] : [],
+                        Method2: evo.Method2 ? [evo.Method2] : []
+                    })) : []
+                }));
+                setPokemonSpecies(mappedData);
+
+                // Load last selected Pokemon from localStorage
+                const lastSelectedId = localStorage.getItem('lastSelectedPokemonId');
+                if (lastSelectedId) {
+                    const lastSelected = mappedData.find(pokemon => pokemon.ID === lastSelectedId);
+                    if (lastSelected) {
+                        updatePokemonSelection(lastSelected);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching Pokemon data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+=======
         let data = await ParsePokemonData();
         if (data) {
             const mappedData = data.map(pokemon => ({
@@ -99,6 +136,7 @@ export default function PokemonEditor():React.ReactElement {
             }
         }
     }
+>>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
 
     const handleStatChange = (stat: string, val: number) => {
         setSelectedPokemon(prevState => {
@@ -125,6 +163,39 @@ export default function PokemonEditor():React.ReactElement {
         }
     }, [selectedPokemon]);
 
+<<<<<<< HEAD
+    if (isLoading) {
+        return (
+            <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4 relative">
+                <div className="absolute inset-0 bg-slate-800/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="w-16 h-16 border-4 border-tealBlue border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-white text-lg font-medium">Loading Pokemon Data...</p>
+                        <p className="text-gray-400 text-sm">Please wait while we fetch the latest data from your pokemon.toml</p>
+                    </div>
+                </div>
+                {/* Keep the layout structure to prevent layout shift */}
+                <div className="flex flex-row h-5/6 gap-4">
+                    <div className="flex flex-col w-5/12 gap-4 bg-slate-700 rounded-xl p-4">
+                        <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch">
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                        </div>
+                        <div className="flex flex-row justify-around gap-4 py-2">
+                            <div className="grow h-10 bg-slate-600 rounded-xl"></div>
+                            <div className="w-32 h-10 bg-slate-600 rounded-xl"></div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col w-7/12 gap-4">
+                        <div className="bg-slate-700 rounded-xl p-6 h-full"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4">
             <div className="flex flex-row h-5/6 gap-4">
@@ -135,6 +206,18 @@ export default function PokemonEditor():React.ReactElement {
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" className="p-2" />
                         <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="Shiny Back Sprite" className="p-2" />
                     </div>
+=======
+    return (
+        <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4">
+            <div className="flex flex-row h-5/6 gap-4">
+                <div className="flex flex-col w-5/12 gap-4 bg-slate-700 rounded-xl p-4">
+                    <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch">
+                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" className="p-2" />
+                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" className="p-2" />
+                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" className="p-2" />
+                        <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="Shiny Back Sprite" className="p-2" />
+                    </div>
+>>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
                     <div className="flex flex-row justify-around gap-4 py-2">
                         <Select
                             options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: `${pokemon.ID}: ${pokemon.Name}`}))}
