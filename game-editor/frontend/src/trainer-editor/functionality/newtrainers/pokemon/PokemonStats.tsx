@@ -2,8 +2,18 @@ import { useState} from "react"
 import { CreateTrainerData } from "../../../../../wailsjs/go/trainereditor/TrainerEditorApp"
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
+import { models } from "../../../../../wailsjs/go/models";
 
-const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex, pokemonsCount, pokemonIndex, dictData}) => {
+interface PokemonStatsProps {
+    currentlySelectedPokemon: models.PokemonTrainerEditor;
+    heldItemsList: { Name: string }[];
+    setPokemonIndex: (index: number) => void;
+    pokemonsCount: number;
+    pokemonIndex: number;
+    dictData: { name: string; classType: string; pokemons: any[]; sprite?: string };
+}
+
+const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex, pokemonsCount, pokemonIndex, dictData}: PokemonStatsProps) => {
     const [move1, setMove1] = useState(currentlySelectedPokemon.Moves[0].Name)
     const [move2, setMove2] = useState(currentlySelectedPokemon.Moves[0].Name)
     const [move3, setMove3] = useState(currentlySelectedPokemon.Moves[0].Name)
@@ -15,7 +25,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
     const [specialAtk, setSpecialAtk] = useState(currentlySelectedPokemon.SpecialAttack)
     const [specialDef, setSpecialDef] = useState(currentlySelectedPokemon.SpecialDefense)
     const [speed, setSpeed] = useState(currentlySelectedPokemon.Speed)
-    const [level, setLevel] = useState(0)
+    const [level, setLevel] = useState<number>(0)
     const navigate = useNavigate();
     const createData = () => {
         const moves = []
@@ -33,7 +43,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             "specialDefense": specialDef,
             "attack": attack,
             "speed": speed,
-            "level": parseInt(level),
+            "level": level,
             "id": String(currentlySelectedPokemon.ID)
         }
         setPokemonIndex(pokemonIndex + 1)
@@ -55,17 +65,19 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             "specialDefense": specialDef,
             "attack": attack,
             "speed": speed,
-            "level": parseInt(level),
+            "level": level,
             "id": currentlySelectedPokemon.ID
         }
         
         dictData.pokemons.push(data)
-        let finalData = {
+        let finalData: models.TrainerJson = {
             "name": dictData.name,
-            "sprite": dictData.sprite,
+            "sprite": dictData.sprite || "",
+            "spritename": dictData.sprite || "",
             "classType": dictData.classType,
             "id": uuidv4(),
-            "pokemons": dictData.pokemons
+            "pokemons": dictData.pokemons,
+            "convertValues": () => {}
         }
         
         CreateTrainerData(finalData)
@@ -80,29 +92,29 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
             <br />
             <div className="text-left">
                 <label>HP:</label>
-                <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(e.target.value)}></input>
-                <label max={300}>Attack:</label>
-                <input value={currentlySelectedPokemon.Attack} type="number" onChange={(e) => setAttack(e.target.value)}></input>
+                <input type="number" value={currentlySelectedPokemon.HP} max={300} onChange={(e) => setHp(Number(e.target.value))}></input>
+                <label>Attack:</label>
+                <input value={currentlySelectedPokemon.Attack} type="number" onChange={(e) => setAttack(Number(e.target.value))}></input>
                 <br/>
                 <br/>
                 <label>Defense:</label>
-                <input type="number" value={currentlySelectedPokemon.Defense} max={300} onChange={(e) => setDefense(e.target.value)}></input>
+                <input type="number" value={currentlySelectedPokemon.Defense} max={300} onChange={(e) => setDefense(Number(e.target.value))}></input>
                 <br/>
                 <br/>
                 <label>SpecialAtk:</label>
-                <input type="number" value={currentlySelectedPokemon.SpecialAttack} max={300} onChange={(e) => setSpecialAtk(e.target.value)}></input>
+                <input type="number" value={currentlySelectedPokemon.SpecialAttack} max={300} onChange={(e) => setSpecialAtk(Number(e.target.value))}></input>
                 <br/>
                 <br/>
                 <label>SpecialDef:</label>
-                <input type="number" value={currentlySelectedPokemon.SpecialDefense} max={300} onChange={(e) => setSpecialDef(e.target.value)}></input>
+                <input type="number" value={currentlySelectedPokemon.SpecialDefense} max={300} onChange={(e) => setSpecialDef(Number(e.target.value))}></input>
                 <br/>
                 <br/>
                 <label>Speed:</label>
-                <input type="number" value={currentlySelectedPokemon.Speed} max={300} onChange={(e) => setSpeed(e.target.value)}></input>
+                <input type="number" value={currentlySelectedPokemon.Speed} max={300} onChange={(e) => setSpeed(Number(e.target.value))}></input>
                 <br/>
                 <br/>
                 <label>Level: </label>
-                <input type="number" max={100} min={1} onChange={(e) => setLevel(e.target.value)}></input>
+                <input type="number" max={100} min={1} onChange={(e) => setLevel(Number(e.target.value))}></input>
             </div>
         
         <br/>
@@ -110,7 +122,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <label>Move1:</label>
         <select name="moves1" defaultValue={"placeholder"} onChange={(e) => setMove1(e.target.value)}>
         <option value={"placeholder"} disabled>Select a move</option>
-        {currentlySelectedPokemon.Moves.map((move) =>
+        {currentlySelectedPokemon.Moves.map((move: { Name: string }) =>
             <option value={move.Name} key={move.Name}>{move.Name}</option> 
         )}
         </select>
@@ -119,7 +131,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <label>Move2:</label>
         <select name="moves2" defaultValue={"placeholder"} onChange={(e) => setMove2(e.target.value)}>
         <option value={"placeholder"} disabled>Select a move</option>
-        {currentlySelectedPokemon.Moves.map((move) =>
+        {currentlySelectedPokemon.Moves.map((move: { Name: string }) =>
             <option value={move.Name} key={move.Name}>{move.Name}</option> 
         )}
         </select>
@@ -128,7 +140,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <label>Move3:</label>
         <select name="moves3" defaultValue={"placeholder"} onChange={(e) => setMove3(e.target.value)}>
         <option value={"placeholder"} disabled>Select a move</option>
-        {currentlySelectedPokemon.Moves.map((move) =>
+        {currentlySelectedPokemon.Moves.map((move: { Name: string }) =>
             <option value={move.Name} key={move.Name}>{move.Name}</option> 
         )}
         </select>
@@ -137,7 +149,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <label>Move4:</label>
         <select name="moves4" defaultValue={"placeholder"} onChange={(e) => setMove4(e.target.value)}>
         <option value={"placeholder"} disabled>Select a move</option>
-        {currentlySelectedPokemon.Moves.map((move) =>
+        {currentlySelectedPokemon.Moves.map((move: { Name: string }) =>
             <option value={move.Name} key={move.Name}>{move.Name}</option> 
         )}
         </select>
@@ -146,7 +158,7 @@ const PokemonStats = ({ currentlySelectedPokemon, heldItemsList, setPokemonIndex
         <label>HeldItem:</label>
         <select name="heldItem" defaultValue={"placeholder"} onChange={(e) => setHeldItem(e.target.value)}>
         <option value={"placeholder"} disabled>Select held Item</option>
-        {heldItemsList.map((item) =>
+        {heldItemsList.map((item: { Name: string }) =>
             <option value={item.Name} key={item.Name}>{item.Name}</option> 
         )}
         </select>

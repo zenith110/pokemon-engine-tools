@@ -39,7 +39,8 @@ func ParsePokemonFile(a *ParsingApp) Models.PokemonToml {
 	file, err := os.Open(fmt.Sprintf("%s/data/toml/pokemon.toml", a.app.DataDirectory))
 
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error opening pokemon.toml: %v\n", err)
+		return Models.PokemonToml{}
 	}
 	defer file.Close()
 
@@ -47,12 +48,14 @@ func ParsePokemonFile(a *ParsingApp) Models.PokemonToml {
 
 	b, err := io.ReadAll(file)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error reading pokemon.toml: %v\n", err)
+		return Models.PokemonToml{}
 	}
 
 	err = toml.Unmarshal(b, &pokemons)
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error unmarshaling pokemon.toml: %v\n", err)
+		return Models.PokemonToml{}
 	}
 	return pokemons
 }

@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "jsx": "react",
     "composite": true,
+    "skipLibCheck": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
-    
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "declaration": false,
+    "noEmit": true,
+    "isolatedModules": true
   },
-  "include": [
-    "src/*.tsx",
-    "src/*.ts"
-  ]
+  "include": ["vite.config.ts", "src/**/*.ts", "src/**/*.tsx", "wailsjs/**/*"]
 }

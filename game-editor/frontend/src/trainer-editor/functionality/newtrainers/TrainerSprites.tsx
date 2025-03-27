@@ -1,8 +1,16 @@
 import { useState } from "react"
-const TrainerSprites = ({ trainerSprites, dictData, setDictData }) => {
-    const SetImage = (e) => {
+import { models } from "../../../../wailsjs/go/models";
+
+interface TrainerSpritesProps {
+    trainerSprites: models.TrainerSprite[];
+    dictData: { name: string; classType: string; pokemons: any[]; sprite?: string };
+    setDictData: (data: { name: string; classType: string; pokemons: any[]; sprite?: string }) => void;
+}
+
+const TrainerSprites = ({ trainerSprites, dictData, setDictData }: TrainerSpritesProps) => {
+    const SetImage = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setTrainerImage(e.target.value)
-        setDictData(dictData => ({...dictData, sprite: e.target.options[e.target.selectedIndex].text}))
+        setDictData({...dictData, sprite: e.target.options[e.target.selectedIndex].text})
     }
     const [trainerImage, setTrainerImage] = useState("")
     return(

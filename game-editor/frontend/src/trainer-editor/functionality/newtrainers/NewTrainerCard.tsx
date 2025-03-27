@@ -4,18 +4,26 @@ import TrainerPokemonsGenerator from "./TrainerPokemonsGenerator"
 import TrainerClasses from "./TrainerClasses";
 import TrainerSprites from "./TrainerSprites";
 import { useNavigate } from "react-router-dom";
+import { models } from "../../../../wailsjs/go/models";
+
+interface DictData {
+    name: string;
+    classType: string;
+    pokemons: any[];
+    sprite?: string;
+}
 
 const NewTrainerCard = () => {
     const navigate = useNavigate();
-    const [classTypes, setClassTypes] = useState([])
-    const [pokemonSpecies, setPokemonSpecies] = useState([])
-    const [pokemonCount, setPokemonCount] = useState(0)
-    const [heldItemsList, setHeldItemList] = useState([])
-    const [trainerSprites, setTrainerSprites] = useState([])
-    const [dictData, setDictData ] = useState({
-        "name": "",
-        "classType": "",
-        "pokemons": []
+    const [classTypes, setClassTypes] = useState<models.Data[]>([])
+    const [pokemonSpecies, setPokemonSpecies] = useState<models.PokemonTrainerEditor[]>([])
+    const [pokemonCount, setPokemonCount] = useState<number>(0)
+    const [heldItemsList, setHeldItemList] = useState<models.HeldItem[]>([])
+    const [trainerSprites, setTrainerSprites] = useState<models.TrainerSprite[]>([])
+    const [dictData, setDictData] = useState<DictData>({
+        name: "",
+        classType: "",
+        pokemons: []
     })
     useEffect(() => { 
         const fetchClassTypes = async() => {
@@ -52,7 +60,7 @@ const NewTrainerCard = () => {
         <TrainerClasses trainerClasses={classTypes} dictData = {dictData} setDictData={setDictData}/>
         <br/>
         <label>Total amount of pokemon: </label>
-        <input type="number"  min="1" max="6" onChange={(event) => setPokemonCount(event.target.value)}/>
+        <input type="number"  min="1" max="6" onChange={(event) => setPokemonCount(Number(event.target.value))}/>
         
         <br/>
         {

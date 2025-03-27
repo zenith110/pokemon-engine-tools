@@ -15,7 +15,7 @@ const  HomePage = () => {
             setProjects(data);
         }
         fetchProjects()
-    },[projects])
+    }, [])
     return(
         <div>
             {projects == null ? <WelcomeMessage/> : <div/>}
