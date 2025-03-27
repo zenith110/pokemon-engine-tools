@@ -72,7 +72,7 @@ const NewTrainerClass = ({ classTypes, setClassTypes, isOpen, onRequestClose }: 
 
                                     const newClass: models.Data = {
                                         Name: className.trim(),
-                                        ID: (classTypes.length + 1).toString()
+                                        Music: ""
                                     };
 
                                     setClassTypes([...classTypes, newClass]);
