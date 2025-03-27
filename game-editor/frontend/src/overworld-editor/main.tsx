@@ -198,7 +198,7 @@ const OverworldEditor = () => {
                                     </div>
                                 </div>
 
-                                <div>
+        <div>
                                     <h3 className="text-lg font-semibold text-white mb-4">Additional Info</h3>
                                     <div className="text-gray-300">
                                         <div className="flex items-center space-x-2">

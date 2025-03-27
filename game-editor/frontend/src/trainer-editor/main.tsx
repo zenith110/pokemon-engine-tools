@@ -7,19 +7,40 @@ import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems} fro
 import Trainer from "./functionality/existingtrainers/Trainer";
 //\import { Trainer } from "./trainer.models";
 
-const TrainerEditor = () => {
-    const [trainers, setTrainers] = useState<models.TrainerJson[]>([]);
-    const [selectedTrainer, setSelectedTrainer] = useState<models.TrainerJson | undefined>();
+export default function TrainerEditor():React.ReactElement {
+    const [trainers, setTrainers] = useState<models.TrainerJson[] | null>([]);
+    const [selectedTrainer, setSelectedTrainer] = useState<models.TrainerJson | null>(null);
+    const [selectValue, setSelectValue] = useState<{ value: string; label: string } | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [classTypes, setClassTypes] = useState<models.Data[]>([]);
     const [heldItems, setHeldItems] = useState<models.HeldItem[]>([]);
     const [pokemonSpecies, setPokemonSpecies] = useState<models.PokemonTrainerEditor[]>([]);
     const navigate = useNavigate();
     
-    useEffect(() => { 
-        const fetchTrainers = async() => {
-            let data = await ParseTrainers()
-            setTrainers(data)
-        }
+    useEffect(() => {
+        const fetchTrainerData = async () => {
+            setIsLoading(true);
+            try {
+                let data = await ParseTrainers();
+                if (data) {
+                    setTrainers(data);
+
+                    // Load last selected trainer from localStorage
+                    const lastSelectedId = localStorage.getItem('lastSelectedTrainerId');
+                    if (lastSelectedId) {
+                        const lastSelected = data.find(trainer => trainer.id === lastSelectedId);
+                        if (lastSelected) {
+                            setSelectedTrainer(lastSelected);
+                            setSelectValue({ value: lastSelected.id, label: lastSelected.name });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching trainer data:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
         const fetchClassTypes = async() => {
             let data = await ParseTrainerClass()
             setClassTypes(data.Data)
@@ -33,10 +54,42 @@ const TrainerEditor = () => {
             setHeldItems(data)
         }
         fetchPokemonSpecies();
-        fetchTrainers();
+        fetchTrainerData();
         fetchClassTypes();
         heldItems();
-    }, [selectedTrainer]) 
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4 relative">
+                <div className="absolute inset-0 bg-slate-800/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="flex flex-col items-center space-y-4">
+                        <div className="w-16 h-16 border-4 border-tealBlue border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-white text-lg font-medium">Loading Trainer Data...</p>
+                        <p className="text-gray-400 text-sm">Please wait while we fetch the latest data from your trainer.toml</p>
+                    </div>
+                </div>
+                {/* Keep the layout structure to prevent layout shift */}
+                <div className="flex flex-row h-5/6 gap-4">
+                    <div className="flex flex-col w-5/12 gap-4 bg-slate-700 rounded-xl p-4">
+                        <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch">
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                            <div className="p-2"></div>
+                        </div>
+                        <div className="flex flex-row justify-around gap-4 py-2">
+                            <div className="grow h-10 bg-slate-600 rounded-xl"></div>
+                            <div className="w-32 h-10 bg-slate-600 rounded-xl"></div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col w-7/12 gap-4">
+                        <div className="bg-slate-700 rounded-xl p-6 h-full"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return(
         <div className="flex flex-col items-center min-h-screen bg-slate-800 p-6">
@@ -101,6 +154,7 @@ const TrainerEditor = () => {
                                 pokemonSpecies={pokemonSpecies} 
                                 setSelectedTrainer={setSelectedTrainer} 
                                 classTypes={classTypes}
+                                setClassTypes={setClassTypes}
                             />
                         </div>
                     ) : (
@@ -124,5 +178,3 @@ const TrainerEditor = () => {
         </div>
     );
 }
-
-export default TrainerEditor;

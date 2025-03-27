@@ -3,6 +3,7 @@ import { ParseMoves } from "../../wailsjs/go/moveeditor/MoveEditorApp";
 import Select from "react-select";
 import UpdateMoveData from "./existing-moves/UpdateMoveData";
 import { Move } from "./move.model";
+import { useNavigate } from "react-router-dom";
 
 const MoveEditor = () => {
   const [moves, setMoves] = useState<Move[]>([]);
@@ -12,17 +13,72 @@ const MoveEditor = () => {
   const [accuracy, setAccuracy] = useState<number | undefined>(0);
   const [moveType, setMoveType] = useState<string | undefined>("");
   const [name, setName] = useState<string | undefined>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMoves = async () => {
-      let data = await ParseMoves();
-      setMoves(data.Move.map(move => ({
-        ...move,
-        ID: String(move.ID)
-      })));
+      setIsLoading(true);
+      try {
+        let data = await ParseMoves();
+        const mappedMoves = data.Move.map(move => ({
+          ...move,
+          ID: String(move.ID)
+        }));
+        setMoves(mappedMoves);
+
+        // Load last selected move from localStorage
+        const lastSelectedId = localStorage.getItem('lastSelectedMoveId');
+        if (lastSelectedId) {
+          const lastSelected = mappedMoves.find(move => move.ID === lastSelectedId);
+          if (lastSelected) {
+            setSelectedMove(lastSelected);
+            setPower(lastSelected.Power);
+            setPP(lastSelected.Pp);
+            setAccuracy(lastSelected.Accuracy);
+            setMoveType(lastSelected.Type);
+            setName(lastSelected.Name);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching move data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchMoves();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center min-h-screen bg-slate-800 p-6 relative">
+        <div className="absolute inset-0 bg-slate-800/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-16 h-16 border-4 border-tealBlue border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-white text-lg font-medium">Loading Move Data...</p>
+            <p className="text-gray-400 text-sm">Please wait while we fetch the latest data from your move.toml</p>
+          </div>
+        </div>
+        {/* Keep the layout structure to prevent layout shift */}
+        <div className="w-full max-w-3xl bg-slate-700 rounded-2xl shadow-lg p-6">
+          <div className="flex flex-col items-center space-y-6">
+            <h1 className="text-2xl font-bold text-white mb-4">Move Editor</h1>
+            
+            <div className="w-full max-w-md">
+              <div className="h-10 bg-slate-600 rounded-xl"></div>
+            </div>
+
+            <div className="w-full mt-6">
+              <div className="bg-slate-600 rounded-xl p-6 h-96"></div>
+            </div>
+
+            <div className="mt-6 px-6 py-2 bg-slate-600 text-white rounded-xl w-32"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-slate-800 p-6">
       <div className="w-full max-w-3xl bg-slate-700 rounded-2xl shadow-lg p-6">
