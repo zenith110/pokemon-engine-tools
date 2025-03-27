@@ -10,6 +10,13 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
+	core "github.com/zenith110/pokemon-engine-tools/tools-core"
+	jukebox "github.com/zenith110/pokemon-engine-tools/tools/jukebox"
+	mapEditor "github.com/zenith110/pokemon-engine-tools/tools/map-editor"
+	moveEditor "github.com/zenith110/pokemon-engine-tools/tools/move-editor"
+	overworldEditor "github.com/zenith110/pokemon-engine-tools/tools/overworld-editor"
+	trainerEditor "github.com/zenith110/pokemon-engine-tools/tools/trainer-editor"
 )
 
 //go:embed all:frontend/dist
@@ -36,8 +43,13 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
-
+	app := core.NewApp()
+	mapEditorSetup := mapEditor.NewMapEditorApp(app)
+	overworldEditorSetup := overworldEditor.NewOverworldEditorApp(app)
+	trainerEditorSetup := trainerEditor.NewTrainerEditorApp(app)
+	moveEditorSetup := moveEditor.NewMoveEditorApp(app)
+	jukeboxSetup := jukebox.NewJukeboxApp(app)
+	parsingSetup := parsing.NewParsingApp(app)
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Game Editor",
@@ -48,9 +60,15 @@ func main() {
 			Handler: NewFileLoader(),
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
+		OnStartup:        app.Startup,
 		Bind: []interface{}{
 			app,
+			mapEditorSetup,
+			overworldEditorSetup,
+			trainerEditorSetup,
+			moveEditorSetup,
+			jukeboxSetup,
+			parsingSetup,
 		},
 	})
 
