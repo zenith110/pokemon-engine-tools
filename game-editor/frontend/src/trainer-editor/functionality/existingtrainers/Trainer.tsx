@@ -8,7 +8,7 @@ import { models } from "../../../../wailsjs/go/models";
 interface TrainerProps {
     selectedTrainer: models.TrainerJson;
     heldItems: { Name: string }[];
-    pokemonSpecies: models.PokemonTrainerEditor[];
+    pokemonSpecies: { Name: string; ID: string; }[];
     setSelectedTrainer: (trainer: models.TrainerJson) => void;
     classTypes: models.Data[];
     setClassTypes: (classTypes: models.Data[]) => void;

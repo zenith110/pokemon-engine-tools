@@ -1,6 +1,7 @@
 export interface Pokemon {
     ID: string;
     Name: string;
+    Cry: string;
     Types: string[];
     DexEntry: string;
     Abilities: {
@@ -17,6 +18,7 @@ export interface Pokemon {
         Method1: string[];
         Method2: string[];
         ID: string;
+        Icon: string;
     }[];
 
     HP: number;

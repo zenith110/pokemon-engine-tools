@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { models } from "../../wailsjs/go/models";
 
-import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems} from "../../wailsjs/go/parsing/ParsingApp";
+import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems } from "../../wailsjs/go/parsing/ParsingApp";
 import Trainer from "./functionality/existingtrainers/Trainer";
 //\import { Trainer } from "./trainer.models";
 
@@ -14,7 +14,7 @@ export default function TrainerEditor():React.ReactElement {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [classTypes, setClassTypes] = useState<models.Data[]>([]);
     const [heldItems, setHeldItems] = useState<models.HeldItem[]>([]);
-    const [pokemonSpecies, setPokemonSpecies] = useState<models.PokemonTrainerEditor[]>([]);
+    const [pokemonSpecies, setPokemonSpecies] = useState<{ Name: string; ID: string; }[]>([]);
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -47,7 +47,11 @@ export default function TrainerEditor():React.ReactElement {
         }
         const fetchPokemonSpecies = async() => {
             let data = await ParsePokemonData()
-            setPokemonSpecies(data)
+            // Only store minimal Pokemon data (Name and ID)
+            setPokemonSpecies(data.map(pokemon => ({
+                Name: pokemon.Name,
+                ID: pokemon.ID
+            })));
         }
         const heldItems = async() => {
             let data = await ParseHeldItems()

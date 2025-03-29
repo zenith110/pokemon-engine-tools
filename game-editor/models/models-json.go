@@ -62,6 +62,7 @@ type PokemonTrainerEditor struct {
 	Abilities      []models.Abilities
 	Evolutions     []Evolution
 	Types          []string
+	Cry            string
 }
 
 type HeldItem struct {

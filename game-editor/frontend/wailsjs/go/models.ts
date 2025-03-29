@@ -306,6 +306,7 @@ export namespace models {
 	    Abilities: Abilities[];
 	    Evolutions: Evolution[];
 	    Types: string[];
+	    Cry: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new PokemonTrainerEditor(source);
@@ -330,6 +331,7 @@ export namespace models {
 	        this.Abilities = this.convertValues(source["Abilities"], Abilities);
 	        this.Evolutions = this.convertValues(source["Evolutions"], Evolution);
 	        this.Types = source["Types"];
+	        this.Cry = source["Cry"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -532,6 +534,25 @@ export namespace models {
 	        this.name = source["name"];
 	        this.id = source["id"];
 	        this.description = source["description"];
+	    }
+	}
+
+}
+
+export namespace parsing {
+	
+	export class OnLoadPokemonEditor {
+	    ID: string;
+	    Name: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OnLoadPokemonEditor(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
+	        this.Name = source["Name"];
 	    }
 	}
 

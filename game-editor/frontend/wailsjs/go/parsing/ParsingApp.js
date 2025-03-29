@@ -10,6 +10,10 @@ export function GrabTrainerSprites() {
   return window['go']['parsing']['ParsingApp']['GrabTrainerSprites']();
 }
 
+export function LoadPokemonById(arg1) {
+  return window['go']['parsing']['ParsingApp']['LoadPokemonById'](arg1);
+}
+
 export function ParseHeldItems() {
   return window['go']['parsing']['ParsingApp']['ParseHeldItems']();
 }

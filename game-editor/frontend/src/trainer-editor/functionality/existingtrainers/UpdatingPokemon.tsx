@@ -1,10 +1,11 @@
 import { useState } from "react";
 import Modal from 'react-modal';
 import { models } from "../../../../wailsjs/go/models";
+import { LoadPokemonById } from "../../../../wailsjs/go/parsing/ParsingApp";
 
 interface UpdatingPokemonProps {
     selectedTrainer: models.TrainerJson;
-    pokemonSpecies: models.PokemonTrainerEditor[];
+    pokemonSpecies: { Name: string; ID: string; }[];  // Changed to only include minimal data
     setSelectedTrainer: (trainer: models.TrainerJson) => void;
     index: number;
     pokemon: models.PokemonJson;
@@ -36,6 +37,7 @@ const customStyles = {
 const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, index, pokemon, heldItems}: UpdatingPokemonProps) => {
     const [selectedPokemon, setSelectedPokemon] = useState<models.PokemonTrainerEditor | null>(null);
     const [clickedPokemon, setClickedPokemon] = useState<models.PokemonJson | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     
     // Clicked pokemon releated stats
     const [move1, setMove1] = useState(pokemon?.moves[0])
@@ -60,17 +62,51 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
 
     const closeModal = () => {
         setIsOpen(false);
+        setSelectedPokemon(null); // Clear selected Pokemon data when closing modal
     }
+
+    const loadPokemonData = async (pokemonId: string) => {
+        setIsLoading(true);
+        try {
+            const pokemonData = await LoadPokemonById(pokemonId);
+            if (pokemonData) {
+                setSelectedPokemon(pokemonData);
+                setSpecies(pokemonData.Name);
+                setId(pokemonData.ID);
+                // Update clickedPokemon with the new Pokemon's data
+                setClickedPokemon({
+                    species: pokemonData.Name,
+                    attack: pokemonData.Attack,
+                    defense: pokemonData.Defense,
+                    speed: pokemonData.Speed,
+                    specialAttack: pokemonData.SpecialAttack,
+                    specialDefense: pokemonData.SpecialDefense,
+                    hp: pokemonData.HP,
+                    moves: [move1, move2, move3, move4],
+                    icon: pokemonData.Icon,
+                    front: pokemonData.FrontSprite,
+                    id: pokemonData.ID,
+                    level: level,
+                    heldItem: heldItem,
+                    cry: pokemonData.Cry
+                });
+            }
+        } catch (error) {
+            console.error('Error loading Pokemon data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return(
         <div className="flex flex-col items-center">
             <div className="relative group">
                 <button 
-                    onClick={(e) => {
-                        let data = pokemonSpecies.find((pokemonSpeciesData) => pokemonSpeciesData.Name === pokemon.species)
-                        if (data) setSelectedPokemon(data);
+                    onClick={async (e) => {
                         setClickedPokemon(pokemon);
                         openModal();
+                        // Load the Pokemon data when opening the modal
+                        await loadPokemonData(pokemon.id);
                     }}
                     className="w-24 h-24 bg-slate-600 rounded-xl p-2 hover:bg-slate-500 transition-colors duration-200 flex items-center justify-center shadow-inner border-2 border-slate-500 relative"
                 >
@@ -100,40 +136,47 @@ const UpdatingPokemon = ({ selectedTrainer, pokemonSpecies, setSelectedTrainer, 
 
                             {/* Pokemon Preview Section */}
                             <div className="flex flex-col items-center mb-6 bg-slate-800 rounded-xl p-4">
-                                <button 
-                                    onClick={() => {
-                                        if (clickedPokemon) {
-                                            var test = new Audio(`data:audio/wav;base64,${clickedPokemon.cry}`)
-                                            test.play();
-                                        }
-                                    }}
-                                    className="hover:opacity-80 transition-opacity mb-4 bg-slate-700 p-4 rounded-xl"
-                                >
-                                    <img 
-                                        src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} 
-                                        alt="Sprite" 
-                                        className="w-32 h-32 object-contain"
-                                    />
-                                </button>
+                                {isLoading ? (
+                                    <div className="flex flex-col items-center space-y-4 p-8">
+                                        <div className="w-8 h-8 border-4 border-tealBlue border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-sm text-gray-400">Loading Pokemon data...</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button 
+                                            onClick={() => {
+                                                if (clickedPokemon) {
+                                                    var test = new Audio(`data:audio/wav;base64,${clickedPokemon.cry}`)
+                                                    test.play();
+                                                }
+                                            }}
+                                            className="hover:opacity-80 transition-opacity mb-4 bg-slate-700 p-4 rounded-xl"
+                                        >
+                                            <img 
+                                                src={clickedPokemon? `data:image/gif;base64,${clickedPokemon?.front}` : ''} 
+                                                alt="Sprite" 
+                                                className="w-32 h-32 object-contain"
+                                            />
+                                        </button>
 
-                                <select 
-                                    name="pokemons" 
-                                    defaultValue={clickedPokemon?.species} 
-                                    onChange={(e) => {
-                                        const pokemonData = pokemonSpecies.find((pokemon) => pokemon.Name === e.target.value)
-                                        if (pokemonData) {
-                                            setSpecies(pokemonData.Name)
-                                            setSelectedPokemon(pokemonData)
-                                            setId(pokemonData.ID)
-                                        }
-                                    }}
-                                    className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-slate-500 focus:outline-none [&>*]:bg-slate-800"
-                                >
-                                    <option value={"placeholder"} disabled className="text-gray-400">Select a pokemon</option>
-                                    {pokemonSpecies.map((pokemon) =>
-                                        <option value={pokemon.Name} key={pokemon.ID} className="hover:bg-slate-700">{pokemon.Name}</option>
-                                    )}
-                                </select>
+                                        <select 
+                                            name="pokemons" 
+                                            value={species || "placeholder"} 
+                                            onChange={async (e) => {
+                                                const pokemonData = pokemonSpecies.find((pokemon) => pokemon.Name === e.target.value);
+                                                if (pokemonData) {
+                                                    await loadPokemonData(pokemonData.ID);
+                                                }
+                                            }}
+                                            className="w-full px-3 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 focus:border-slate-500 focus:outline-none [&>*]:bg-slate-800"
+                                        >
+                                            <option value={"placeholder"} disabled className="text-gray-400">Select a pokemon</option>
+                                            {pokemonSpecies.map((pokemon) =>
+                                                <option value={pokemon.Name} key={pokemon.ID} className="hover:bg-slate-700">{pokemon.Name}</option>
+                                            )}
+                                        </select>
+                                    </>
+                                )}
                             </div>
 
                             {/* Moves Section */}

@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { ParsePokemonData } from "../../wailsjs/go/parsing/ParsingApp";
+import { ParsePokemonData, LoadPokemonById } from "../../wailsjs/go/parsing/ParsingApp";
 import { useEffect, useState } from "react";
 import { Pokemon } from "./pokemon.model";
 import Select from "react-select";
 import React from "react";
 import { Dialog } from "@headlessui/react";
+import TypeToggle from "./components/TypeToggle";
 
 export default function PokemonEditor():React.ReactElement {
     const [pokemonSpecies, setPokemonSpecies] = useState<Pokemon[]>([]);
@@ -15,10 +15,7 @@ export default function PokemonEditor():React.ReactElement {
     const [selectValue, setSelectValue] = useState<{ value: string; label: string } | null>(null);
     const [currentEvoIndex, setCurrentEvoIndex] = useState<number>(0);
     const [currentAbilityIndex, setCurrentAbilityIndex] = useState<number>(0);
-<<<<<<< HEAD
     const [isLoading, setIsLoading] = useState<boolean>(true);
-=======
->>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
     const pokemonTypes: string[] = ["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
     const regex: RegExp = /^[0-9\b]{0,3}$/;
     
@@ -79,30 +76,49 @@ export default function PokemonEditor():React.ReactElement {
     };
 
     const fetchPokemonSpecies = async() => {
-<<<<<<< HEAD
         setIsLoading(true);
         try {
-            let data = await ParsePokemonData();
+        let data = await ParsePokemonData();
             if (data) {
-                const mappedData = data.map(pokemon => ({
-                    ...pokemon,
+                // Create a minimal Pokemon array for the dropdown
+                const minimalPokemons = data.map(pokemon => ({
+                    Name: pokemon.Name,
+                    ID: pokemon.ID,
+                    Types: [],
                     DexEntry: "",
-                    ID: String(pokemon.ID),
-                    Evolutions: pokemon.Evolutions ? pokemon.Evolutions.map(evo => ({
-                        ...evo,
-                        Method1: evo.Method1 ? [evo.Method1] : [],
-                        Method2: evo.Method2 ? [evo.Method2] : []
-                    })) : []
-                }));
-                setPokemonSpecies(mappedData);
+                    FrontSprite: "",
+                    BackSprite: "",
+                    ShinyFront: "",
+                    ShinyBack: "",
+                    Icon: "",
+                    Cry: "",
+                    HP: 0,
+                    Attack: 0,
+                    Defense: 0,
+                    SpecialAttack: 0,
+                    SpecialDefense: 0,
+                    Speed: 0,
+                    Moves: [],
+                    Abilities: [],
+                    Evolutions: {}
+                })) as Pokemon[];
+                setPokemonSpecies(minimalPokemons);
 
-                // Load last selected Pokemon from localStorage
+                // Load last selected Pokemon from localStorage or first Pokemon
                 const lastSelectedId = localStorage.getItem('lastSelectedPokemonId');
-                if (lastSelectedId) {
-                    const lastSelected = mappedData.find(pokemon => pokemon.ID === lastSelectedId);
-                    if (lastSelected) {
-                        updatePokemonSelection(lastSelected);
-                    }
+                const pokemonId = lastSelectedId || "001"; // Default to first Pokemon if no last selected
+                const trainerEditor = await LoadPokemonById(pokemonId);
+                if (trainerEditor) {
+                    const pokemon: Pokemon = {
+                        ...trainerEditor,
+            DexEntry: "",
+                        Evolutions: trainerEditor.Evolutions.map(evo => ({
+                ...evo,
+                Method1: evo.Method1 ? [evo.Method1] : [],
+                Method2: evo.Method2 ? [evo.Method2] : []
+            }))
+                    };
+                    updatePokemonSelection(pokemon);
                 }
             }
         } catch (error) {
@@ -111,32 +127,6 @@ export default function PokemonEditor():React.ReactElement {
             setIsLoading(false);
         }
     };
-=======
-        let data = await ParsePokemonData();
-        if (data) {
-            const mappedData = data.map(pokemon => ({
-            ...pokemon,
-            DexEntry: "",
-            ID: String(pokemon.ID),
-                Evolutions: pokemon.Evolutions ? pokemon.Evolutions.map(evo => ({
-                ...evo,
-                Method1: evo.Method1 ? [evo.Method1] : [],
-                Method2: evo.Method2 ? [evo.Method2] : []
-                })) : []
-            }));
-            setPokemonSpecies(mappedData);
-
-            // Load last selected Pokemon from localStorage
-            const lastSelectedId = localStorage.getItem('lastSelectedPokemonId');
-            if (lastSelectedId) {
-                const lastSelected = mappedData.find(pokemon => pokemon.ID === lastSelectedId);
-                if (lastSelected) {
-                    updatePokemonSelection(lastSelected);
-                }
-            }
-        }
-    }
->>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
 
     const handleStatChange = (stat: string, val: number) => {
         setSelectedPokemon(prevState => {
@@ -163,7 +153,6 @@ export default function PokemonEditor():React.ReactElement {
         }
     }, [selectedPokemon]);
 
-<<<<<<< HEAD
     if (isLoading) {
         return (
             <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4 relative">
@@ -197,35 +186,33 @@ export default function PokemonEditor():React.ReactElement {
     }
 
     return (
-        <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4">
-            <div className="flex flex-row h-5/6 gap-4">
-                <div className="flex flex-col w-5/12 gap-4 bg-slate-700 rounded-xl p-4">
-                    <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch">
+        <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-2">
+            <div className="flex flex-row h-[70vh] gap-4">
+                <div className="flex flex-col w-5/12 gap-2 bg-slate-700 rounded-xl p-4">
+                    <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch min-h-[240px]">
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" className="p-2" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" className="p-2" />
                         <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" className="p-2" />
                         <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="Shiny Back Sprite" className="p-2" />
                     </div>
-=======
-    return (
-        <div className="flex flex-col grow h-[91.5vh] w-screen bg-slate-800 p-4 gap-4">
-            <div className="flex flex-row h-5/6 gap-4">
-                <div className="flex flex-col w-5/12 gap-4 bg-slate-700 rounded-xl p-4">
-                    <div className="rounded-xl grid grid-rows-2 grid-cols-2 grow bg-slate-600 items-stretch">
-                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.FrontSprite}` : ''} alt="Front Sprite" className="p-2" />
-                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.ShinyFront}` : ''} alt="Shiny Front Sprite" className="p-2" />
-                        <img src={selectedPokemon? `data:image/png;base64,${selectedPokemon?.BackSprite}` : ''} alt="Back Sprite" className="p-2" />
-                        <img src={selectedPokemon ? `data:image/png;base64,${selectedPokemon?.ShinyBack}` : ''} alt="Shiny Back Sprite" className="p-2" />
-                    </div>
->>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
                     <div className="flex flex-row justify-around gap-4 py-2">
                         <Select
                             options={pokemonSpecies.map(pokemon => ({ value: pokemon.ID, label: `${pokemon.ID}: ${pokemon.Name}`}))}
                             value={selectValue}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                                 const selected: Pokemon | undefined = pokemonSpecies.find(pokemon => pokemon.ID === (e?.value));
                                 if (selected) {
-                                    updatePokemonSelection(selected);
+                                    const trainerEditor = await LoadPokemonById(selected.ID);
+                                    const pokemon: Pokemon = {
+                                        ...trainerEditor,
+                                        DexEntry: "",
+                                        Evolutions: trainerEditor.Evolutions.map(evo => ({
+                                            ...evo,
+                                            Method1: evo.Method1 ? [evo.Method1] : [],
+                                            Method2: evo.Method2 ? [evo.Method2] : []
+                                        }))
+                                    };
+                                    updatePokemonSelection(pokemon);
                                 }
                             }}
                             isClearable={false}
@@ -268,13 +255,52 @@ export default function PokemonEditor():React.ReactElement {
                             New Pokemon
                         </button>
                     </div>
-                    <div className="flex flex-row justify-center">
-                        <div className="flex flex-row w-full gap-2">
-                            <p className="bg-slate-600 px-6 py-3 rounded-l-xl items-center">Type:</p>
-                            <button onClick={() => { setIsTypeModalOpen(true) }} 
-                                    className="bg-slate-600 px-6 py-3 rounded-r-xl grow hover:bg-slate-500 transition-colors">
-                                {selectedPokemon?.Types ? selectedPokemon.Types.join('/') : '???'}
-                            </button>  
+                        <div className="flex flex-row justify-center">
+                        <div className="flex flex-col w-full">
+                            <div className="flex flex-row gap-2">
+                                {selectedPokemon?.Icon && (
+                                    <img 
+                                        src={`data:image/gif;base64,${selectedPokemon.Icon}`} 
+                                        alt={`${selectedPokemon.Name} Icon`}
+                                        className="w-12 h-12 bg-slate-600 rounded-l-xl p-1"
+                                    />
+                                )}
+                                <button
+                                    onClick={() => {
+                                        if (selectedPokemon?.Cry) {
+                                            const audio = new Audio(`data:audio/wav;base64,${selectedPokemon.Cry}`);
+                                            audio.play();
+                                        }
+                                    }}
+                                    disabled={!selectedPokemon?.Cry}
+                                    className={`px-6 py-3 transition-colors ${
+                                        selectedPokemon?.Cry 
+                                        ? 'bg-slate-600 hover:bg-slate-500' 
+                                        : 'bg-slate-600 cursor-not-allowed opacity-50'
+                                    }`}
+                                    title={selectedPokemon?.Cry ? "Play Cry" : "No cry available"}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
+                                    </svg>
+                        </button>  
+                                <div className="flex-grow flex flex-col bg-slate-600 rounded-r-xl">
+                                    <p className="px-6 py-1 text-center font-medium">
+                                        {selectedPokemon?.Types && selectedPokemon.Types.length > 1 ? 'Types' : 'Type'}
+                                    </p>
+                                    <div className="flex items-center justify-center py-1">
+                                        <TypeToggle 
+                                            types={selectedPokemon?.Types || ["Normal"]} 
+                                            onTypeChange={(newTypes) => {
+                                                setSelectedPokemon(prevState => ({
+                                                    ...(prevState as Pokemon),
+                                                    Types: newTypes
+                                                }));
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <Dialog
@@ -293,8 +319,8 @@ export default function PokemonEditor():React.ReactElement {
                                         <button onClick={() => setIsTypeModalOpen(false)} 
                                                 className="p-1 hover:bg-slate-500 rounded-lg transition-colors">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                            </svg>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                        </svg>
                                         </button>
                                     </div>
                                 </Dialog.Title>
@@ -411,11 +437,11 @@ export default function PokemonEditor():React.ReactElement {
                     </Dialog>
                 </div>
                 
-                <div className="border-yellow-400 mt-2 w-2/3 flex flex-col gap-4">
-                    <div className="grid grid-cols-3 gap-4">
+                <div className="w-7/12 flex flex-col gap-4">
+                    <div className="grid grid-cols-3 gap-2">
                         <div className="flex flex-col">
-                            <h4 className="bg-slate-600 rounded-t-xl py-2 px-4 text-center font-medium">Level-Up Moves</h4>
-                            <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-slate-700 p-2">
+                            <h4 className="bg-slate-600 rounded-t-xl py-1 px-4 text-center font-medium">Level-Up Moves</h4>
+                            <div className="h-[15vh] overflow-auto overscroll-none bg-slate-700 p-2">
                                 {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                     selectedPokemon?.Moves
                                         .filter(move => move.Method === "level-up")
@@ -429,13 +455,13 @@ export default function PokemonEditor():React.ReactElement {
                                 } 
                             </div>
                             <button onClick={() => {console.log("Add Later")}} 
-                                    className="bg-slate-600 rounded-b-xl py-2 hover:bg-slate-500 transition-colors">
+                                    className="bg-slate-600 rounded-b-xl py-1 hover:bg-slate-500 transition-colors">
                                 Edit
                             </button>
                         </div>
                         <div className="flex flex-col">
-                            <h4 className="bg-slate-600 rounded-t-xl py-2 px-4 text-center font-medium">Tutor/Egg Moves</h4>
-                            <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-slate-700 p-2">
+                            <h4 className="bg-slate-600 rounded-t-xl py-1 px-4 text-center font-medium">Tutor/Egg Moves</h4>
+                            <div className="h-[15vh] overflow-auto overscroll-none bg-slate-700 p-2">
                                 {selectedPokemon?.Moves.length ?? 0 > 0 ? 
                                     selectedPokemon?.Moves
                                         .filter(move => move.Method === "tutor" || move.Method === "egg")
@@ -448,77 +474,88 @@ export default function PokemonEditor():React.ReactElement {
                                 } 
                             </div>
                             <button onClick={() => {console.log("Add Later")}} 
-                                    className="bg-slate-600 rounded-b-xl py-2 hover:bg-slate-500 transition-colors">
+                                    className="bg-slate-600 rounded-b-xl py-1 hover:bg-slate-500 transition-colors">
                                 Edit
                             </button>
                         </div>
                         <div className="flex flex-col">
-                            <h4 className="bg-slate-600 rounded-t-xl py-2 px-4 text-center font-medium">TM/HM Moves</h4>
-                            <div className="max-h-24 min-h-24 overflow-auto overscroll-none bg-slate-700 p-2">
-                                {selectedPokemon?.Moves.length ?? 0 > 0 ? 
-                                    selectedPokemon?.Moves
-                                        .filter(move => move.Method === "machine")
-                                        .map((move, index) => (
+                            <h4 className="bg-slate-600 rounded-t-xl py-1 px-4 text-center font-medium">TM/HM Moves</h4>
+                            <div className="h-[15vh] overflow-auto overscroll-none bg-slate-700 p-2">
+                            {selectedPokemon?.Moves.length ?? 0 > 0 ? 
+                                selectedPokemon?.Moves
+                                    .filter(move => move.Method === "machine")
+                                    .map((move, index) => (
                                             <p className="hover:bg-slate-600 rounded px-2 py-1 transition-colors" key={index}>
                                                 {move.Name}
                                             </p>
-                                        ))
+                                    ))
                                     : <p className="text-gray-400 text-center py-2">No Moves</p>
-                                } 
+                            } 
                             </div>
                             <button onClick={() => {console.log("Add Later")}} 
-                                    className="bg-slate-600 rounded-b-xl py-2 hover:bg-slate-500 transition-colors">
+                                    className="bg-slate-600 rounded-b-xl py-1 hover:bg-slate-500 transition-colors">
                                 Edit
                             </button>
                         </div>
                     </div>
-                    <div className="flex flex-row justify-between gap-4">
-                        <div className="flex flex-col bg-slate-700 rounded-xl p-4 w-5/12">
-                            <div className="flex flex-col items-center">
-                                <h3 className="text-lg font-medium mb-4">Evolution Chain</h3>
-                                <div className="flex flex-row items-center justify-center gap-4">
-                                    <button 
-                                        onClick={() => {
-                                            if (currentEvoIndex > 0) {
-                                                setCurrentEvoIndex(currentEvoIndex - 1);
-                                            }
-                                        }}
-                                        disabled={currentEvoIndex === 0}
-                                        className={`p-2 rounded-xl transition-colors duration-200 ${
-                                            currentEvoIndex === 0 
-                                            ? 'bg-slate-600 cursor-not-allowed opacity-50' 
-                                            : 'bg-slate-600 hover:bg-slate-500'
-                                        }`}
-                                        title="Previous Evolution"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                        </svg>
-                                    </button>
+                    <div className="flex flex-row justify-between gap-2 h-[25vh]">
+                        {selectedPokemon?.Evolutions && selectedPokemon.Evolutions.length > 0 && (
+                            <div className="flex flex-col bg-slate-700 rounded-xl p-2 w-1/2">
+                                <div className="flex flex-col items-center h-full">
+                                    <h3 className="text-lg font-medium mb-2">Evolution Chain</h3>
+                                    <div className="flex flex-row items-center justify-center gap-4 flex-grow">
+                                        <button 
+                                            onClick={() => {
+                                                if (currentEvoIndex > 0) {
+                                                    console.log(currentEvoIndex)
+                                                    setCurrentEvoIndex(currentEvoIndex - 1);
+                                                }
+                                            }}
+                                            disabled={currentEvoIndex === 0}
+                                            className={`p-2 rounded-xl transition-colors duration-200 ${
+                                                currentEvoIndex === 0 
+                                                ? 'bg-slate-600 cursor-not-allowed opacity-50' 
+                                                : 'bg-slate-600 hover:bg-slate-500'
+                                            }`}
+                                            title="Previous Evolution"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
 
-                                    <div className="flex flex-col items-center">
-                                        {selectedPokemon?.Evolutions && selectedPokemon.Evolutions.length > 0 ? (
-                                            (() => {
+                                        <div className="flex flex-col items-center">
+                                            {(() => {
                                                 const evolution = pokemonSpecies.find(p => p.ID === selectedPokemon.Evolutions[currentEvoIndex]?.ID);
                                                 return (
                                                     <div className="flex flex-col items-center">
                                                         <button 
-                                                            onClick={() => {
+                                                            onClick={async() => {
                                                                 if (evolution) {
-                                                                    updatePokemonSelection(evolution);
+                                                                    let evo = await LoadPokemonById(evolution.ID)
+                                                                    const pokemon: Pokemon = {
+                                                                        ...evo,
+                                                                        DexEntry: "",
+                                                                        Evolutions: evo.Evolutions.map(evo => ({
+                                                                            ...evo,
+                                                                            Method1: evo.Method1 ? [evo.Method1] : [],
+                                                                            Method2: evo.Method2 ? [evo.Method2] : []
+                                                                        }))
+                                                                    };
+                                                                    updatePokemonSelection(pokemon);
                                                                 }
                                                             }}
                                                             className="bg-slate-600 p-2 rounded-xl hover:bg-slate-500 transition-colors"
                                                         >
                                                             <img 
-                                                                src={`data:image/gif;base64,${evolution?.Icon || ''}`} 
-                                                                alt={`${evolution?.Name || 'Evolution'}`}
-                                                                className="w-16 h-16"
+                                                                src={`data:image/gif;base64,${selectedPokemon.Evolutions[currentEvoIndex]?.Icon || ''}`} 
+                                                                alt={`${selectedPokemon.Evolutions[currentEvoIndex]?.Name || 'Evolution'}`}
+                                                                className="w-12 h-12"
                                                             />
                                                         </button>
-                                                        <div className="text-center mt-2">
-                                                            <div className="font-medium text-white">{evolution?.Name || 'Unknown'}</div>
-                                                            <div className="text-sm text-gray-300">
+                                                        <div className="text-center mt-1">
+                                                            <div className="font-medium text-white text-sm">{evolution?.Name || 'Unknown'}</div>
+                                                            <div className="text-xs text-gray-300">
                                                                 {selectedPokemon.Evolutions[currentEvoIndex]?.Method1?.map((method, i) => {
                                                                     if (method === "level-up" && selectedPokemon.Evolutions[currentEvoIndex]?.Method2?.[i]) {
                                                                         return `Level-up at level ${selectedPokemon.Evolutions[currentEvoIndex].Method2[i]}`;
@@ -530,49 +567,57 @@ export default function PokemonEditor():React.ReactElement {
                                                                 )}
                                                             </div>
                                                             <button 
-                                                                onClick={() => {
+                                                                onClick={async () => {
                                                                     if (evolution) {
-                                                                        updatePokemonSelection(evolution);
+                                                                        const evo = await LoadPokemonById(evolution.ID);
+                                                                        const pokemon: Pokemon = {
+                                                                            ...evo,
+                                                                            DexEntry: "",
+                                                                            Evolutions: evo.Evolutions.map(evo => ({
+                                                                                ...evo,
+                                                                                Method1: evo.Method1 ? [evo.Method1] : [],
+                                                                                Method2: evo.Method2 ? [evo.Method2] : []
+                                                                            }))
+                                                                        };
+                                                                        updatePokemonSelection(pokemon);
                                                                     }
                                                                 }}
-                                                                className="mt-2 bg-slate-600 hover:bg-slate-500 px-4 py-2 rounded-xl text-sm transition-colors"
+                                                                className="mt-1 bg-slate-600 hover:bg-slate-500 px-3 py-1 rounded-xl text-xs transition-colors"
                                                             >
                                                                 Jump to Evolution
                                                             </button>
                                                         </div>
                                                     </div>
                                                 );
-                                            })()
-                                        ) : (
-                                            <p className="text-gray-400">No evolutions</p>
-                                        )}
-                                    </div>
+                                            })()}
+                                        </div>
 
-                                    <button 
-                                        onClick={() => {
-                                            if (selectedPokemon?.Evolutions && currentEvoIndex < selectedPokemon.Evolutions.length - 1) {
-                                                setCurrentEvoIndex(currentEvoIndex + 1);
-                                            }
-                                        }}
-                                        disabled={!selectedPokemon?.Evolutions || currentEvoIndex >= selectedPokemon.Evolutions.length - 1}
-                                        className={`p-2 rounded-xl transition-colors duration-200 ${
-                                            !selectedPokemon?.Evolutions || currentEvoIndex >= selectedPokemon.Evolutions.length - 1
-                                            ? 'bg-slate-600 cursor-not-allowed opacity-50' 
-                                            : 'bg-slate-600 hover:bg-slate-500'
-                                        }`}
-                                        title="Next Evolution"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+                                        <button 
+                                            onClick={() => {
+                                                if (selectedPokemon?.Evolutions && currentEvoIndex < selectedPokemon.Evolutions.length - 1) {
+                                                    setCurrentEvoIndex(currentEvoIndex + 1);
+                                                }
+                                            }}
+                                            disabled={!selectedPokemon?.Evolutions || currentEvoIndex >= selectedPokemon.Evolutions.length - 1}
+                                            className={`p-2 rounded-xl transition-colors duration-200 ${
+                                                !selectedPokemon?.Evolutions || currentEvoIndex >= selectedPokemon.Evolutions.length - 1
+                                                ? 'bg-slate-600 cursor-not-allowed opacity-50' 
+                                                : 'bg-slate-600 hover:bg-slate-500'
+                                            }`}
+                                            title="Next Evolution"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                </div>
                         </div>
-                        <div className="flex flex-col bg-slate-700 rounded-xl p-4 w-5/12">
-                            <div className="flex flex-col items-center">
-                                <h3 className="text-lg font-medium mb-4">Abilities</h3>
-                                <div className="flex flex-row items-center justify-center gap-4 w-full">
+                            </div>
+                        )}
+                        <div className={`flex flex-col bg-slate-700 rounded-xl p-2 ${selectedPokemon?.Evolutions && selectedPokemon.Evolutions.length > 0 ? 'w-1/2' : 'w-full'}`}>
+                            <div className="flex flex-col items-center h-full">
+                                <h3 className="text-lg font-medium mb-2">Abilities</h3>
+                                <div className="flex flex-row items-center justify-center gap-4 w-full flex-grow">
                                     <button 
                                         onClick={handlePrevAbility}
                                         disabled={!selectedPokemon || currentAbilityIndex === 0}
@@ -589,13 +634,13 @@ export default function PokemonEditor():React.ReactElement {
                                     </button>
 
                                     <div className="flex flex-col items-center flex-grow">
-                                        <div className="bg-slate-600 w-full rounded-t-xl py-2 px-4 text-center font-medium">
+                                        <div className="bg-slate-600 w-full rounded-t-xl py-1 px-4 text-center font-medium">
                                             {getCurrentAbility().title}
                                         </div>
-                                        <div className="bg-slate-900 w-full py-3 px-4 text-center">
+                                        <div className="bg-slate-900 w-full py-2 px-4 text-center">
                                             {getCurrentAbility().ability}
                                         </div>
-                                        <div className="bg-slate-600 w-full rounded-b-xl py-1 px-4 text-center text-sm text-gray-300">
+                                        <div className="bg-slate-600 w-full rounded-b-xl py-1 px-4 text-center text-xs text-gray-300">
                                             {getCurrentAbility().subtitle}
                                         </div>
                                     </div>
@@ -614,13 +659,13 @@ export default function PokemonEditor():React.ReactElement {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                         </svg>
                                     </button>
-                                </div>
+                            </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="flex flex-row justify-between items-center h-1/4 gap-4">
+            <div className="flex flex-row justify-between items-center h-[20vh] gap-4">
                 <div className="grow bg-slate-700 rounded-xl">
                     <div className="grid grid-cols-6 bg-slate-600 rounded-t-xl text-center py-2 font-medium">
                         <h3>HP</h3>
@@ -635,14 +680,14 @@ export default function PokemonEditor():React.ReactElement {
                                type="number" 
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
-                                    if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('HP', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('HP', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('HP', 5);
-                                        }
+                            if (e.target.value === '' || regex.test(e.target.value)) {
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('HP', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('HP', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('HP', 5);
+                                }
                                     }
                                }} 
                                max={255} 
@@ -653,13 +698,13 @@ export default function PokemonEditor():React.ReactElement {
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
                                     if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('Attack', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('Attack', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('Attack', 5);
-                                        }
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Attack', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Attack', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Attack', 5);
+                                }
                                     }
                                }} 
                                max={255} 
@@ -670,13 +715,13 @@ export default function PokemonEditor():React.ReactElement {
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
                                     if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('Defense', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('Defense', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('Defense', 5);
-                                        }
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Defense', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Defense', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Defense', 5);
+                                }
                                     }
                                }} 
                                max={255} 
@@ -687,13 +732,13 @@ export default function PokemonEditor():React.ReactElement {
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
                                     if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('SpecialAttack', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('SpecialAttack', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('SpecialAttack', 5);
-                                        }
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('SpecialAttack', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('SpecialAttack', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('SpecialAttack', 5);
+                                }
                                     }
                                }} 
                                max={255} 
@@ -704,13 +749,13 @@ export default function PokemonEditor():React.ReactElement {
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
                                     if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('SpecialDefense', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('SpecialDefense', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('SpecialDefense', 5);
-                                        }
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('SpecialDefense', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('SpecialDefense', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('SpecialDefense', 5);
+                                }
                                     }
                                }} 
                                max={255} 
@@ -721,20 +766,20 @@ export default function PokemonEditor():React.ReactElement {
                                className="bg-slate-700 text-center focus:outline-none" 
                                onChange={(e) => {
                                     if (e.target.value === '' || regex.test(e.target.value)) {
-                                        if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
-                                            handleStatChange('Speed', parseInt(e.target.value));
-                                        } else if(parseInt(e.target.value) > 255) {
-                                            handleStatChange('Speed', 255);
-                                        } else if(parseInt(e.target.value) < 5) {
-                                            handleStatChange('Speed', 5);
-                                        }
+                                if (parseInt(e.target.value) <= 255 && parseInt(e.target.value) >= 5) {
+                                    handleStatChange('Speed', parseInt(e.target.value));
+                                } else if(parseInt(e.target.value) > 255) {
+                                    handleStatChange('Speed', 255);
+                                } else if(parseInt(e.target.value) < 5) {
+                                    handleStatChange('Speed', 5);
+                                }
                                     }
                                }} 
                                max={255} 
                                min={5}
                         />
                     </div>
-                </div>
+            </div>
                 <div className="flex flex-row gap-4">
                     <button onClick={() => console.log("Add Later")} 
                             className="px-12 py-2 bg-slate-600 rounded-xl hover:bg-slate-500 transition-colors">
@@ -747,5 +792,5 @@ export default function PokemonEditor():React.ReactElement {
                 </div>
             </div>
         </div>
-    );
+);
 }

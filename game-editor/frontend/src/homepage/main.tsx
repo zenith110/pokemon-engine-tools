@@ -6,18 +6,12 @@ import { Project } from "../models/project";
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";
 import WelcomeMessage from "./WelcomeMessage";
-<<<<<<< HEAD
 
 const HomePage = () => {
     const [projects, setProjects] = useState<Project[]>([])
     const [clickedNewProject, setClickedNewProject] = useState(false)
     const [currentProjectIndex, setCurrentProjectIndex] = useState(0)
 
-=======
-const  HomePage = () => {
-    const [projects, setProjects] = useState<Project[]>([])
-    const [clickedNewProject, setClickedNewProject] = useState(false)
->>>>>>> 6ee7290df2fab28c5db11d4b72fa1375cfde0c67
     useEffect(() => {
         const fetchProjects = async() => {
             let data = await ParseProjects();
