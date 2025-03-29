@@ -13,7 +13,7 @@ import ScriptEditor from "./script-editor/main";
 import Homepage from "./homepage/main"
 import OverworldEditor from "./overworld-editor/main"
 import NewOverworlds from "./overworld-editor/new-overworlds/NewOverworlds"
-import MapViewer from "./map-viewer"
+import MapEditor from "./map-editor"
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
@@ -30,7 +30,7 @@ root.render(
                  <Route path="/script-editor" element={<ScriptEditor/>}/>
                  <Route path="/overworld-editor" element={<OverworldEditor/>}/>
                  <Route path="/overworld-editor/new-overworld" element={<NewOverworlds/>}/>
-                 <Route path="/map-viewer" element={<MapViewer/>}/>
+                 <Route path="/map-editor" element={<MapEditor/>}/>
              </Routes>
         </HashRouter>
     </React.StrictMode>
