@@ -55,8 +55,8 @@ interface MapEditorViewProps {
 
 const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     const [activeView, setActiveView] = useState<"map" | "permissions" | "npcs">("map")
-    const [selectedTile, setSelectedTile] = useState<{ id: string; image: string } | null>(null)
-    const [selectedAutoTile, setSelectedAutoTile] = useState<{ id: string; image: string } | null>(null)
+    const [selectedTile, setSelectedTile] = useState<{ id: string; name: string; image: string } | null>(null)
+    const [selectedAutoTile, setSelectedAutoTile] = useState<{ id: string; name: string; image: string } | null>(null)
 
     return (
         <div className="h-screen flex flex-col bg-slate-950 text-white">

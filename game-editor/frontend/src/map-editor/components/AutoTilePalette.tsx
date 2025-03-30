@@ -10,8 +10,8 @@ interface AutoTile {
 }
 
 interface AutoTilePaletteProps {
-    selectedAutoTile: { id: string; image: string } | null;
-    setSelectedAutoTile: (tile: { id: string; image: string } | null) => void;
+    selectedAutoTile: { id: string; name: string; image: string } | null;
+    setSelectedAutoTile: (tile: { id: string; name: string; image: string } | null) => void;
 }
 
 const AutoTilePalette = ({ selectedAutoTile, setSelectedAutoTile }: AutoTilePaletteProps) => {
