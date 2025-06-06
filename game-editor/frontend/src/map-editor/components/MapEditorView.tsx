@@ -10,6 +10,7 @@ import LayerPanel from "./LayerPanel"
 import MapView from "./MapView"
 import PermissionView from "./PermissionView"
 import NPCView from "./NPCView"
+import type { SelectedTile } from "./TilePalette"
 
 interface MapData {
     id: string;
@@ -55,7 +56,7 @@ interface MapEditorViewProps {
 
 const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     const [activeView, setActiveView] = useState<"map" | "permissions" | "npcs">("map")
-    const [selectedTile, setSelectedTile] = useState<{ id: string; name: string; image: string } | null>(null)
+    const [selectedTile, setSelectedTile] = useState<SelectedTile | null>(null)
     const [selectedAutoTile, setSelectedAutoTile] = useState<{ id: string; name: string; image: string } | null>(null)
 
     return (
@@ -73,31 +74,17 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
                 </div>
             </div>
 
-            <div className="flex-1 flex">
-                {/* Left Sidebar */}
-                <div className="w-64 border-r border-slate-800 p-4">
-                    <Tabs defaultValue="tiles" className="w-full">
-                        <TabsList className="w-full">
-                            <TabsTrigger value="tiles" className="flex-1">Tiles</TabsTrigger>
-                            <TabsTrigger value="autotiles" className="flex-1">Auto</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="tiles">
-                            <TilePalette
-                                selectedTile={selectedTile}
-                                setSelectedTile={setSelectedTile}
-                            />
-                        </TabsContent>
-                        <TabsContent value="autotiles">
-                            <AutoTilePalette
-                                selectedAutoTile={selectedAutoTile}
-                                setSelectedAutoTile={setSelectedAutoTile}
-                            />
-                        </TabsContent>
-                    </Tabs>
+            <div className="flex-1 flex" style={{ minWidth: 0 }}>
+                {/* Resizable Tile Palette */}
+                <div className="h-full flex flex-col justify-stretch">
+                    <TilePalette
+                        selectedTile={selectedTile}
+                        setSelectedTile={setSelectedTile}
+                    />
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-w-0">
                     {/* Top Toolbar */}
                     <div className="p-4 border-b border-slate-800">
                         <div className="flex space-x-2">
