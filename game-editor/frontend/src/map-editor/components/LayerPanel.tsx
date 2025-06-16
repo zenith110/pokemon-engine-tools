@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Lock, LockOpen, Plus, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Lock, LockOpen, Plus, Trash2, Check } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { ScrollArea } from "../../components/ui/scroll-area"
 
@@ -18,9 +18,11 @@ interface Layer {
 interface LayerPanelProps {
     layers: Layer[];
     setLayers: (layers: Layer[]) => void;
+    activeLayerId: number;
+    setActiveLayerId: (id: number) => void;
 }
 
-const LayerPanel = ({ layers, setLayers }: LayerPanelProps) => {
+const LayerPanel = ({ layers, setLayers, activeLayerId, setActiveLayerId }: LayerPanelProps) => {
     const toggleLayerVisibility = (layerId: number) => {
         setLayers(layers.map(layer => 
             layer.id === layerId 
@@ -46,11 +48,16 @@ const LayerPanel = ({ layers, setLayers }: LayerPanelProps) => {
             tiles: []
         };
         setLayers([...layers, newLayer]);
+        setActiveLayerId(newLayer.id);
     };
 
     const deleteLayer = (layerId: number) => {
         if (layers.length > 1) {
             setLayers(layers.filter(layer => layer.id !== layerId));
+            if (activeLayerId === layerId) {
+                const remainingLayers = layers.filter(layer => layer.id !== layerId);
+                setActiveLayerId(remainingLayers[0].id);
+            }
         }
     };
 
@@ -73,9 +80,21 @@ const LayerPanel = ({ layers, setLayers }: LayerPanelProps) => {
                     {layers.map((layer) => (
                         <div
                             key={layer.id}
-                            className="flex items-center justify-between p-2 bg-slate-800 rounded-md group"
+                            className={`flex items-center justify-between p-2 rounded-md group transition-colors ${
+                                layer.id === activeLayerId 
+                                    ? 'bg-yellow-900/50 border border-yellow-500/50' 
+                                    : 'bg-slate-800 hover:bg-slate-700'
+                            }`}
                         >
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setActiveLayerId(layer.id)}
+                                    className={`p-1 rounded hover:bg-slate-600 transition-colors ${
+                                        layer.id === activeLayerId ? 'text-yellow-400' : 'text-slate-400'
+                                    }`}
+                                >
+                                    <Check className="h-4 w-4" />
+                                </button>
                                 <button
                                     onClick={() => toggleLayerVisibility(layer.id)}
                                     className="text-slate-400 hover:text-slate-300"
@@ -96,7 +115,9 @@ const LayerPanel = ({ layers, setLayers }: LayerPanelProps) => {
                                         <LockOpen className="h-4 w-4" />
                                     )}
                                 </button>
-                                <span className="text-sm text-slate-300">
+                                <span className={`text-sm ${
+                                    layer.id === activeLayerId ? 'text-yellow-400' : 'text-slate-300'
+                                }`}>
                                     {layer.name}
                                 </span>
                             </div>

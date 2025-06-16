@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { Button } from "../../components/ui/button"
 import { Map, Grid, Users } from "lucide-react"
 
@@ -11,6 +10,7 @@ import MapView from "./MapView"
 import PermissionView from "./PermissionView"
 import NPCView from "./NPCView"
 import type { SelectedTile } from "./TilePalette"
+import MapToolbar from "./MapToolbar"
 
 interface MapData {
     id: string;
@@ -58,6 +58,30 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     const [activeView, setActiveView] = useState<"map" | "permissions" | "npcs">("map")
     const [selectedTile, setSelectedTile] = useState<SelectedTile | null>(null)
     const [selectedAutoTile, setSelectedAutoTile] = useState<{ id: string; name: string; image: string } | null>(null)
+    const [activeLayerId, setActiveLayerId] = useState<number>(1)
+    const [paintMode, setPaintMode] = useState<'stamp' | 'fill' | 'remove'>('stamp')
+    const [historyIndex, setHistoryIndex] = useState<number>(0)
+    const [history, setHistory] = useState<Array<MapData>>([map])
+
+    const undo = () => {
+        if (historyIndex > 0) {
+            setHistoryIndex(historyIndex - 1)
+            onMapChange(history[historyIndex - 1])
+        }
+    }
+
+    const redo = () => {
+        if (historyIndex < history.length - 1) {
+            setHistoryIndex(historyIndex + 1)
+            onMapChange(history[historyIndex + 1])
+        }
+    }
+
+    const clearMap = () => {
+        onMapChange(history[0])
+        setHistory([map])
+        setHistoryIndex(0)
+    }
 
     return (
         <div className="h-screen flex flex-col bg-slate-950 text-white">
@@ -75,6 +99,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             </div>
 
             <div className="flex-1 flex" style={{ minWidth: 0 }}>
+                
+
                 {/* Resizable Tile Palette */}
                 <div className="h-full flex flex-col justify-stretch">
                     <TilePalette
@@ -110,6 +136,17 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
                                 NPCs
                             </Button>
                         </div>
+                        <MapToolbar
+                    paintMode={paintMode}
+                    selectedTile={selectedTile}
+                    tileSize={map.tileSize}
+                    historyIndex={historyIndex}
+                    historyLength={history.length}
+                    undo={undo}
+                    redo={redo}
+                    setPaintMode={setPaintMode}
+                    clearMap={clearMap}
+                />
                     </div>
 
                     {/* Main View */}
@@ -122,9 +159,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
                                 selectedTile={selectedTile}
                                 selectedAutoTile={selectedAutoTile}
                                 layers={map.layers}
-                                setLayers={(layers) =>
-                                    onMapChange({ ...map, layers })
-                                }
+                                setLayers={(layers) => onMapChange({ ...map, layers })}
+                                activeLayerId={activeLayerId}
                             />
                         )}
                         {activeView === "permissions" && (
@@ -149,7 +185,9 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
                                 }
                             />
                         )}
+                        
                     </div>
+                    
                 </div>
 
                 {/* Right Sidebar */}
@@ -159,6 +197,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
                         setLayers={(layers) =>
                             onMapChange({ ...map, layers })
                         }
+                        activeLayerId={activeLayerId}
+                        setActiveLayerId={setActiveLayerId}
                     />
                 </div>
             </div>

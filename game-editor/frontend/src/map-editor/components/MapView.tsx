@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { Button } from "../../components/ui/button";
 import { ScrollArea } from "../../components/ui/scroll-area";
-import { Pencil, Square, Undo, Redo, PaintBucket, Copy, Grid3x3, Trash2 } from "lucide-react";
-import { bucket } from '@lucide/lab';
+import { Pencil, Undo, Redo, PaintBucket, Trash2 } from "lucide-react";
 
 interface Tile {
     id: string;
@@ -33,9 +32,9 @@ interface MapViewProps {
         }>;
     }>;
     setLayers: (layers: any[]) => void;
+    activeLayerId: number;
 }
 
-type Tool = "brush" | "rectangle" | "bucket";
 
 const MapView = ({
     width,
@@ -45,12 +44,10 @@ const MapView = ({
     selectedAutoTile,
     layers,
     setLayers,
+    activeLayerId,
 }: MapViewProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fabricRef = useRef<fabric.Canvas | null>(null);
-    const [activeTool, setActiveTool] = useState<Tool>("brush");
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
     const [history, setHistory] = useState<Array<{ layers: any[] }>>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [paintMode, setPaintMode] = useState<'stamp' | 'fill' | 'remove'>('stamp');
@@ -63,6 +60,8 @@ const MapView = ({
             width: width * tileSize,
             height: height * tileSize,
             backgroundColor: "#1e293b",
+            selection: false,
+            interactive: false,
         });
         fabricRef.current = canvas;
 
@@ -78,22 +77,25 @@ const MapView = ({
                     strokeWidth: 1,
                     fill: "transparent",
                     selectable: false,
+                    evented: false,
                 });
                 canvas.add(rect);
             }
         }
 
-        // Draw layers
-        drawLayers();
-
         // --- Fabric.js painting events ---
         let isFabricDrawing = false;
         let lastPainted: { x: number; y: number } | null = null;
         const handleFabricMouseDown = (opt: fabric.IEvent) => {
-            if (!selectedTile && paintMode !== 'remove') return;
+            console.log('Mouse down event:', { selectedTile, paintMode });
+            if (!selectedTile && paintMode !== 'remove') {
+                console.log('No tile selected');
+                return;
+            }
             const pointer = fabricRef.current!.getPointer(opt.e);
             const x = Math.floor(pointer.x / tileSize);
             const y = Math.floor(pointer.y / tileSize);
+            console.log('Mouse position:', { x, y, pointer });
             isFabricDrawing = true;
             lastPainted = { x, y };
             if (paintMode === 'stamp') {
@@ -104,6 +106,7 @@ const MapView = ({
                 removeTile(x, y);
             }
         };
+
         const handleFabricMouseMove = (opt: fabric.IEvent) => {
             if (!isFabricDrawing) return;
             const pointer = fabricRef.current!.getPointer(opt.e);
@@ -121,10 +124,12 @@ const MapView = ({
                 }
             }
         };
-        const handleFabricMouseUp = (opt: fabric.IEvent) => {
+
+        const handleFabricMouseUp = () => {
             isFabricDrawing = false;
             lastPainted = null;
         };
+
         canvas.on('mouse:down', handleFabricMouseDown);
         canvas.on('mouse:move', handleFabricMouseMove);
         canvas.on('mouse:up', handleFabricMouseUp);
@@ -147,7 +152,7 @@ const MapView = ({
     const drawLayers = () => {
         if (!fabricRef.current) return;
 
-        // Clear existing tiles
+        // Remove all existing image objects
         const objects = fabricRef.current.getObjects();
         objects.forEach((obj) => {
             if (obj.type === "image") {
@@ -155,27 +160,67 @@ const MapView = ({
             }
         });
 
-        // Draw visible layers
+        const imageLoadPromises: Promise<void>[] = [];
+
+        // Draw visible layers in order (bottom to top)
         layers.forEach((layer) => {
             if (!layer.visible) return;
 
             layer.tiles.forEach((tile) => {
-                const tileImage = new Image();
-                tileImage.src = tile.autoTileId || tile.tileId;
-                tileImage.onload = () => {
-                    const fabricImage = new fabric.Image(tileImage, {
-                        left: tile.x * tileSize,
-                        top: tile.y * tileSize,
-                        width: tileSize,
-                        height: tileSize,
-                        selectable: false,
-                    });
-                    fabricRef.current?.add(fabricImage);
-                    fabricRef.current?.renderAll();
-                };
+                const loadPromise = new Promise<void>((resolve) => {
+                    const tileImage = new Image();
+                    tileImage.src = tile.autoTileId || tile.tileId;
+                    tileImage.onload = () => {
+                        const fabricImage = new fabric.Image(tileImage, {
+                            left: tile.x * tileSize,
+                            top: tile.y * tileSize,
+                            width: tileSize,
+                            height: tileSize,
+                            selectable: false,
+                            evented: false,
+                            data: { 
+                                needsUpdate: false,
+                                layerId: layer.id,
+                                tileX: tile.x,
+                                tileY: tile.y,
+                                layerVisible: layer.visible
+                            }
+                        });
+                        fabricRef.current?.add(fabricImage);
+                        resolve();
+                    };
+                    tileImage.onerror = () => {
+                        console.error('Failed to load image:', tile.autoTileId || tile.tileId);
+                        resolve();
+                    };
+                });
+                imageLoadPromises.push(loadPromise);
             });
         });
+
+        Promise.all(imageLoadPromises).then(() => {
+            fabricRef.current?.renderAll();
+        });
     };
+
+    // Add a new effect to handle layer visibility changes
+    useEffect(() => {
+        if (fabricRef.current) {
+            const objects = fabricRef.current.getObjects();
+            objects.forEach((obj) => {
+                if (obj.type === "image") {
+                    const objData = obj.get('data');
+                    if (objData) {
+                        const layer = layers.find(l => l.id === objData.layerId);
+                        if (layer) {
+                            obj.set('visible', layer.visible);
+                        }
+                    }
+                }
+            });
+            fabricRef.current.renderAll();
+        }
+    }, [layers.map(layer => ({ id: layer.id, visible: layer.visible }))]);
 
     const addToHistory = (newLayers: any[]) => {
         const newHistory = history.slice(0, historyIndex + 1);
@@ -257,106 +302,117 @@ const MapView = ({
 
 
     const placeStamp = (x: number, y: number) => {
-        if (!selectedTile || x < 0 || x >= width || y < 0 || y >= height) return;
+        console.log('Placing stamp:', { x, y, selectedTile, activeLayerId });
+        if (!selectedTile || x < 0 || x >= width || y < 0 || y >= height) {
+            console.log('Invalid placement:', { x, y, width, height, selectedTile });
+            return;
+        }
+
         const regionW = selectedTile.width || 1;
         const regionH = selectedTile.height || 1;
+        console.log('Region size:', { regionW, regionH });
+
+        // Create a new array of layers
         const newLayers = layers.map((layer) => {
-            if (layer.locked) return layer;
+            // Only modify the active layer
+            if (layer.id !== activeLayerId) return layer;
+            
+            // Create a new array for the tiles
             let newTiles = [...layer.tiles];
+            
             // Remove any existing tiles in the region
             for (let dx = 0; dx < regionW; dx++) {
                 for (let dy = 0; dy < regionH; dy++) {
                     const tx = x + dx;
                     const ty = y + dy;
+                    if (tx < 0 || tx >= width || ty < 0 || ty >= height) continue;
+                    
+                    // Remove existing tiles at this position
                     newTiles = newTiles.filter((t) => t.x !== tx || t.y !== ty);
-                }
-            }
-            newTiles.push({
-                x,
-                y,
-                tileId: selectedTile.image,
-                autoTileId: selectedAutoTile?.image,
-            });
-            return {
-                ...layer,
-                tiles: newTiles,
-            };
-        });
-        setLayers(newLayers);
-        addToHistory(newLayers);
-    };
-
-    const fillWithSelection = (x1: number, y1: number, x2: number, y2: number) => {
-        if (!selectedTile) return;
-        const regionW = selectedTile.width || 1;
-        const regionH = selectedTile.height || 1;
-        const minX = Math.min(x1, x2);
-        const maxX = Math.max(x1, x2);
-        const minY = Math.min(y1, y2);
-        const maxY = Math.max(y1, y2);
-        const newLayers = layers.map((layer) => {
-            if (layer.locked) return layer;
-            let newTiles = [...layer.tiles];
-            for (let x = minX; x <= maxX; x++) {
-                for (let y = minY; y <= maxY; y++) {
-                    // Remove any existing tile at this position
-                    newTiles = newTiles.filter((t) => t.x !== x || t.y !== y);
-                    // Figure out which part of the selection to use
+                    
+                    // Determine the correct image for this sub-tile
                     let tileImage = selectedTile.image;
-                    if (regionW > 1 || regionH > 1) {
-                        const dx = (x - minX) % regionW;
-                        const dy = (y - minY) % regionH;
-                        // Crop the correct sub-image from the selectedTile.image
+                    if (selectedTile.subTiles && (regionW > 1 || regionH > 1)) {
+                        tileImage = selectedTile.subTiles[dx][dy];
+                    } else if (regionW > 1 || regionH > 1) {
+                        const PALETTE_TILE_SIZE = 16;
                         const tempCanvas = document.createElement('canvas');
-                        tempCanvas.width = tileSize;
-                        tempCanvas.height = tileSize;
+                        tempCanvas.width = PALETTE_TILE_SIZE;
+                        tempCanvas.height = PALETTE_TILE_SIZE;
                         const ctx = tempCanvas.getContext('2d');
                         if (ctx) {
                             const img = new window.Image();
                             img.src = selectedTile.image;
-                            ctx.clearRect(0, 0, tileSize, tileSize);
+                            ctx.clearRect(0, 0, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE);
                             ctx.drawImage(
                                 img,
-                                dx * tileSize, dy * tileSize, tileSize, tileSize,
-                                0, 0, tileSize, tileSize
+                                dx * PALETTE_TILE_SIZE, dy * PALETTE_TILE_SIZE, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE,
+                                0, 0, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE
                             );
                             tileImage = tempCanvas.toDataURL('image/png');
                         }
                     }
+
+                    // Add the new tile
                     newTiles.push({
-                        x,
-                        y,
+                        x: tx,
+                        y: ty,
                         tileId: tileImage,
                         autoTileId: selectedAutoTile?.image,
                     });
                 }
             }
+
             return {
                 ...layer,
                 tiles: newTiles,
             };
         });
+
+        console.log('New layers:', newLayers);
         setLayers(newLayers);
         addToHistory(newLayers);
     };
 
-    // Fill the entire map with the selected tile/region
     const fillEntireMap = () => {
         if (!selectedTile) return;
+
         const regionW = selectedTile.width || 1;
         const regionH = selectedTile.height || 1;
+
         const newLayers = layers.map((layer) => {
-            if (layer.locked) return layer;
+            // Only modify the active layer
+            if (layer.id !== activeLayerId) return layer;
+
             let newTiles: any[] = [];
             for (let x = 0; x < width; x++) {
                 for (let y = 0; y < height; y++) {
+                    const dx = x % regionW;
+                    const dy = y % regionH;
+                    
                     // Use cached subTiles if available
                     let tileImage = selectedTile.image;
-                    if (selectedTile.subTiles && regionW > 1 || regionH > 1) {
-                        const dx = x % regionW;
-                        const dy = y % regionH;
+                    if (selectedTile.subTiles && (regionW > 1 || regionH > 1)) {
                         tileImage = selectedTile.subTiles[dx][dy];
+                    } else if (regionW > 1 || regionH > 1) {
+                        const PALETTE_TILE_SIZE = 16;
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = PALETTE_TILE_SIZE;
+                        tempCanvas.height = PALETTE_TILE_SIZE;
+                        const ctx = tempCanvas.getContext('2d');
+                        if (ctx) {
+                            const img = new window.Image();
+                            img.src = selectedTile.image;
+                            ctx.clearRect(0, 0, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE);
+                            ctx.drawImage(
+                                img,
+                                dx * PALETTE_TILE_SIZE, dy * PALETTE_TILE_SIZE, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE,
+                                0, 0, PALETTE_TILE_SIZE, PALETTE_TILE_SIZE
+                            );
+                            tileImage = tempCanvas.toDataURL('image/png');
+                        }
                     }
+
                     newTiles.push({
                         x,
                         y,
@@ -365,19 +421,22 @@ const MapView = ({
                     });
                 }
             }
+
             return {
                 ...layer,
                 tiles: newTiles,
             };
         });
+
         setLayers(newLayers);
         addToHistory(newLayers);
     };
 
-    // Remove a tile at (x, y)
     const removeTile = (x: number, y: number) => {
         const newLayers = layers.map((layer) => {
-            if (layer.locked) return layer;
+            // Only modify the active layer
+            if (layer.id !== activeLayerId) return layer;
+            
             return {
                 ...layer,
                 tiles: layer.tiles.filter((t) => t.x !== x || t.y !== y),
@@ -387,95 +446,16 @@ const MapView = ({
         addToHistory(newLayers);
     };
 
-    // Clear the entire map
-    const clearMap = () => {
-        const newLayers = layers.map((layer) => ({
-            ...layer,
-            tiles: [],
-        }));
-        setLayers(newLayers);
-        addToHistory(newLayers);
-    };
-
     return (
-        <div className="flex flex-col h-full">
-            {paintMode === 'stamp' && (
-                <div className="mb-2 text-xs text-blue-400 font-semibold">Stamp Mode Active: Click to paint</div>
-            )}
-            {paintMode === 'fill' && (
-                <div className="mb-2 text-xs text-teal-400 font-semibold">Fill Mode Active: Click to fill the map</div>
-            )}
-            {paintMode === 'remove' && (
-                <div className="mb-2 text-xs text-red-400 font-semibold">Remove Mode Active: Click tiles to delete</div>
-            )}
-            {/* Selected Tile Preview */}
-            {selectedTile && (
-                <div className="mb-2 flex items-center gap-2">
-                    <span className="text-xs text-slate-400">Selected Tile:</span>
-                    <img
-                        src={selectedTile.image}
-                        alt={selectedTile.name}
-                        style={{ width: tileSize * (selectedTile.width || 1), height: tileSize * (selectedTile.height || 1), imageRendering: 'pixelated', border: '1px solid #334155', background: '#1e293b', borderRadius: 4 }}
-                    />
-                    <span className="text-xs text-slate-400">{selectedTile.name}</span>
-                </div>
-            )}
-            <div className="flex items-center gap-2 mb-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={undo}
-                    disabled={historyIndex <= 0}
-                >
-                    <Undo className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={redo}
-                    disabled={historyIndex >= history.length - 1}
-                >
-                    <Redo className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={paintMode === 'stamp' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setPaintMode('stamp')}
-                    title="Stamp Mode"
-                >
-                    <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={paintMode === 'fill' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setPaintMode('fill')}
-                    title="Fill Mode"
-                >
-                    <PaintBucket className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={paintMode === 'remove' ? 'default' : 'ghost'}
-                    size="icon"
-                    onClick={() => setPaintMode('remove')}
-                    title="Remove Tile"
-                >
-                    <Trash2 className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={clearMap}
-                    title="Clear Map"
-                >
-                    <Trash2 className="h-4 w-4" />
-                </Button>
+        <div className="flex h-full">
+            <div className="flex-1 relative">
+                <canvas
+                    ref={canvasRef}
+                    className="border border-slate-700"
+                    width={width * tileSize}
+                    height={height * tileSize}
+                />
             </div>
-
-            <ScrollArea className="flex-1 border border-slate-800 rounded-md">
-                <div className="relative">
-                    <canvas ref={canvasRef} />
-                </div>
-            </ScrollArea>
         </div>
     );
 };

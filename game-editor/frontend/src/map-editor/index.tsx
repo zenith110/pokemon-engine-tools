@@ -47,7 +47,7 @@ const MapEditor = () => {
             name: "Starter Town",
             width: 20,
             height: 20,
-            tileSize: 32,
+            tileSize: 16,
             type: "overworld",
             tileset: "default",
             layers: [
@@ -74,7 +74,7 @@ const MapEditor = () => {
             name: "First Route",
             width: 30,
             height: 20,
-            tileSize: 32,
+            tileSize: 16,
             type: "overworld",
             tileset: "grass",
             layers: [
