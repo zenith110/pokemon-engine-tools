@@ -298,7 +298,7 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex flex-col">
                         <h3 className="text-lg font-semibold">Tile Palette</h3>
-                        <p className="text-xs text-gray-400">Tilesets must be multiples of 32x32 pixels</p>
+                        <p className="text-xs text-gray-400">Tilesets must be multiples of 16x16 pixels</p>
                     </div>
                     <div className="flex gap-2">
                         <input
