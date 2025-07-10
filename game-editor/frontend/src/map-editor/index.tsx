@@ -98,13 +98,11 @@ const useMaps = () => {
 const MapSelectionScreen = ({ 
   maps, 
   onCreateMap, 
-  onCreateTileset,
   onSelectMap,
   onDeleteMap
 }: {
   maps: MapData[]
   onCreateMap: (mapData: CreateMapData) => void
-  onCreateTileset: (tilesetData: CreateTilesetData) => void
   onSelectMap: (map: MapData) => void
   onDeleteMap: (mapId: string) => void
 }) => (
@@ -114,7 +112,7 @@ const MapSelectionScreen = ({
       <div className="flex items-center gap-4">
         <CreateMapDialog onCreateMap={onCreateMap} />
         <div className="text-slate-600">|</div>
-        <CreateTilesetDialog onCreateTileset={onCreateTileset} />
+        <CreateTilesetDialog/>
       </div>
     </div>
     
@@ -211,7 +209,6 @@ const MapEditor = () => {
       <MapSelectionScreen
         maps={maps}
         onCreateMap={handleCreateMap}
-        onCreateTileset={handleCreateTileset}
         onSelectMap={setSelectedMap}
         onDeleteMap={handleDeleteMap}
       />

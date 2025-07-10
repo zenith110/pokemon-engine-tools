@@ -114,6 +114,28 @@ export namespace models {
 		    return a;
 		}
 	}
+	export class CreateNewTileset {
+	    tilesetHeight: number;
+	    tilesetWidth: number;
+	    nameOfTileset: string;
+	    tilesetDescription: string;
+	    typeOfTileset: string;
+	    fileName: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CreateNewTileset(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.tilesetHeight = source["tilesetHeight"];
+	        this.tilesetWidth = source["tilesetWidth"];
+	        this.nameOfTileset = source["nameOfTileset"];
+	        this.tilesetDescription = source["tilesetDescription"];
+	        this.typeOfTileset = source["typeOfTileset"];
+	        this.fileName = source["fileName"];
+	    }
+	}
 	export class Data {
 	    Name: string;
 	    Music: string;

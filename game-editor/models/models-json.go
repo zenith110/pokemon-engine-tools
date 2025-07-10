@@ -65,6 +65,14 @@ type PokemonTrainerEditor struct {
 	Cry            string
 }
 
+type CreateNewTileset struct {
+	TilesetHeight int    `json:"tilesetHeight"`
+	TilesetWidth  int    `json:"tilesetWidth"`
+	NameOfTileset string `json:"nameOfTileset"`
+	Description   string `json:"tilesetDescription"`
+	TypeOfTileSet string `json:"typeOfTileset"`
+	FileName      string `json:"fileName"`
+}
 type HeldItem struct {
 	Name string
 }

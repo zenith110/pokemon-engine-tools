@@ -6,12 +6,10 @@ import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Upload, X } from "lucide-react"
 import { CreateTilesetData } from "../types"
+import { CreateTileset, CreateTilesetImage } from "../../../wailsjs/go/mapeditor/MapEditorApp"
 
-interface CreateTilesetDialogProps {
-  onCreateTileset: (tilesetData: CreateTilesetData) => void
-}
 
-const CreateTilesetDialog = ({ onCreateTileset }: CreateTilesetDialogProps) => {
+const CreateTilesetDialog = () => {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [tileSize, setTileSize] = useState<number>(16)
@@ -19,9 +17,11 @@ const CreateTilesetDialog = ({ onCreateTileset }: CreateTilesetDialogProps) => {
   const [imageData, setImageData] = useState<string>("")
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null)
   const [uploadError, setUploadError] = useState<string>("")
+  const [typeOfTileset, setTypeOfTileset] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [fileName, setFileName] = useState("");
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async(event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -38,29 +38,10 @@ const CreateTilesetDialog = ({ onCreateTileset }: CreateTilesetDialogProps) => {
       setUploadError("File size must be less than 10MB")
       return
     }
-
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const img = new Image()
-      img.onload = () => {
-        // Validate dimensions are multiples of tile size
-        if (img.width % tileSize !== 0 || img.height % tileSize !== 0) {
-          setUploadError(`Image dimensions must be multiples of ${tileSize}x${tileSize} pixels`)
-          return
-        }
-        
-        setImageData(e.target?.result as string)
-        setImageDimensions({ width: img.width, height: img.height })
-      }
-      img.onerror = () => {
-        setUploadError("Failed to load image")
-      }
-      img.src = e.target?.result as string
+    const createdTileset = await CreateTilesetImage();
+    if(createdTileset.success === true){
+      setFileName(createdTileset.fileName)
     }
-    reader.onerror = () => {
-      setUploadError("Failed to read file")
-    }
-    reader.readAsDataURL(file)
   }
 
   const removeImage = () => {
@@ -70,6 +51,7 @@ const CreateTilesetDialog = ({ onCreateTileset }: CreateTilesetDialogProps) => {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
+    setFileName("")
   }
 
   // Revalidate image when tile size changes
@@ -83,30 +65,33 @@ const CreateTilesetDialog = ({ onCreateTileset }: CreateTilesetDialogProps) => {
     }
   }, [tileSize, imageData, imageDimensions])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
 
-    onCreateTileset({
-      name: name.trim(),
-      tileSize,
-      description: description.trim() || undefined,
-      imageData: imageData || undefined,
-      imageWidth: imageDimensions?.width,
-      imageHeight: imageDimensions?.height,
-    })
-
-    // Reset form
+    const tilesetData = {
+      "tilesetHeight": tileSize,
+      "tilesetWidth": tileSize,
+      "nameOfTileset": name,
+      "tilesetDescription": description,
+      "typeOfTileset": typeOfTileset,
+      "fileName": fileName
+    }
+    const createTilesetData = await CreateTileset(tilesetData);
+    if(createTilesetData.success === true){
+          // Reset form
     setName("")
     setTileSize(16)
     setDescription("")
     setImageData("")
     setImageDimensions(null)
     setUploadError("")
+    setFileName("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
     setOpen(false)
+    }
   }
 
   return (

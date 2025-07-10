@@ -2,16 +2,14 @@ package mapeditor
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
-	"strconv"
-	"strings"
+	"path/filepath"
 
-	"github.com/lafriks/go-tiled"
-	"github.com/lafriks/go-tiled/render"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	coreModels "github.com/zenith110/pokemon-engine-tools/models"
-	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
 	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 )
 
@@ -26,93 +24,104 @@ func NewMapEditorApp(app *core.App) *MapEditorApp {
 	}
 }
 
-func TiledParser(mapPath string, a *MapEditorApp) map[string]string {
-
-	fileName := strings.Split(strings.Replace(mapPath, `\`, "/", -1), "/")
-
-	finalFileName := strings.Replace(fileName[len(fileName)-1], ".tmx", "", -1)
-	gameMap, err := tiled.LoadFile(mapPath)
-	if err != nil {
-		fmt.Printf("error parsing map: %s", err.Error())
-		os.Exit(2)
-	}
-
-	renderer, err := render.NewRenderer(gameMap)
-	if err != nil {
-		fmt.Printf("map unsupported for rendering: %s", err.Error())
-		os.Exit(2)
-	}
-	err = renderer.RenderVisibleLayers()
-	if err != nil {
-		fmt.Printf("layer unsupported for rendering: %s", err.Error())
-		os.Exit(2)
-	}
-	mapFinalPath := fmt.Sprintf("%s/data/assets/maps/%s.png", a.app.DataDirectory, finalFileName)
-
-	f, err := os.Create(mapFinalPath)
-	if err != nil {
-		fmt.Printf("Error occured while creating map!\n Error is %v\n", err)
-	}
-	defer f.Close()
-	err = renderer.SaveAsPng(f)
-
-	if err != nil {
-		fmt.Printf("Could not save tileset image!\nError is %v", err)
-	}
-
-	mapData := map[string]string{
-		"mapImage":      parsing.CreateBase64File(mapFinalPath),
-		"tilesetHeight": strconv.Itoa(gameMap.Height),
-		"tilesetWidth":  strconv.Itoa(gameMap.Width),
-		"tilesetPath":   gameMap.Tilesets[0].Source,
-		"mapName":       finalFileName,
-	}
-
-	return mapData
-}
-func (a *MapEditorApp) CreateMap() string {
-	mapPath, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
-		Title: "Select tiled .tmx file",
+func (a *MapEditorApp) CreateTilesetImage() map[string]any {
+	tilesetPath, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
+		Title: "Select tileset .png file",
 		Filters: []runtime.FileFilter{
 			{
-				DisplayName: "Map (*.tmx)",
-				Pattern:     "*.tmx",
+				DisplayName: "Map (*.png)",
+				Pattern:     "*.png",
 			},
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
-	tiledData := TiledParser(mapPath, a)
-	xAxisMax, _ := strconv.Atoi(tiledData["tilesetWidth"])
-	yAxisMax, _ := strconv.Atoi(tiledData["tilesetHeight"])
+	fileName := filepath.Base(tilesetPath)
+	tilesetImageFile, tilesetImageFileErr := os.Open(tilesetPath)
+	if tilesetImageFileErr != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error occured while opening tileset file %w", tilesetImageFileErr),
+		}
+	}
+	fileData, fileDataErr := ioutil.ReadAll(tilesetImageFile)
+	if fileDataErr != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error while reading tileset image file: %w", fileDataErr),
+		}
+	}
+	if tilesetImageFileCreationErr := os.WriteFile(tilesetPath, fileData, 0644); tilesetImageFileCreationErr != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error writing tileset image file: %w", tilesetImageFileCreationErr),
+		}
+	}
+	return map[string]any{
+		"success":  true,
+		"fileName": fileName,
+	}
+}
 
-	mapOutput := coreModels.MapOutput{
-		Name:            tiledData["mapName"],
-		XAxisMax:        xAxisMax,
-		YAxisMax:        yAxisMax,
-		TilesetLocation: tiledData["tilesetPath"],
+func (a *MapEditorApp) CreateTileset(createNewTilesetData coreModels.CreateNewTileset) map[string]any {
+
+	localProjectTilesetPath := fmt.Sprintf("assets/tilesets/%s", createNewTilesetData.FileName)
+	var tilesetData coreModels.TilesetData
+	tileset := coreModels.Tileset{
+		TilesetWidth:       createNewTilesetData.TilesetWidth,
+		TilesetHeight:      createNewTilesetData.TilesetHeight,
+		Name:               createNewTilesetData.NameOfTileset,
+		Path:               localProjectTilesetPath,
+		TypeOfTileSet:      createNewTilesetData.TypeOfTileSet,
+		TilesetDescription: createNewTilesetData.Description,
+	}
+	tilesetTomlPath := fmt.Sprintf("%s/data/toml/tileset.toml", a.app.DataDirectory)
+	tilesetData.Tilesets = append(tilesetData.Tilesets, tileset)
+	var existingTileset coreModels.TilesetData
+	file, err := os.Open(tilesetTomlPath)
+	if err == nil {
+		defer file.Close()
+		fileData, err := io.ReadAll(file)
+		if err == nil && len(fileData) > 0 {
+			// Try to unmarshal existing data
+			if err := toml.Unmarshal(fileData, &existingTileset); err == nil {
+				// Append new data
+				existingTileset.Tilesets = append(existingTileset.Tilesets, tilesetData.Tilesets...)
+			} else {
+				// Bad TOML, replace with new data
+				existingTileset = tilesetData
+			}
+		} else {
+			// File is empty or unreadable, replace with new data
+			existingTileset = tilesetData
+		}
+	} else if os.IsNotExist(err) {
+		// File does not exist, use new data
+		existingTileset = tilesetData
+	} else {
+		// Some other error opening file
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error opening tileset.toml: %w", err),
+		}
 	}
 
-	var mapOutputs []coreModels.MapOutput
-	mapOutputs = append(mapOutputs, mapOutput)
-	mapData := coreModels.MapData{
-		Map: mapOutputs,
-	}
-
-	data, err := toml.Marshal(mapData)
+	// Marshal and write back
+	out, err := toml.Marshal(existingTileset)
 	if err != nil {
-		panic(fmt.Errorf("error had occured while creating map data!\n%v", err))
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error marshaling tileset TOML: %w", err),
+		}
 	}
-
-	// Write the encoded data to a file
-	f, err := os.OpenFile(fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
+	if err := os.WriteFile(tilesetTomlPath, out, 0644); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error writing tileset TOML: %w", err),
+		}
 	}
-	defer f.Close()
-	if _, err := f.Write(data); err != nil {
-		panic(err)
+	return map[string]any{
+		"success": true,
 	}
-	return tiledData["mapImage"]
 }
