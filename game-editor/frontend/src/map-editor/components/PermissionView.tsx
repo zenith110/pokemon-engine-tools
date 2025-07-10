@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "../../components/ui/card";
-import { fabric } from "fabric";
 
 interface PermissionViewProps {
     width: number;
     height: number;
     tileSize: number;
+    layers: any[]; // Pass map layers for background rendering
     permissions: Array<{
         x: number;
         y: number;
@@ -14,170 +14,145 @@ interface PermissionViewProps {
     setPermissions: (permissions: any[]) => void;
 }
 
+const permissionTypes = [
+    { type: "walkable", label: "Walkable", color: "rgba(37, 99, 235, 0.35)" }, // blue-600
+    { type: "blocked", label: "Blocked", color: "rgba(239, 68, 68, 0.35)" },   // red-500
+    { type: "water", label: "Surf", color: "rgba(139, 92, 246, 0.35)" },       // purple-500
+    { type: "grass", label: "Grass", color: "rgba(34,197,94,0.35)" },          // green-500
+];
+
 const PermissionView = ({
     width,
     height,
     tileSize,
+    layers,
     permissions,
     setPermissions,
 }: PermissionViewProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
-    const [isDrawing, setIsDrawing] = useState(false);
     const [selectedType, setSelectedType] = useState<"walkable" | "blocked" | "water" | "grass">("walkable");
+    const [isDrawing, setIsDrawing] = useState(false);
 
-    const permissionColors = {
-        walkable: "rgba(0, 255, 0, 0.2)",
-        blocked: "rgba(255, 0, 0, 0.2)",
-        water: "rgba(0, 0, 255, 0.2)",
-        grass: "rgba(0, 255, 0, 0.4)",
-    };
-
-    // Initialize Fabric.js canvas
+    // Render the map and permissions
     useEffect(() => {
-        if (canvasRef.current && !canvas) {
-            const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-                width: width * tileSize,
-                height: height * tileSize,
-                backgroundColor: '#1e293b', // slate-800
-                selection: false,
-            });
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-            // Add grid
-            for (let x = 0; x <= width; x++) {
-                fabricCanvas.add(new fabric.Line([x * tileSize, 0, x * tileSize, height * tileSize], {
-                    stroke: 'rgba(255, 255, 255, 0.1)',
-                    selectable: false,
-                }));
-            }
-            for (let y = 0; y <= height; y++) {
-                fabricCanvas.add(new fabric.Line([0, y * tileSize, width * tileSize, y * tileSize], {
-                    stroke: 'rgba(255, 255, 255, 0.1)',
-                    selectable: false,
-                }));
-            }
+        // Set canvas size
+        canvas.width = width * tileSize;
+        canvas.height = height * tileSize;
 
-            setCanvas(fabricCanvas);
+        // Draw background
+        ctx.fillStyle = "#1e293b";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw map layers (reuse logic from MapView, simplified here)
+        for (const layer of layers) {
+            if (!layer.visible) continue;
+            for (const tile of layer.tiles) {
+                const img = new window.Image();
+                img.src = tile.autoTileId || tile.tileId;
+                img.onload = () => {
+                    ctx.drawImage(
+                        img,
+                        tile.x * tileSize,
+                        tile.y * tileSize,
+                        tileSize,
+                        tileSize
+                    );
+                };
+            }
         }
 
-        return () => {
-            if (canvas) {
-                canvas.dispose();
-                setCanvas(null);
-            }
-        };
-    }, [width, height, tileSize]);
+        // Draw grid
+        ctx.strokeStyle = "rgba(255,255,255,0.1)";
+        for (let x = 0; x <= width; x++) {
+            ctx.beginPath();
+            ctx.moveTo(x * tileSize, 0);
+            ctx.lineTo(x * tileSize, height * tileSize);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= height; y++) {
+            ctx.beginPath();
+            ctx.moveTo(0, y * tileSize);
+            ctx.lineTo(width * tileSize, y * tileSize);
+            ctx.stroke();
+        }
 
-    // Update canvas when permissions change
-    useEffect(() => {
-        if (!canvas) return;
+        // Draw permissions overlay
+        for (const perm of permissions) {
+            const color = permissionTypes.find(p => p.type === perm.type)?.color || "rgba(255,255,255,0.2)";
+            ctx.fillStyle = color;
+            ctx.fillRect(perm.x * tileSize, perm.y * tileSize, tileSize, tileSize);
+        }
+    }, [width, height, tileSize, layers, permissions]);
 
-        // Clear existing permission rectangles
-        const existingPermissions = canvas.getObjects().filter(obj => obj.data?.type === 'permission');
-        existingPermissions.forEach(obj => canvas.remove(obj));
+    // Handle painting permissions
+    const getTileCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const rect = canvasRef.current!.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / tileSize);
+        const y = Math.floor((e.clientY - rect.top) / tileSize);
+        return { x, y };
+    };
 
-        // Draw permissions
-        permissions.forEach((permission) => {
-            const rect = new fabric.Rect({
-                left: permission.x * tileSize,
-                top: permission.y * tileSize,
-                width: tileSize,
-                height: tileSize,
-                fill: permissionColors[permission.type],
-                selectable: false,
-                data: {
-                    type: 'permission',
-                    x: permission.x,
-                    y: permission.y,
-                    permissionType: permission.type,
-                },
-            });
-            canvas.add(rect);
-        });
-
-        canvas.renderAll();
-    }, [permissions]);
-
-    // Handle mouse events
-    useEffect(() => {
-        if (!canvas) return;
-
-        const handleMouseDown = (e: fabric.IEvent) => {
-            setIsDrawing(true);
-            drawPermission(e);
-        };
-
-        const handleMouseMove = (e: fabric.IEvent) => {
-            if (!isDrawing) return;
-            drawPermission(e);
-        };
-
-        const handleMouseUp = () => {
-            setIsDrawing(false);
-        };
-
-        canvas.on('mouse:down', handleMouseDown);
-        canvas.on('mouse:move', handleMouseMove);
-        canvas.on('mouse:up', handleMouseUp);
-        canvas.on('mouse:leave', handleMouseUp);
-
-        return () => {
-            canvas.off('mouse:down', handleMouseDown);
-            canvas.off('mouse:move', handleMouseMove);
-            canvas.off('mouse:up', handleMouseUp);
-            canvas.off('mouse:leave', handleMouseUp);
-        };
-    }, [canvas, isDrawing, selectedType]);
-
-    const drawPermission = (e: fabric.IEvent) => {
-        if (!canvas) return;
-
-        const pointer = canvas.getPointer(e.e);
-        const x = Math.floor(pointer.x / tileSize);
-        const y = Math.floor(pointer.y / tileSize);
-
+    const paintPermission = (x: number, y: number) => {
         if (x < 0 || x >= width || y < 0 || y >= height) return;
-
-        const permissionIndex = permissions.findIndex(
-            (p) => p.x === x && p.y === y
-        );
-
-        if (permissionIndex === -1) {
-            permissions.push({
-                x,
-                y,
-                type: selectedType,
-            });
+        const idx = permissions.findIndex(p => p.x === x && p.y === y);
+        if (idx === -1) {
+            setPermissions([...permissions, { x, y, type: selectedType }]);
         } else {
-            permissions[permissionIndex] = {
-                x,
-                y,
-                type: selectedType,
-            };
+            const updated = [...permissions];
+            updated[idx] = { x, y, type: selectedType };
+            setPermissions(updated);
         }
-
-        setPermissions([...permissions]);
     };
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        setIsDrawing(true);
+        const { x, y } = getTileCoords(e);
+        paintPermission(x, y);
+    };
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDrawing) return;
+        const { x, y } = getTileCoords(e);
+        paintPermission(x, y);
+    };
+    const handleMouseUp = () => setIsDrawing(false);
+    const handleMouseLeave = () => setIsDrawing(false);
 
     return (
         <div className="space-y-4">
             <div className="flex space-x-2">
-                {Object.keys(permissionColors).map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => setSelectedType(type as any)}
-                        className={`px-3 py-1 rounded-md text-sm ${
-                            selectedType === type
-                                ? "bg-slate-700 text-white"
-                                : "bg-slate-800 text-slate-400 hover:text-slate-300"
-                        }`}
-                    >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </button>
+                {permissionTypes.map((perm) => (
+                    <div key={perm.type} className="flex flex-col items-center">
+                        <button
+                            onClick={() => setSelectedType(perm.type as any)}
+                            className={`px-3 py-1 rounded-md text-sm font-medium border transition-colors
+                                ${selectedType === perm.type
+                                    ? "border-yellow-400 text-yellow-300"
+                                    : "border-transparent text-slate-200"}
+                            `}
+                        >
+                            {perm.label}
+                        </button>
+                        <div
+                            className="mt-1 w-8 h-2 rounded"
+                            style={{ background: perm.color, border: "1px solid #222" }}
+                        />
+                    </div>
                 ))}
             </div>
             <Card className="p-4 bg-slate-900">
-                <canvas ref={canvasRef} />
+                <canvas
+                    ref={canvasRef}
+                    style={{ cursor: "crosshair" }}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                />
             </Card>
         </div>
     );

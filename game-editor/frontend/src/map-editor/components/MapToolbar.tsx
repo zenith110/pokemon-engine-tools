@@ -13,6 +13,9 @@ interface MapToolbarProps {
   clearMap: () => void;
 }
 
+const activeBtnClass =
+  'border border-yellow-400 bg-yellow-900/50 text-yellow-300 shadow-[0_0_8px_2px_rgba(250,204,21,0.5)]';
+
 const MapToolbar = ({
   paintMode,
   selectedTile,
@@ -25,15 +28,6 @@ const MapToolbar = ({
   clearMap,
 }: MapToolbarProps) => (
   <>
-    {paintMode === 'stamp' && (
-      <div className="mb-2 text-xs text-blue-400 font-semibold">Stamp Mode Active: Click to paint</div>
-    )}
-    {paintMode === 'fill' && (
-      <div className="mb-2 text-xs text-teal-400 font-semibold">Fill Mode Active: Click to fill the map</div>
-    )}
-    {paintMode === 'remove' && (
-      <div className="mb-2 text-xs text-red-400 font-semibold">Remove Mode Active: Click tiles to delete</div>
-    )}
     {selectedTile && (
       <div className="mb-2 flex items-center gap-2">
         <span className="text-xs text-slate-400">Selected Tile:</span>
@@ -60,26 +54,29 @@ const MapToolbar = ({
         <Redo className="h-4 w-4" />
       </Button>
       <Button
-        variant={paintMode === 'stamp' ? 'default' : 'ghost'}
+        variant="ghost"
         size="icon"
         onClick={() => setPaintMode('stamp')}
         title="Stamp Mode"
+        className={paintMode === 'stamp' ? activeBtnClass : ''}
       >
         <Pencil className="h-4 w-4" />
       </Button>
       <Button
-        variant={paintMode === 'fill' ? 'default' : 'ghost'}
+        variant="ghost"
         size="icon"
         onClick={() => setPaintMode('fill')}
         title="Fill Mode"
+        className={paintMode === 'fill' ? activeBtnClass : ''}
       >
         <PaintBucket className="h-4 w-4" />
       </Button>
       <Button
-        variant={paintMode === 'remove' ? 'default' : 'ghost'}
+        variant="ghost"
         size="icon"
         onClick={() => setPaintMode('remove')}
         title="Remove Tile"
+        className={paintMode === 'remove' ? activeBtnClass : ''}
       >
         <Trash2 className="h-4 w-4" />
       </Button>

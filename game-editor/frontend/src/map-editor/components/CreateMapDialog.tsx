@@ -11,7 +11,7 @@ interface CreateMapDialogProps {
         height: number;
         type: string;
         tileset: string;
-        autoTiles: string[];
+        mapName: string;
     }) => void;
 }
 
@@ -20,7 +20,7 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
     const [height, setHeight] = useState("20")
     const [type, setType] = useState("overworld")
     const [tileset, setTileset] = useState("default")
-    const [autoTiles, setAutoTiles] = useState<string[]>([])
+    const [mapName, setMapName] = useState("");
 
     const handleSubmit = () => {
         onCreateMap({
@@ -28,7 +28,7 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
             height: parseInt(height),
             type,
             tileset,
-            autoTiles,
+            mapName
         })
     }
 
@@ -42,6 +42,16 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
                     <DialogTitle>Create New Map</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="mapName" className="text-right">Map Name</Label>
+                        <Input
+                            id="mapName"
+                            type="text"
+                            value={mapName}
+                            onChange={(e) => setMapName(e.target.value)}
+                            className="col-span-3 bg-slate-800 border-slate-700 text-white"
+                        />
+                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="width" className="text-right">Width</Label>
                         <Input

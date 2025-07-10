@@ -1,36 +1,101 @@
-export interface MapData {
-    id: string;
+export interface Tile {
+  id: string;
+  name: string;
+  image: string;
+  width?: number;
+  height?: number;
+  subTiles?: string[][];
+}
+
+export interface MapTile {
+  x: number;
+  y: number;
+  tileId: string;
+  autoTileId?: string;
+}
+
+export interface MapLayer {
+  id: number;
+  name: string;
+  visible: boolean;
+  locked?: boolean;
+  tiles: MapTile[];
+}
+
+export interface MapPermission {
+  x: number;
+  y: number;
+  type: "walkable" | "blocked" | "water" | "grass";
+}
+
+export interface MapNPC {
+  id: string;
+  name: string;
+  x: number;
+  y: number;
+  sprite: string;
+  direction: "up" | "down" | "left" | "right";
+  script?: string;
+}
+
+export interface MapEncounter {
+  id: string;
+  name: string;
+  type: "grass" | "water" | "cave" | "fishing";
+  pokemon: Array<{
     name: string;
-    width: number;
-    height: number;
-    tileSize: number;
-    type: string;
-    tileset: string;
-    tilesetImage: string;
-    layers: Array<{
-        id: number;
-        name: string;
-        visible: boolean;
-        locked?: boolean;
-        tiles: Array<{
-            x: number;
-            y: number;
-            tileId: string;
-            autoTileId?: string;
-        }>;
-    }>;
-    permissions: Array<{
-        x: number;
-        y: number;
-        type: "walkable" | "blocked" | "water" | "grass";
-    }>;
-    npcs: Array<{
-        id: string;
-        name: string;
-        x: number;
-        y: number;
-        sprite: string;
-        direction: "up" | "down" | "left" | "right";
-        script?: string;
-    }>;
-} 
+    level: number;
+    chance: number;
+  }>;
+  minLevel: number;
+  maxLevel: number;
+}
+
+export interface MapData {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  tileSize: number;
+  type: string;
+  tileset: string;
+  layers: MapLayer[];
+  permissions: MapPermission[];
+  npcs: MapNPC[];
+  encounters: MapEncounter[];
+}
+
+export interface CreateMapData {
+  width: number;
+  height: number;
+  type: string;
+  tileset: string;
+  mapName: string;
+}
+
+export interface CreateTilesetData {
+  name: string;
+  tileSize: number;
+  description?: string;
+  imageData?: string; // Base64 data URL
+  imageWidth?: number;
+  imageHeight?: number;
+}
+
+export interface MapViewProps {
+  width: number;
+  height: number;
+  tileSize: number;
+  selectedTile: Tile | null;
+  selectedAutoTile: Tile | null;
+  layers: MapLayer[];
+  setLayers: (layers: MapLayer[]) => void;
+  activeLayerId: number;
+  paintMode: 'stamp' | 'fill' | 'remove';
+}
+
+export interface MapEditorViewProps {
+  map: MapData;
+  onMapChange: (map: MapData) => void;
+  onBack: () => void;
+}

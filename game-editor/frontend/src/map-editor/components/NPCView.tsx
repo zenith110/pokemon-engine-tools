@@ -3,7 +3,7 @@ import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Plus, Trash2 } from "lucide-react";
-import { fabric } from "fabric";
+import { MapLayer } from "../types";
 
 interface NPC {
     id: string;
@@ -19,6 +19,7 @@ interface NPCViewProps {
     width: number;
     height: number;
     tileSize: number;
+    layers: MapLayer[];
     npcs: NPC[];
     setNPCs: (npcs: NPC[]) => void;
 }
@@ -27,137 +28,158 @@ const NPCView = ({
     width,
     height,
     tileSize,
+    layers,
     npcs,
     setNPCs,
 }: NPCViewProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
     const [selectedNPC, setSelectedNPC] = useState<NPC | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [lastPainted, setLastPainted] = useState<{ x: number; y: number } | null>(null);
+    
+    // Tile cache for performance
+    const tileCache = useRef<Map<string, HTMLImageElement>>(new Map());
 
-    // Initialize Fabric.js canvas
-    useEffect(() => {
-        if (canvasRef.current && !canvas) {
-            const fabricCanvas = new fabric.Canvas(canvasRef.current, {
-                width: width * tileSize,
-                height: height * tileSize,
-                backgroundColor: '#1e293b', // slate-800
-                selection: false,
-            });
-
-            // Add grid
-            for (let x = 0; x <= width; x++) {
-                fabricCanvas.add(new fabric.Line([x * tileSize, 0, x * tileSize, height * tileSize], {
-                    stroke: 'rgba(255, 255, 255, 0.1)',
-                    selectable: false,
-                }));
-            }
-            for (let y = 0; y <= height; y++) {
-                fabricCanvas.add(new fabric.Line([0, y * tileSize, width * tileSize, y * tileSize], {
-                    stroke: 'rgba(255, 255, 255, 0.1)',
-                    selectable: false,
-                }));
-            }
-
-            setCanvas(fabricCanvas);
+    // Load tile image into cache
+    const loadTileImage = (imageSrc: string): Promise<HTMLImageElement> => {
+        if (tileCache.current.has(imageSrc)) {
+            return Promise.resolve(tileCache.current.get(imageSrc)!);
         }
 
-        return () => {
-            if (canvas) {
-                canvas.dispose();
-                setCanvas(null);
-            }
-        };
-    }, [width, height, tileSize]);
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                tileCache.current.set(imageSrc, img);
+                resolve(img);
+            };
+            img.onerror = reject;
+            img.src = imageSrc;
+        });
+    };
 
-    // Update canvas when NPCs change
-    useEffect(() => {
+    // Render the map with NPCs
+    const renderMap = async () => {
+        const canvas = canvasRef.current;
         if (!canvas) return;
 
-        // Clear existing NPCs
-        const existingNPCs = canvas.getObjects().filter(obj => obj.data?.type === 'npc');
-        existingNPCs.forEach(obj => canvas.remove(obj));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw background
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw grid
+        ctx.strokeStyle = 'rgba(51,65,85,0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= width; x++) {
+            ctx.beginPath();
+            ctx.moveTo(x * tileSize, 0);
+            ctx.lineTo(x * tileSize, height * tileSize);
+            ctx.stroke();
+        }
+        for (let y = 0; y <= height; y++) {
+            ctx.beginPath();
+            ctx.moveTo(0, y * tileSize);
+            ctx.lineTo(width * tileSize, y * tileSize);
+            ctx.stroke();
+        }
+
+        // Draw visible layers in order (bottom to top)
+        for (const layer of layers) {
+            if (!layer.visible) continue;
+
+            for (const tile of layer.tiles) {
+                try {
+                    const tileImage = await loadTileImage(tile.autoTileId || tile.tileId);
+                    ctx.drawImage(
+                        tileImage,
+                        tile.x * tileSize,
+                        tile.y * tileSize,
+                        tileSize,
+                        tileSize
+                    );
+                } catch (error) {
+                    console.error('Failed to load tile image:', tile.autoTileId || tile.tileId);
+                }
+            }
+        }
 
         // Draw NPCs
         npcs.forEach((npc) => {
+            // Draw NPC sprite
             const img = new Image();
-            img.src = npc.sprite;
             img.onload = () => {
-                const fabricImage = new fabric.Image(img, {
-                    left: npc.x * tileSize,
-                    top: npc.y * tileSize,
-                    width: tileSize,
-                    height: tileSize,
-                    selectable: true,
-                    data: {
-                        type: 'npc',
-                        id: npc.id,
-                    },
-                });
-
+                ctx.save();
+                ctx.translate(npc.x * tileSize + tileSize / 2, npc.y * tileSize + tileSize / 2);
+                
                 // Set rotation based on direction
                 switch (npc.direction) {
                     case "up":
-                        fabricImage.rotate(-90);
+                        ctx.rotate(-Math.PI / 2);
                         break;
                     case "left":
-                        fabricImage.rotate(180);
+                        ctx.rotate(Math.PI);
                         break;
                     case "right":
-                        fabricImage.rotate(0);
+                        ctx.rotate(0);
                         break;
                     case "down":
-                        fabricImage.rotate(90);
+                        ctx.rotate(Math.PI / 2);
                         break;
                 }
+                
+                ctx.drawImage(img, -tileSize / 2, -tileSize / 2, tileSize, tileSize);
+                ctx.restore();
 
-                // Add selection highlight if selected
+                // Draw selection highlight if selected
                 if (selectedNPC?.id === npc.id) {
-                    const highlight = new fabric.Rect({
-                        left: npc.x * tileSize,
-                        top: npc.y * tileSize,
-                        width: tileSize,
-                        height: tileSize,
-                        fill: 'rgba(255, 255, 0, 0.2)',
-                        selectable: false,
-                        data: {
-                            type: 'highlight',
-                            npcId: npc.id,
-                        },
-                    });
-                    canvas.add(highlight);
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(npc.x * tileSize, npc.y * tileSize, tileSize, tileSize);
                 }
-
-                canvas.add(fabricImage);
-                canvas.renderAll();
             };
+            img.src = npc.sprite;
         });
-    }, [npcs, selectedNPC]);
+    };
 
     // Handle mouse events
-    useEffect(() => {
-        if (!canvas) return;
+    const getTileCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return { x: -1, y: -1 };
 
-        const handleMouseDown = (e: fabric.IEvent) => {
-            const target = e.target;
-            if (!target || !(target.data?.type === 'npc')) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((e.clientX - rect.left) / tileSize);
+        const y = Math.floor((e.clientY - rect.top) / tileSize);
+        return { x, y };
+    };
 
-            const npc = npcs.find(n => n.id === target.data.id);
-            if (npc) {
-                setSelectedNPC(npc);
-                setIsDragging(true);
-            }
-        };
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        const { x, y } = getTileCoords(e);
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
 
-        const handleMouseMove = (e: fabric.IEvent) => {
-            if (!isDragging || !selectedNPC) return;
+        // Check if clicking on an NPC
+        const clickedNPC = npcs.find(npc => npc.x === x && npc.y === y);
+        if (clickedNPC) {
+            setSelectedNPC(clickedNPC);
+            setIsDragging(true);
+            setLastPainted({ x, y });
+        } else {
+            setSelectedNPC(null);
+        }
+    };
 
-            const pointer = canvas.getPointer(e.e);
-            const x = Math.floor(pointer.x / tileSize);
-            const y = Math.floor(pointer.y / tileSize);
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDragging || !selectedNPC) return;
 
-            if (x < 0 || x >= width || y < 0 || y >= height) return;
+        const { x, y } = getTileCoords(e);
+        if (x < 0 || x >= width || y < 0 || y >= height) return;
 
+        if (!lastPainted || lastPainted.x !== x || lastPainted.y !== y) {
+            setLastPainted({ x, y });
             setNPCs(
                 npcs.map((npc) =>
                     npc.id === selectedNPC.id
@@ -165,24 +187,33 @@ const NPCView = ({
                         : npc
                 )
             );
-        };
+        }
+    };
 
-        const handleMouseUp = () => {
-            setIsDragging(false);
-        };
+    const handleMouseUp = () => {
+        setIsDragging(false);
+        setLastPainted(null);
+    };
 
-        canvas.on('mouse:down', handleMouseDown);
-        canvas.on('mouse:move', handleMouseMove);
-        canvas.on('mouse:up', handleMouseUp);
-        canvas.on('mouse:leave', handleMouseUp);
+    const handleMouseLeave = () => {
+        setIsDragging(false);
+        setLastPainted(null);
+    };
 
-        return () => {
-            canvas.off('mouse:down', handleMouseDown);
-            canvas.off('mouse:move', handleMouseMove);
-            canvas.off('mouse:up', handleMouseUp);
-            canvas.off('mouse:leave', handleMouseUp);
-        };
-    }, [canvas, isDragging, selectedNPC]);
+    // Render map when layers or NPCs change
+    useEffect(() => {
+        renderMap();
+    }, [layers, npcs, selectedNPC, tileSize]);
+
+    // Initialize canvas
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        canvas.width = width * tileSize;
+        canvas.height = height * tileSize;
+        renderMap();
+    }, [width, height, tileSize]);
 
     const addNPC = () => {
         const newNPC: NPC = {
@@ -229,7 +260,14 @@ const NPCView = ({
             <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                     <Card className="p-4 bg-slate-900">
-                        <canvas ref={canvasRef} />
+                        <canvas
+                            ref={canvasRef}
+                            className="border border-slate-700 cursor-crosshair"
+                            onMouseDown={handleMouseDown}
+                            onMouseMove={handleMouseMove}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseLeave}
+                        />
                     </Card>
                 </div>
 
@@ -255,79 +293,80 @@ const NPCView = ({
                                         <Trash2 className="h-4 w-4" />
                                     </button>
                                 </div>
-                                <div className="mt-2 space-y-2">
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <label className="text-xs text-slate-400">
-                                                X
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={npc.x}
-                                                onChange={(e) =>
-                                                    setNPCs(
-                                                        npcs.map((n) =>
-                                                            n.id === npc.id
-                                                                ? {
-                                                                      ...n,
-                                                                      x: parseInt(
-                                                                          e.target
-                                                                              .value
-                                                                      ),
-                                                                  }
-                                                                : n
-                                                        )
-                                                    )
-                                                }
-                                                className="w-full px-2 py-1 text-sm bg-slate-700 border border-slate-600 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-slate-400">
-                                                Y
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={npc.y}
-                                                onChange={(e) =>
-                                                    setNPCs(
-                                                        npcs.map((n) =>
-                                                            n.id === npc.id
-                                                                ? {
-                                                                      ...n,
-                                                                      y: parseInt(
-                                                                          e.target
-                                                                              .value
-                                                                      ),
-                                                                  }
-                                                                : n
-                                                        )
-                                                    )
-                                                }
-                                                className="w-full px-2 py-1 text-sm bg-slate-700 border border-slate-600 rounded-md"
-                                            />
-                                        </div>
-                                    </div>
+                                
+                                <div className="grid grid-cols-2 gap-2 mt-2">
                                     <div>
                                         <label className="text-xs text-slate-400">
-                                            Direction
+                                            X
                                         </label>
-                                        <select
-                                            value={npc.direction}
+                                        <input
+                                            type="number"
+                                            value={npc.x}
                                             onChange={(e) =>
-                                                updateNPCDirection(
-                                                    npc.id,
-                                                    e.target.value as NPC["direction"]
+                                                setNPCs(
+                                                    npcs.map((n) =>
+                                                        n.id === npc.id
+                                                            ? {
+                                                                  ...n,
+                                                                  x: parseInt(
+                                                                      e.target
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : n
+                                                    )
                                                 )
                                             }
                                             className="w-full px-2 py-1 text-sm bg-slate-700 border border-slate-600 rounded-md"
-                                        >
-                                            <option value="up">Up</option>
-                                            <option value="down">Down</option>
-                                            <option value="left">Left</option>
-                                            <option value="right">Right</option>
-                                        </select>
+                                        />
                                     </div>
+                                    
+                                    <div>
+                                        <label className="text-xs text-slate-400">
+                                            Y
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={npc.y}
+                                            onChange={(e) =>
+                                                setNPCs(
+                                                    npcs.map((n) =>
+                                                        n.id === npc.id
+                                                            ? {
+                                                                  ...n,
+                                                                  y: parseInt(
+                                                                      e.target
+                                                                          .value
+                                                                  ),
+                                                              }
+                                                            : n
+                                                    )
+                                                )
+                                            }
+                                            className="w-full px-2 py-1 text-sm bg-slate-700 border border-slate-600 rounded-md"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="mt-2">
+                                    <label className="text-xs text-slate-400">
+                                        Direction
+                                    </label>
+                                    <select
+                                        value={npc.direction}
+                                        onChange={(e) =>
+                                            updateNPCDirection(
+                                                npc.id,
+                                                e.target.value as NPC["direction"]
+                                            )
+                                        }
+                                        className="w-full px-2 py-1 text-sm bg-slate-700 border border-slate-600 rounded-md"
+                                    >
+                                        <option value="up">Up</option>
+                                        <option value="down">Down</option>
+                                        <option value="left">Left</option>
+                                        <option value="right">Right</option>
+                                    </select>
                                 </div>
                             </div>
                         ))}
