@@ -73,6 +73,7 @@ type CreateNewTileset struct {
 	TypeOfTileSet string `json:"typeOfTileset"`
 	FileName      string `json:"fileName"`
 }
+
 type HeldItem struct {
 	Name string
 }

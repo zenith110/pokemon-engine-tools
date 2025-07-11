@@ -7,35 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "../../components/ui/textarea"
 import { GetAllTilesets, GrabMusicTracks } from "../../../wailsjs/go/parsing/ParsingApp"
 import { Song } from "../../models/song"
+import { models } from "../../../wailsjs/go/models"
+import { CreateMapData } from "../types"
 
 interface CreateMapDialogProps {
-    onCreateMap: (mapData: {
-        width: number;
-        height: number;
-        type: string;
-        tileset: string;
-        mapName: string;
-        description?: string;
-        music?: string;
-        weather?: string;
-        timeOfDay?: string;
-        encounterRate?: number;
-        properties?: Record<string, any>;
-    }) => void;
+    onCreateMap: (mapData: CreateMapData) => void;
+    handleCreateMap: (mapData: CreateMapData) => void;
 }
 
-const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
+const CreateMapDialog = ({ handleCreateMap }: CreateMapDialogProps) => {
+    const [open, setOpen] = useState(false)
     const [width, setWidth] = useState("20")
     const [height, setHeight] = useState("20")
     const [type, setType] = useState("overworld")
-    const [tileset, setTileset] = useState("")
+    const [tileset, setTileset] = useState<models.Tileset>();
     const [mapName, setMapName] = useState("")
     const [description, setDescription] = useState("")
     const [music, setMusic] = useState("")
-    const [weather, setWeather] = useState("clear")
-    const [timeOfDay, setTimeOfDay] = useState("day")
-    const [encounterRate, setEncounterRate] = useState("10")
-    const [tilesets, setTilesets] = useState<string[]>([])
+    const [tilesets, setTilesets] = useState<models.Tileset[]>([])
     const [musicTracks, setMusicTracks] = useState<string[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
@@ -49,14 +38,14 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
                     GetAllTilesets(),
                     GrabMusicTracks()
                 ])
-                console.log(tilesetList)
+
                 setTilesets(tilesetList)
                 // Extract song names from Song objects
                 const songNames = musicList.map((song: Song) => song.Name)
                 setMusicTracks(songNames)
                 // Set first tileset as default if available
                 if (tilesetList.length > 0 && !tileset) {
-                    setTileset(tilesetList[0])
+                    setTileset(() => tilesetList[0])
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -68,13 +57,13 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
         fetchData()
     }, [])
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         // Validation
         if (!mapName.trim()) {
             setError("Map name is required")
             return
         }
-        if (!tileset || tileset === "no-tilesets") {
+        if (!tileset) {
             setError("Please select a tileset")
             return
         }
@@ -89,31 +78,39 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
 
         setError("")
         
-        const mapData = {
+        // Call handleCreateMap to navigate to map view with tileset loaded
+        handleCreateMap({
             width: parseInt(width),
             height: parseInt(height),
-            type,
-            tileset,
+            type: type,
+            tilesetPath: tileset?.Path || "",
+            tilesetSize: tileset?.TilesetHeight,
             mapName: mapName.trim(),
-            description: description.trim() || undefined,
-            music: music === "none" ? undefined : (music.trim() || undefined),
-            weather,
-            timeOfDay,
-            encounterRate: parseInt(encounterRate),
+            description: description.trim(),
+            music: music || "",
             properties: {
-                weather,
-                timeOfDay,
-                encounterRate: parseInt(encounterRate),
-                music: music === "none" ? undefined : (music.trim() || undefined),
-                description: description.trim() || undefined,
+                tilesetPath: tileset?.Path || "",
+                tilesetName: tileset?.Name || "",
+                tileSize: `${tileset.TilesetHeight}`,
             }
-        }
+        })
         
-        onCreateMap(mapData)
+        // Close the dialog
+        setOpen(false)
+        
+        // Reset all form fields
+        setMapName("")
+        setDescription("")
+        setWidth("20")
+        setHeight("20")
+        setType("overworld")
+        setTileset(undefined)
+        setMusic("")
+        setError("")
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>New Map</Button>
             </DialogTrigger>
@@ -201,31 +198,30 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
                                 </SelectContent>
                             </Select>
                         </div>
-                        {tilesets.length > 1 ?  <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="tileset" className="text-right">Tileset *</Label>
-                            <Select 
-                                value={tileset || undefined} 
-                                onValueChange={setTileset} 
-                                disabled={loading}
-                            >
-                                <SelectTrigger className="col-span-3 bg-slate-800 border-slate-700 text-white">
-                                    <SelectValue placeholder={loading ? "Loading tilesets..." : "Select tileset"} />
-                                </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    {tilesets.length > 0 ? (
-                                        tilesets.map((tilesetName) => (
-                                            <SelectItem key={tilesetName} value={tilesetName}>
-                                                {tilesetName}
+                        {tilesets.length >= 1 && (
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="tileset" className="text-right">Tileset *</Label>
+                                <Select 
+                                    value={tileset?.Name || undefined} 
+                                    onValueChange={(value) => {
+                                        const selectedTileset = tilesets.find(t => t.Name === value);
+                                        setTileset(selectedTileset);
+                                    }} 
+                                    disabled={loading}
+                                >
+                                    <SelectTrigger className="col-span-3 bg-slate-800 border-slate-700 text-white">
+                                        <SelectValue placeholder={loading ? "Loading tilesets..." : "Select tileset"} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                        {tilesets.map((tilesetObj) => (
+                                            <SelectItem key={tilesetObj.Name} value={tilesetObj.Name}>
+                                                {tilesetObj.Name}
                                             </SelectItem>
-                                        ))
-                                    ) : (
-                                        <SelectItem value="no-tilesets" disabled>
-                                            No tilesets available
-                                        </SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div> : <></>}
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                        
                     </div>
 
@@ -240,28 +236,11 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
                                     <SelectValue placeholder="Select background music (optional)" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    <SelectItem value="none">No music</SelectItem>
                                     {musicTracks.map((trackName) => (
                                         <SelectItem key={trackName} value={trackName}>
                                             {trackName}
                                         </SelectItem>
                                     ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="weather" className="text-right">Weather</Label>
-                            <Select value={weather} onValueChange={setWeather}>
-                                <SelectTrigger className="col-span-3 bg-slate-800 border-slate-700 text-white">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    <SelectItem value="clear">Clear</SelectItem>
-                                    <SelectItem value="rain">Rain</SelectItem>
-                                    <SelectItem value="snow">Snow</SelectItem>
-                                    <SelectItem value="fog">Fog</SelectItem>
-                                    <SelectItem value="storm">Storm</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -277,7 +256,7 @@ const CreateMapDialog = ({ onCreateMap }: CreateMapDialogProps) => {
                         <Button 
                             onClick={handleSubmit} 
                             className="bg-tealBlue hover:bg-tealBlue/90 text-white"
-                            disabled={!mapName.trim() || !tileset || tileset === "no-tilesets" || tilesets.length === 0}
+                            disabled={!mapName.trim() || !tileset || tilesets.length === 0}
                         >
                             Create Map
                         </Button>

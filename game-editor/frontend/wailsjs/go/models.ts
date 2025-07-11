@@ -192,6 +192,96 @@ export namespace models {
 	        this.Name = source["Name"];
 	    }
 	}
+	export class Properties {
+	    TilesetImagePath: string;
+	    FilePath: string;
+	    TypeOfMap: string;
+	    BgMusic: string;
+	    Description: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Properties(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.TilesetImagePath = source["TilesetImagePath"];
+	        this.FilePath = source["FilePath"];
+	        this.TypeOfMap = source["TypeOfMap"];
+	        this.BgMusic = source["BgMusic"];
+	        this.Description = source["Description"];
+	    }
+	}
+	export class Map {
+	    Name: string;
+	    ID: number;
+	    Width: number;
+	    Height: number;
+	    Properties: Properties[];
+	    TileSize: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Map(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.ID = source["ID"];
+	        this.Width = source["Width"];
+	        this.Height = source["Height"];
+	        this.Properties = this.convertValues(source["Properties"], Properties);
+	        this.TileSize = source["TileSize"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class MapEditerMapData {
+	    Map: Map[];
+	
+	    static createFrom(source: any = {}) {
+	        return new MapEditerMapData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Map = this.convertValues(source["Map"], Map);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	
 	export class Moves {
 	    Name: string;
@@ -434,6 +524,7 @@ export namespace models {
 	        this.VersionOfEngine = source["VersionOfEngine"];
 	    }
 	}
+	
 	export class Song {
 	    Name: string;
 	    Path: string;
@@ -448,6 +539,28 @@ export namespace models {
 	        this.Name = source["Name"];
 	        this.Path = source["Path"];
 	        this.ID = source["ID"];
+	    }
+	}
+	export class Tileset {
+	    Name: string;
+	    TilesetWidth: number;
+	    TilesetHeight: number;
+	    TypeOfTileSet: string;
+	    Path: string;
+	    TilesetDescription: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Tileset(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.TilesetWidth = source["TilesetWidth"];
+	        this.TilesetHeight = source["TilesetHeight"];
+	        this.TypeOfTileSet = source["TypeOfTileSet"];
+	        this.Path = source["Path"];
+	        this.TilesetDescription = source["TilesetDescription"];
 	    }
 	}
 	export class TrainerClasses {

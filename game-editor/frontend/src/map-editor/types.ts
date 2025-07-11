@@ -11,7 +11,6 @@ export interface MapTile {
   x: number;
   y: number;
   tileId: string;
-  autoTileId?: string;
 }
 
 export interface MapLayer {
@@ -51,6 +50,19 @@ export interface MapEncounter {
   maxLevel: number;
 }
 
+
+export interface CreateMapData {
+  width: number;
+  height: number;
+  type: string;
+  tilesetPath: string;
+  tilesetSize: number;
+  mapName: string;
+  description?: string;
+  music?: string;
+  properties?: Record<string, any>;
+}
+
 export interface MapData {
   id: string;
   name: string;
@@ -71,20 +83,6 @@ export interface MapData {
     description?: string;
     [key: string]: any;
   };
-}
-
-export interface CreateMapData {
-  width: number;
-  height: number;
-  type: string;
-  tileset: string;
-  mapName: string;
-  description?: string;
-  music?: string;
-  weather?: string;
-  timeOfDay?: string;
-  encounterRate?: number;
-  properties?: Record<string, any>;
 }
 
 export interface CreateTilesetData {
@@ -108,8 +106,12 @@ export interface MapViewProps {
   paintMode: 'stamp' | 'fill' | 'remove';
 }
 
+export interface Tileset {
+	name:               string;
+	path:               string
+}
 export interface MapEditorViewProps {
-  map: MapData;
-  onMapChange: (map: MapData) => void;
+  map: any; // models.Map from Go backend
+  onMapChange: (map: any) => void; // models.Map from Go backend
   onBack: () => void;
 }

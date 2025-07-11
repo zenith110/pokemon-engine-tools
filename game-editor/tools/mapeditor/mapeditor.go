@@ -190,8 +190,9 @@ func (a *MapEditorApp) CreateTilesetImage(fileName string) map[string]any {
 }
 
 func (a *MapEditorApp) GetTilesetImageData(filePath string) map[string]any {
+	localFilePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, filePath)
 	// Validate file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	if _, err := os.Stat(localFilePath); os.IsNotExist(err) {
 		return map[string]any{
 			"success":      false,
 			"errorMessage": "File does not exist",
@@ -199,7 +200,7 @@ func (a *MapEditorApp) GetTilesetImageData(filePath string) map[string]any {
 	}
 
 	// Read file data
-	fileData, err := os.ReadFile(filePath)
+	fileData, err := os.ReadFile(localFilePath)
 	if err != nil {
 		return map[string]any{
 			"success":      false,
@@ -212,8 +213,9 @@ func (a *MapEditorApp) GetTilesetImageData(filePath string) map[string]any {
 	dataURL := fmt.Sprintf("data:image/png;base64,%s", base64Data)
 
 	return map[string]any{
-		"success":   true,
-		"imageData": dataURL,
+		"success":     true,
+		"imageData":   dataURL,
+		"tilesetPath": localFilePath,
 	}
 }
 
@@ -277,4 +279,95 @@ func (a *MapEditorApp) CreateTileset(createNewTilesetData coreModels.CreateNewTi
 	return map[string]any{
 		"success": true,
 	}
+}
+
+func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string]any {
+	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
+	var existingMap coreModels.MapEditerMapData
+	file, err := os.Open(mapTomlPath)
+	if err == nil {
+		defer file.Close()
+		fileData, err := io.ReadAll(file)
+		if err == nil && len(fileData) > 0 {
+			// Try to unmarshal existing data
+			if err := toml.Unmarshal(fileData, &existingMap); err == nil {
+				// Append new data
+				existingMap.Map = append(existingMap.Map, mapData.Map...)
+			} else {
+				// Bad TOML, replace with new data
+				existingMap = mapData
+			}
+		} else {
+			// File is empty or unreadable, replace with new data
+			existingMap = mapData
+		}
+	} else if os.IsNotExist(err) {
+		// File does not exist, use new data
+		existingMap = mapData
+	} else {
+		// Some other error opening file
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error opening maps.toml: %w", err),
+		}
+	}
+
+	// Marshal and write back
+	out, err := toml.Marshal(existingMap)
+	if err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error marshaling maps TOML: %w", err),
+		}
+	}
+	if err := os.WriteFile(mapTomlPath, out, 0644); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error writing maps TOML: %w", err),
+		}
+	}
+	return map[string]any{
+		"success": true,
+	}
+}
+
+func (a *MapEditorApp) DeleteMapByID(id int) map[string]any {
+	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
+	var data coreModels.MapEditerMapData
+
+	// Read the file
+	file, err := os.Open(mapTomlPath)
+	if err != nil {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error opening file: %v", err)}
+	}
+	defer file.Close()
+
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error reading file: %v", err)}
+	}
+
+	if err := toml.Unmarshal(fileData, &data); err != nil {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error parsing TOML: %v", err)}
+	}
+
+	// Filter out the map with the given ID
+	newMaps := make([]coreModels.Map, 0, len(data.Map))
+	for _, m := range data.Map {
+		if m.ID != id {
+			newMaps = append(newMaps, m)
+		}
+	}
+	data.Map = newMaps
+
+	// Write back to TOML
+	out, err := toml.Marshal(data)
+	if err != nil {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error marshaling TOML: %v", err)}
+	}
+	if err := os.WriteFile(mapTomlPath, out, 0644); err != nil {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error writing TOML: %v", err)}
+	}
+
+	return map[string]any{"success": true}
 }

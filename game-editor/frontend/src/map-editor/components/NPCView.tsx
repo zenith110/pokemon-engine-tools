@@ -94,7 +94,7 @@ const NPCView = ({
 
             for (const tile of layer.tiles) {
                 try {
-                    const tileImage = await loadTileImage(tile.autoTileId || tile.tileId);
+                    const tileImage = await loadTileImage(tile.tileId);
                     ctx.drawImage(
                         tileImage,
                         tile.x * tileSize,
@@ -103,7 +103,7 @@ const NPCView = ({
                         tileSize
                     );
                 } catch (error) {
-                    console.error('Failed to load tile image:', tile.autoTileId || tile.tileId);
+                    console.error('Failed to load tile image:', tile.tileId);
                 }
             }
         }

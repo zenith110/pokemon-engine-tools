@@ -1,9 +1,10 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { ScrollArea } from "../../components/ui/scroll-area"
 import { Button } from "../../components/ui/button"
-import { Upload, ZoomIn, ZoomOut } from "lucide-react"
+import { ZoomIn, ZoomOut } from "lucide-react"
 import { ResizableBox } from "react-resizable"
 import "react-resizable/css/styles.css"
+import { GetTilesetImageData } from "../../../wailsjs/go/mapeditor/MapEditorApp"
 
 export interface SelectedTile {
     id: string;
@@ -17,13 +18,15 @@ export interface SelectedTile {
 interface TilePaletteProps {
     selectedTile: SelectedTile | null;
     setSelectedTile: (tile: SelectedTile | null) => void;
+    tilesetPath?: string;
 }
 
 const TILE_SIZE = 16
 const MIN_SCALE = 1
 const MAX_SCALE = 6
 
-const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
+const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePaletteProps) => {
+    console.log("TilePalette component rendered with tilesetPath:", tilesetPath)
     const [tilesetImage, setTilesetImage] = useState<string>("")
     const [tilesetDims, setTilesetDims] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
     const [error, setError] = useState<string>("")
@@ -31,37 +34,52 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
     const [scale, setScale] = useState<number>(2)
     const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
     const [dragging, setDragging] = useState<boolean>(false)
-    const fileInputRef = useRef<HTMLInputElement>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
 
-    const handleTilesetImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (!file) return
-        setError("")
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            const img = new Image()
-            img.onload = () => {
-                if (img.width % TILE_SIZE !== 0 || img.height % TILE_SIZE !== 0) {
-                    setError("Tileset must have dimensions that are multiples of 32 pixels")
-                    return
-                }
-                setTilesetDims({ width: img.width, height: img.height })
-                // Store as data URL
-                const canvas = document.createElement('canvas')
-                canvas.width = img.width
-                canvas.height = img.height
-                const ctx = canvas.getContext('2d')
-                if (ctx) {
-                    ctx.drawImage(img, 0, 0)
-                    setTilesetImage(canvas.toDataURL('image/png'))
-                }
+    // Load tileset image when tilesetPath changes
+    useEffect(() => {
+        const loadTilesetImage = async () => {
+            console.log("Loading tileset image for path:", tilesetPath)
+            if (!tilesetPath) {
+                console.log("No tileset path provided")
+                setTilesetImage("")
+                setTilesetDims({ width: 0, height: 0 })
+                setError("")
+                return
             }
-            img.src = e.target?.result as string
+
+            try {
+                setError("")
+                console.log("Calling GetTilesetImageData with path:", tilesetPath)
+                const result = await GetTilesetImageData(tilesetPath)
+                console.log("GetTilesetImageData result:", result)
+                
+                if (result.success) {
+                    setTilesetImage(result.imageData)
+                    console.log("Tileset image loaded successfully")
+                    
+                    // Get image dimensions
+                    const img = new Image()
+                    img.onload = () => {
+                        console.log("Image loaded with dimensions:", img.width, "x", img.height)
+                        setTilesetDims({ width: img.width, height: img.height })
+                    }
+                    img.src = result.imageData
+                } else {
+                    console.error("Failed to load tileset image:", result.errorMessage)
+                    setError(result.errorMessage || "Failed to load tileset image")
+                }
+            } catch (error) {
+                console.error("Error loading tileset:", error)
+                setError(`Error loading tileset: ${error}`)
+            }
         }
-        reader.readAsDataURL(file)
-    }
+
+        loadTilesetImage()
+    }, [tilesetPath])
+
+
 
     const getTileCoords = (clientX: number, clientY: number, rect: DOMRect) => {
         const x = clientX - rect.left
@@ -72,9 +90,14 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
     }
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!tilesetImage) return
+        console.log("Mouse down event triggered")
+        if (!tilesetImage) {
+            console.log("No tileset image available")
+            return
+        }
         const rect = e.currentTarget.getBoundingClientRect()
         const { x, y } = getTileCoords(e.clientX, e.clientY, rect)
+        console.log("Mouse down at tile coordinates:", x, y)
         setDragStart({ x, y })
         setSelectedRegion({ x, y, w: TILE_SIZE, h: TILE_SIZE })
         setDragging(true)
@@ -103,7 +126,12 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
     }
 
     const handleMouseUp = () => {
-        if (!tilesetImage || !selectedRegion) return
+        console.log("Mouse up event triggered")
+        if (!tilesetImage || !selectedRegion) {
+            console.log("No tileset image or selected region")
+            return
+        }
+        console.log("Selected region:", selectedRegion)
         setDragging(false)
         // Extract the selected region using a canvas
         if (!canvasRef.current) {
@@ -141,14 +169,16 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
                     }
                 }
             }
-            setSelectedTile({
+            const newSelectedTile = {
                 id: `tile_${selectedRegion.x}_${selectedRegion.y}_${selectedRegion.w}_${selectedRegion.h}`,
                 name: `Tiles (${selectedRegion.x},${selectedRegion.y}) size ${selectedRegion.w}x${selectedRegion.h}`,
                 image: canvasRef.current!.toDataURL('image/png'),
                 width: selectedRegion.w / TILE_SIZE,
                 height: selectedRegion.h / TILE_SIZE,
                 subTiles
-            })
+            }
+            console.log("Setting selected tile:", newSelectedTile)
+            setSelectedTile(newSelectedTile)
         }
         img.src = tilesetImage
     }
@@ -298,25 +328,7 @@ const TilePalette = ({ selectedTile, setSelectedTile }: TilePaletteProps) => {
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex flex-col">
                         <h3 className="text-lg font-semibold">Tile Palette</h3>
-                        <p className="text-xs text-gray-400">Tilesets must be multiples of 16x16 pixels</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <input
-                            type="file"
-                            accept=".png"
-                            onChange={handleTilesetImport}
-                            ref={fileInputRef}
-                            className="hidden"
-                        />
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="h-8 w-8"
-                            title="Import Tileset (32x32 pixels)"
-                        >
-                            <Upload className="h-4 w-4" />
-                        </Button>
+                        <p className="text-xs text-gray-400">Select tiles from the loaded tileset</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2 mb-2">

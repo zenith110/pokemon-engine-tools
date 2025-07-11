@@ -4,7 +4,6 @@ import { Map, Grid, Users, Zap } from "lucide-react"
 
 // Components
 import TilePalette from "./TilePalette"
-import AutoTilePalette from "./AutoTilePalette"
 import LayerPanel from "./LayerPanel"
 import MapView from "./MapView"
 import PermissionView from "./PermissionView"
@@ -17,59 +16,128 @@ import { MapEditorViewProps } from "../types"
 type ViewMode = "map" | "permissions" | "npcs" | "encounters"
 
 const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
+  // Convert Go model to frontend MapData structure
+  const mapData = {
+    id: map.ID?.toString() || "1",
+    name: map.Name || "Untitled Map",
+    width: map.Width || 20,
+    height: map.Height || 20,
+    tileSize: 16,
+    type: map.Properties?.[0]?.TypeOfMap || "overworld",
+    tileset: map.Properties?.[0]?.TilesetImagePath || "",
+    permissions: [],
+    npcs: [],
+    encounters: [],
+    properties: {
+      encounterRate: 10,
+      music: map.Properties?.[0]?.BgMusic || "",
+      description: map.Properties?.[0]?.Description || "",
+    }
+  }
+
+  // LIFTED STATE: layers
+  const [layers, setLayers] = useState([
+    {
+      id: 1,
+      name: "Ground",
+      visible: true,
+      locked: false,
+      tiles: [],
+    },
+    {
+      id: 2,
+      name: "Objects",
+      visible: true,
+      locked: false,
+      tiles: [],
+    },
+  ]);
+
+  // History for layers
+  const [history, setHistory] = useState<Array<typeof layers>>([[
+    {
+      id: 1,
+      name: "Ground",
+      visible: true,
+      locked: false,
+      tiles: [],
+    },
+    {
+      id: 2,
+      name: "Objects",
+      visible: true,
+      locked: false,
+      tiles: [],
+    },
+  ]]);
+  const [historyIndex, setHistoryIndex] = useState<number>(0);
+
   const [activeView, setActiveView] = useState<ViewMode>("map")
   const [selectedTile, setSelectedTile] = useState<SelectedTile | null>(null)
   const [selectedAutoTile, setSelectedAutoTile] = useState<{ id: string; name: string; image: string } | null>(null)
   const [activeLayerId, setActiveLayerId] = useState<number>(1)
   const [paintMode, setPaintMode] = useState<'stamp' | 'fill' | 'remove'>('stamp')
-  const [historyIndex, setHistoryIndex] = useState<number>(0)
-  const [history, setHistory] = useState<Array<typeof map>>([map])
 
-  const handleMapChange = (updatedMap: typeof map) => {
+  const handleMapChange = (updatedMapData: typeof mapData) => {
+    // Convert back to Go model for the callback
+    const updatedMap = {
+      ...map,
+      Name: updatedMapData.name,
+      Width: updatedMapData.width,
+      Height: updatedMapData.height,
+      Properties: [{
+        ...map.Properties?.[0],
+        TypeOfMap: updatedMapData.type,
+        TilesetImagePath: updatedMapData.tileset,
+        BgMusic: updatedMapData.properties?.music || "",
+        Description: updatedMapData.properties?.description || ""
+      }]
+    }
     onMapChange(updatedMap)
-    // Update history
-    const newHistory = history.slice(0, historyIndex + 1)
-    newHistory.push(updatedMap)
-    setHistory(newHistory)
-    setHistoryIndex(newHistory.length - 1)
   }
 
+  // Undo/redo for layers
   const undo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1)
-      onMapChange(history[historyIndex - 1])
+      setHistoryIndex(historyIndex - 1);
+      setLayers(history[historyIndex - 1]);
     }
-  }
+  };
 
   const redo = () => {
     if (historyIndex < history.length - 1) {
-      setHistoryIndex(historyIndex + 1)
-      onMapChange(history[historyIndex + 1])
+      setHistoryIndex(historyIndex + 1);
+      setLayers(history[historyIndex + 1]);
     }
-  }
+  };
 
   const clearMap = () => {
-    const clearedMap = {
-      ...map,
-      layers: map.layers.map(layer => ({ ...layer, tiles: [] }))
+    const clearedMapData = {
+      ...mapData,
+      layers: layers.map(layer => ({ ...layer, tiles: [] }))
     }
-    handleMapChange(clearedMap)
+    handleMapChange(clearedMapData)
   }
 
-  const handleLayerChange = (layers: typeof map.layers) => {
-    handleMapChange({ ...map, layers })
+  // Update handleLayerChange to update both state and history
+  const handleLayerChange = (newLayers: typeof layers) => {
+    setLayers(newLayers);
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newLayers);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+
+  const handlePermissionsChange = (permissions: typeof mapData.permissions) => {
+    handleMapChange({ ...mapData, permissions })
   }
 
-  const handlePermissionsChange = (permissions: typeof map.permissions) => {
-    handleMapChange({ ...map, permissions })
+  const handleNPCsChange = (npcs: typeof mapData.npcs) => {
+    handleMapChange({ ...mapData, npcs })
   }
 
-  const handleNPCsChange = (npcs: typeof map.npcs) => {
-    handleMapChange({ ...map, npcs })
-  }
-
-  const handleEncountersChange = (encounters: typeof map.encounters) => {
-    handleMapChange({ ...map, encounters })
+  const handleEncountersChange = (encounters: typeof mapData.encounters) => {
+    handleMapChange({ ...mapData, encounters })
   }
 
   const renderViewTabs = () => (
@@ -110,12 +178,12 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       case "map":
         return (
           <MapView
-            width={map.width}
-            height={map.height}
-            tileSize={map.tileSize}
+            width={mapData.width}
+            height={mapData.height}
+            tileSize={mapData.tileSize}
             selectedTile={selectedTile}
             selectedAutoTile={selectedAutoTile}
-            layers={map.layers}
+            layers={layers}
             setLayers={handleLayerChange}
             activeLayerId={activeLayerId}
             paintMode={paintMode}
@@ -124,29 +192,29 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       case "permissions":
         return (
             <PermissionView
-            width={map.width}
-            height={map.height}
-            tileSize={map.tileSize}
-            layers={map.layers}                // <-- Add this line
-            permissions={map.permissions}
+            width={mapData.width}
+            height={mapData.height}
+            tileSize={mapData.tileSize}
+            layers={layers}
+            permissions={mapData.permissions}
             setPermissions={handlePermissionsChange}
           />
         )
       case "npcs":
         return (
           <NPCView
-            width={map.width}
-            height={map.height}
-            tileSize={map.tileSize}
-            layers={map.layers}
-            npcs={map.npcs}
+            width={mapData.width}
+            height={mapData.height}
+            tileSize={mapData.tileSize}
+            layers={layers}
+            npcs={mapData.npcs}
             setNPCs={handleNPCsChange}
           />
         )
       case "encounters":
         return (
           <EncounterView
-            encounters={map.encounters}
+            encounters={mapData.encounters}
             setEncounters={handleEncountersChange}
           />
         )
@@ -167,7 +235,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           >
             ← Back to Maps
           </Button>
-          <h1 className="text-xl font-semibold">{map.name}</h1>
+          <h1 className="text-xl font-semibold">{mapData.name}</h1>
         </div>
       </div>
 
@@ -177,6 +245,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           <TilePalette
             selectedTile={selectedTile}
             setSelectedTile={setSelectedTile}
+            tilesetPath={mapData.tileset}
           />
         </div>
 
@@ -189,7 +258,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
               <MapToolbar
                 paintMode={paintMode}
                 selectedTile={selectedTile}
-                tileSize={map.tileSize}
+                tileSize={mapData.tileSize}
                 historyIndex={historyIndex}
                 historyLength={history.length}
                 undo={undo}
@@ -210,7 +279,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
         {activeView === "map" && (
           <div className="w-64 border-l border-slate-800 p-4">
             <LayerPanel
-              layers={map.layers}
+              layers={layers}
               setLayers={handleLayerChange}
               activeLayerId={activeLayerId}
               setActiveLayerId={setActiveLayerId}

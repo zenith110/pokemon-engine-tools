@@ -3,7 +3,9 @@
 import {models} from '../models';
 import {parsing} from '../models';
 
-export function GetAllTilesets():Promise<Array<string>>;
+export function GetAllMaps():Promise<Array<models.Map>>;
+
+export function GetAllTilesets():Promise<Array<models.Tileset>>;
 
 export function GrabAllMoves():Promise<models.AllMoves>;
 

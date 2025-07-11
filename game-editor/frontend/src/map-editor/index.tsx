@@ -1,118 +1,45 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import CreateMapDialog from "./components/CreateMapDialog"
 import CreateTilesetDialog from "./components/CreateTilesetDialog"
 import MapEditorView from "./components/MapEditorView"
-import { MapData, CreateMapData, CreateTilesetData, MapTile } from "./types"
-
-// Default map templates
-const DEFAULT_MAP_TEMPLATES = {
-  starter: {
-    name: "Starter Town",
-    width: 20,
-    height: 20,
-    type: "overworld",
-    tileset: "default",
-  },
-  route: {
-    name: "First Route", 
-    width: 30,
-    height: 20,
-    type: "overworld",
-    tileset: "grass",
-  },
-} as const
-
-// Default layer configuration
-const DEFAULT_LAYERS = [
-  {
-    id: 1,
-    name: "Ground",
-    visible: true,
-    locked: false,
-    tiles: [] as MapTile[],
-  },
-  {
-    id: 2,
-    name: "Objects", 
-    visible: true,
-    locked: false,
-    tiles: [] as MapTile[],
-  },
-]
-
+import { CreateMapData, CreateTilesetData, MapTile, MapData } from "./types"
+import { models } from "../../wailsjs/go/models"
+import { GetAllMaps } from "../../wailsjs/go/parsing/ParsingApp"; // adjust path as needed
+import { DeleteMapByID } from "../../wailsjs/go/mapeditor/MapEditorApp"
 // Hook for managing maps
 const useMaps = () => {
-  const [maps, setMaps] = useState<MapData[]>([
-    {
-      id: "1",
-      ...DEFAULT_MAP_TEMPLATES.starter,
-      tileSize: 16,
-      layers: [...DEFAULT_LAYERS],
-      permissions: [],
-      npcs: [],
-      encounters: [],
-      properties: {
-        weather: "clear",
-        timeOfDay: "day",
-        encounterRate: 10,
-        music: undefined,
-        description: undefined,
-      }
-    },
-    {
-      id: "2", 
-      ...DEFAULT_MAP_TEMPLATES.route,
-      tileSize: 16,
-      layers: [...DEFAULT_LAYERS],
-      permissions: [],
-      npcs: [],
-      encounters: [],
-      properties: {
-        weather: "clear",
-        timeOfDay: "day",
-        encounterRate: 10,
-        music: undefined,
-        description: undefined,
-      }
-    },
-  ])
+  const [maps, setMaps] = useState<models.Map[]>([]);
 
-  const createMap = (mapData: CreateMapData) => {
-    const newMap: MapData = {
-      id: crypto.randomUUID(),
-      name: mapData.mapName,
-      width: mapData.width,
-      height: mapData.height,
-      tileSize: 16,
-      type: mapData.type,
-      tileset: mapData.tileset,
-      layers: [...DEFAULT_LAYERS],
-      permissions: [],
-      npcs: [],
-      encounters: [],
-      properties: mapData.properties || {
-        weather: mapData.weather || "clear",
-        timeOfDay: mapData.timeOfDay || "day",
-        encounterRate: mapData.encounterRate || 10,
-        music: mapData.music,
-        description: mapData.description,
+  useEffect(() => {
+    const fetchMaps = async () => {
+      try {
+        const result = await GetAllMaps();
+        if (Array.isArray(result) && result.length > 0) {
+          setMaps(result);
+        }else{
+          setMaps([]);
+        }
+      } catch (e) {
       }
+    };
+    fetchMaps();
+  }, []);
+
+
+  const updateMap = (updatedMap: models.Map) => {
+    setMaps(prev => prev.map(m => m.ID === updatedMap.ID ? updatedMap : m))
+  }
+
+  const deleteMap = async(mapId: number) => {
+    const mapDelete = await DeleteMapByID(mapId)
+    if(mapDelete.success === true){
+      setMaps(prev => prev.filter(m => m.ID !== mapId))
     }
-    setMaps(prev => [...prev, newMap])
-    return newMap
   }
 
-  const updateMap = (updatedMap: MapData) => {
-    setMaps(prev => prev.map(m => m.id === updatedMap.id ? updatedMap : m))
-  }
-
-  const deleteMap = (mapId: string) => {
-    setMaps(prev => prev.filter(m => m.id !== mapId))
-  }
-
-  return { maps, createMap, updateMap, deleteMap }
+  return { maps, setMaps, updateMap, deleteMap }
 }
 
 // Component for map selection screen
@@ -122,25 +49,25 @@ const MapSelectionScreen = ({
   onSelectMap,
   onDeleteMap
 }: {
-  maps: MapData[]
+  maps: models.Map[]
   onCreateMap: (mapData: CreateMapData) => void
-  onSelectMap: (map: MapData) => void
-  onDeleteMap: (mapId: string) => void
+  onSelectMap: (map: models.Map) => void
+  onDeleteMap: (mapId: number) => void
 }) => (
   <div className="h-screen flex flex-col bg-slate-950 text-white p-8">
     <div className="flex items-center justify-between mb-8">
       <h1 className="text-2xl font-bold">Map Editor</h1>
       <div className="flex items-center gap-4">
-        <CreateMapDialog onCreateMap={onCreateMap} />
+        <CreateMapDialog onCreateMap={onCreateMap} handleCreateMap={onCreateMap} />
         <div className="text-slate-600">|</div>
         <CreateTilesetDialog/>
       </div>
     </div>
     
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {maps.map((map) => (
+      {maps.length > 0 ? maps.map((map) => (
         <Card
-          key={map.id}
+          key={map.ID}
           className="p-6 bg-slate-900 border-slate-800 hover:border-slate-700 transition-colors relative group"
         >
           {/* Main card content */}
@@ -148,28 +75,19 @@ const MapSelectionScreen = ({
             className="cursor-pointer"
             onClick={() => onSelectMap(map)}
           >
-            <h3 className="text-lg font-semibold mb-2">{map.name}</h3>
+            <h3 className="text-lg font-semibold mb-2">{map.Name}</h3>
             <div className="space-y-2 text-sm text-slate-400">
-              <p>Size: {map.width}x{map.height}</p>
-              <p>Type: {map.type}</p>
-              <p>Tileset: {map.tileset}</p>
-              {map.properties?.description && (
-                <p className="text-xs text-slate-500 mt-2">{map.properties.description}</p>
+              <p>Size: {map.Width}x{map.Height}</p>
+              <p>Type: {map.Properties[0]?.TypeOfMap || "overworld"}</p>
+              <p>Tileset: {map.Properties[0]?.TilesetImagePath || ""}</p>
+              <p>Tile Size: {map.TileSize}x{map.TileSize}</p>
+              {map.Properties[0]?.Description && (
+                <p className="text-xs text-slate-500 mt-2">Description: {map.Properties[0].Description}</p>
               )}
-              <div className="flex gap-2 mt-2">
-                {map.properties?.weather && (
+              <div className="flex gap-2 mt-2 w-full justify-center">
+                {map.Properties[0]?.BgMusic && (
                   <span className="px-2 py-1 bg-slate-800 rounded text-xs">
-                    {map.properties.weather}
-                  </span>
-                )}
-                {map.properties?.timeOfDay && (
-                  <span className="px-2 py-1 bg-slate-800 rounded text-xs">
-                    {map.properties.timeOfDay}
-                  </span>
-                )}
-                {map.properties?.encounterRate && (
-                  <span className="px-2 py-1 bg-slate-800 rounded text-xs">
-                    {map.properties.encounterRate}% encounters
+                    Music: {map.Properties[0].BgMusic}
                   </span>
                 )}
               </div>
@@ -198,8 +116,8 @@ const MapSelectionScreen = ({
               className="h-8 w-8 p-0 bg-red-900/20 hover:bg-red-900/40 text-red-400 hover:text-red-300"
               onClick={(e) => {
                 e.stopPropagation()
-                if (confirm(`Are you sure you want to delete "${map.name}"?`)) {
-                  onDeleteMap(map.id)
+                if (confirm(`Are you sure you want to delete "${map.Name}"?`)) {
+                  onDeleteMap(map.ID)
                 }
               }}
               title="Delete Map"
@@ -210,18 +128,75 @@ const MapSelectionScreen = ({
             </Button>
           </div>
         </Card>
-      ))}
+      )) : <p>No maps were found. Create one using the New Map button.</p>}
     </div>
   </div>
 )
 
 const MapEditor = () => {
-  const { maps, createMap, updateMap, deleteMap } = useMaps()
-  const [selectedMap, setSelectedMap] = useState<MapData | null>(null)
+  const { maps, setMaps, updateMap, deleteMap } = useMaps()
+  const [selectedMap, setSelectedMap] = useState<models.Map | null>(null)
 
-  const handleCreateMap = (mapData: CreateMapData) => {
-    const newMap = createMap(mapData)
-    setSelectedMap(newMap)
+  const handleCreateMap = async (mapData: CreateMapData) => {
+    try {
+      console.log(mapData)
+      // Create the map data for backend
+      const backendMapData = {
+        Map: [{
+          Name: mapData.mapName,
+          ID: Date.now(),
+          Width: mapData.width,
+          Height: mapData.height,
+          TileSize: mapData.tilesetSize,
+          Properties: [{
+            TilesetImagePath: mapData.tilesetPath,
+            FilePath: `data/assets/maps/${mapData.mapName.toLowerCase().replace(/\s+/g, '_')}.json`,
+            TypeOfMap: mapData.type,
+            BgMusic: mapData.music || "",
+            Description: mapData.description || "",
+            TileSize: mapData.tilesetSize
+          }],
+        }]
+      }
+      
+      // Call backend to create the map
+      const { CreateMap } = await import("../../wailsjs/go/mapeditor/MapEditorApp")
+      const createdMap = await CreateMap(models.MapEditerMapData.createFrom(backendMapData))
+      
+      if (createdMap.success === true) {
+        // Create the map for frontend state
+        const newMap = new models.Map({
+          Name: mapData.mapName,
+          ID: Date.now(),
+          Width: mapData.width,
+          Height: mapData.height,
+          Properties: [{
+            TilesetImagePath: mapData.tilesetPath,
+            FilePath: `data/assets/maps/${mapData.mapName.toLowerCase().replace(/\s+/g, '_')}.json`,
+            TypeOfMap: mapData.type,
+            BgMusic: mapData.music || "",
+            Description: mapData.description || ""
+          }],
+          Encounter: []
+        })
+        
+        // Add the new map to the maps list
+        setMaps(prev => [...prev, newMap])
+        
+        // Set the new map as selected
+        setSelectedMap(newMap)
+        // Show success toast
+        alert(`Map "${mapData.mapName}" created successfully!`)
+      } else {
+        console.error("Failed to create map:", createdMap.errorMessage)
+        // Show error toast
+        alert(`Failed to create map: ${createdMap.errorMessage || "Unknown error"}`)
+      }
+    } catch (error) {
+      console.error("Error creating map:", error)
+      // Show error toast
+      alert(`Error creating map: ${error}`)
+    }
   }
 
   const handleCreateTileset = (tilesetData: CreateTilesetData) => {
@@ -230,17 +205,17 @@ const MapEditor = () => {
     alert(`Tileset "${tilesetData.name}" created successfully!`)
   }
 
-  const handleMapChange = (updatedMap: MapData) => {
+  const handleMapChange = (updatedMap: models.Map) => {
     setSelectedMap(updatedMap)
     updateMap(updatedMap)
   }
 
   const handleBack = () => setSelectedMap(null)
 
-  const handleDeleteMap = (mapId: string) => {
+  const handleDeleteMap = (mapId: number) => {
     deleteMap(mapId)
     // If the deleted map was selected, clear selection
-    if (selectedMap?.id === mapId) {
+    if (selectedMap?.ID === mapId) {
       setSelectedMap(null)
     }
   }
