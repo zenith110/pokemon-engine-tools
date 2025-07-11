@@ -10,7 +10,7 @@ go 1.22.2
 
 require (
 	github.com/wailsapp/wails/v2 v2.10.1
-	github.com/zenith110/pokemon-engine-tools/models v0.0.0-00010101000000-000000000000
+	github.com/zenith110/pokemon-engine-tools/models v0.0.0-00010101000000-000000000000 //indirect
 	github.com/zenith110/pokemon-engine-tools/tools-core v0.0.0-00010101000000-000000000000
 )
 
@@ -27,7 +27,6 @@ require (
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	github.com/zenith110/pokemon-engine-tools/parsing v0.0.0-00010101000000-000000000000 // direct
 	github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250223140129-f44c17210e27 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/mod v0.23.0 // indirect

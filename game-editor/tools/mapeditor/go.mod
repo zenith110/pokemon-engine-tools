@@ -8,7 +8,9 @@ replace github.com/zenith110/pokemon-engine-tools/models => ../../models
 
 replace github.com/zenith110/pokemon-engine-tools/tools-core => ../../core
 
-require github.com/wailsapp/wails/v2 v2.10.1
+require (
+	github.com/wailsapp/wails/v2 v2.10.1
+)
 
 require github.com/pelletier/go-toml/v2 v2.2.4 // direct
 

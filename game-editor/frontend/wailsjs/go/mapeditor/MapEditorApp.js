@@ -6,6 +6,10 @@ export function CreateTileset(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['CreateTileset'](arg1);
 }
 
-export function CreateTilesetImage() {
-  return window['go']['mapeditor']['MapEditorApp']['CreateTilesetImage']();
+export function CreateTilesetImage(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['CreateTilesetImage'](arg1);
+}
+
+export function GetTilesetImageData(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['GetTilesetImageData'](arg1);
 }

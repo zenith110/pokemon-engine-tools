@@ -4,4 +4,6 @@ import {models} from '../models';
 
 export function CreateTileset(arg1:models.CreateNewTileset):Promise<Record<string, any>>;
 
-export function CreateTilesetImage():Promise<Record<string, any>>;
+export function CreateTilesetImage(arg1:string):Promise<Record<string, any>>;
+
+export function GetTilesetImageData(arg1:string):Promise<Record<string, any>>;

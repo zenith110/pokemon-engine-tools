@@ -63,6 +63,14 @@ export interface MapData {
   permissions: MapPermission[];
   npcs: MapNPC[];
   encounters: MapEncounter[];
+  properties?: {
+    weather?: string;
+    timeOfDay?: string;
+    encounterRate?: number;
+    music?: string;
+    description?: string;
+    [key: string]: any;
+  };
 }
 
 export interface CreateMapData {
@@ -71,6 +79,12 @@ export interface CreateMapData {
   type: string;
   tileset: string;
   mapName: string;
+  description?: string;
+  music?: string;
+  weather?: string;
+  timeOfDay?: string;
+  encounterRate?: number;
+  properties?: Record<string, any>;
 }
 
 export interface CreateTilesetData {

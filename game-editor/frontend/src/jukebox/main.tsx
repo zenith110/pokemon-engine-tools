@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from "react";
-import { GrabMusicTracks, UploadNewSong } from "../../wailsjs/go/jukebox/JukeboxApp";
+import { UploadNewSong } from "../../wailsjs/go/jukebox/JukeboxApp";
+import { GrabMusicTracks } from "../../wailsjs/go/parsing/ParsingApp";
 import Select from "react-select";
 import { Song } from "../models/song";
 

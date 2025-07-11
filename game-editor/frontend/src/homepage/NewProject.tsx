@@ -29,6 +29,8 @@ const NewProject = ({ setClickedNewProject }: { setClickedNewProject: (value: bo
                 if(gitRepoCreationStatus === true){
                     setStatus(`${projectName} has been created!`)
                     setClickedNewProject(false)
+                    // Refresh the page to update the navbar
+                    window.location.reload();
                 }
             }}>Submit</button>
             <p>{status}</p>

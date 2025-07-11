@@ -3,7 +3,11 @@
 import {models} from '../models';
 import {parsing} from '../models';
 
+export function GetAllTilesets():Promise<Array<string>>;
+
 export function GrabAllMoves():Promise<models.AllMoves>;
+
+export function GrabMusicTracks():Promise<Array<models.Song>>;
 
 export function GrabTrainerSprites():Promise<Array<models.TrainerSprite>>;
 

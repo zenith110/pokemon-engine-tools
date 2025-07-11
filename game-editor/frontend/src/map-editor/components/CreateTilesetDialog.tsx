@@ -5,9 +5,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Upload, X } from "lucide-react"
-import { CreateTilesetData } from "../types"
-import { CreateTileset, CreateTilesetImage } from "../../../wailsjs/go/mapeditor/MapEditorApp"
-
+import { CreateTileset, CreateTilesetImage, GetTilesetImageData } from "../../../wailsjs/go/mapeditor/MapEditorApp"
 
 const CreateTilesetDialog = () => {
   const [open, setOpen] = useState(false)
@@ -18,29 +16,46 @@ const CreateTilesetDialog = () => {
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null)
   const [uploadError, setUploadError] = useState<string>("")
   const [typeOfTileset, setTypeOfTileset] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [fileName, setFileName] = useState("");
+  const [filePath, setFilePath] = useState("");
+  const [fileSize, setFileSize] = useState<number>(0);
 
-  const handleFileUpload = async(event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setUploadError("")
-    
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setUploadError("Please select an image file")
-      return
-    }
-
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError("File size must be less than 10MB")
-      return
-    }
-    const createdTileset = await CreateTilesetImage();
-    if(createdTileset.success === true){
-      setFileName(createdTileset.fileName)
+  const handleFileUpload = async() => {
+    try {
+      setUploadError(""); // Clear previous errors
+      
+      // Check if name is provided
+      if (!name.trim()) {
+        setUploadError("Please enter a tileset name before uploading an image");
+        return;
+      }
+      
+      const result = await CreateTilesetImage(name);
+      
+      if(result.success === true){
+        setFileName(result.fileName);
+        setFilePath(result.filePath);
+        setFileSize(result.fileSize || 0);
+        
+        // Get the image data from the backend
+        const imageResult = await GetTilesetImageData(result.filePath);
+        if (imageResult.success) {
+          setImageData(imageResult.imageData);
+          
+          // Get image dimensions
+          const img = new Image();
+          img.onload = () => {
+            setImageDimensions({ width: img.width, height: img.height });
+          };
+          img.src = imageResult.imageData;
+        } else {
+          setUploadError(imageResult.errorMessage || "Failed to load image data");
+        }
+      } else {
+        setUploadError(result.errorMessage || "Failed to upload file");
+      }
+    } catch (error) {
+      setUploadError(`Error uploading file: ${error}`);
     }
   }
 
@@ -48,10 +63,9 @@ const CreateTilesetDialog = () => {
     setImageData("")
     setImageDimensions(null)
     setUploadError("")
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
     setFileName("")
+    setFilePath("")
+    setFileSize(0)
   }
 
   // Revalidate image when tile size changes
@@ -77,21 +91,35 @@ const CreateTilesetDialog = () => {
       "typeOfTileset": typeOfTileset,
       "fileName": fileName
     }
-    const createTilesetData = await CreateTileset(tilesetData);
-    if(createTilesetData.success === true){
-          // Reset form
-    setName("")
-    setTileSize(16)
-    setDescription("")
-    setImageData("")
-    setImageDimensions(null)
-    setUploadError("")
-    setFileName("")
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+    
+    try {
+      const createTilesetData = await CreateTileset(tilesetData);
+      if(createTilesetData.success === true){
+        // Reset form
+        setName("")
+        setTileSize(16)
+        setDescription("")
+        setImageData("")
+        setImageDimensions(null)
+        setUploadError("")
+        setFileName("")
+        setFilePath("")
+        setFileSize(0)
+        setOpen(false)
+      } else {
+        setUploadError(createTilesetData.errorMessage || "Failed to create tileset");
+      }
+    } catch (error) {
+      setUploadError(`Error creating tileset: ${error}`);
     }
-    setOpen(false)
-    }
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   return (
@@ -105,7 +133,6 @@ const CreateTilesetDialog = () => {
         <DialogHeader>
           <DialogTitle className="text-white">Create New Tileset</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-white">Tileset Name</Label>
             <Input
@@ -134,6 +161,20 @@ const CreateTilesetDialog = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="typeOfTileset" className="text-white">Type of Tileset</Label>
+            <Select value={typeOfTileset.toString()} onValueChange={(value) => setTypeOfTileset(value)}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectItem value="Overworld">Overworld</SelectItem>
+                <SelectItem value="Cave">Cave</SelectItem>
+                <SelectItem value="Indoors">Indoors</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="description" className="text-white">Description (Optional)</Label>
             <textarea
               id="description"
@@ -147,25 +188,22 @@ const CreateTilesetDialog = () => {
 
           <div className="space-y-2">
             <Label className="text-white">Tileset Image</Label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              ref={fileInputRef}
-              className="hidden"
-            />
             
             {!imageData ? (
               <div className="border-2 border-dashed border-slate-700 rounded-lg p-6 text-center hover:border-slate-600 transition-colors">
                 <Button
                   type="button"
                   variant="ghost"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-slate-300 w-full h-full"
+                  onClick={() => handleFileUpload()}
+                  disabled={!name.trim()}
+                  className="flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-slate-300 w-full h-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Upload className="h-8 w-8" />
                   <span>Click to upload tileset image</span>
-                  <span className="text-xs">PNG, JPG, GIF up to 10MB</span>
+                  <span className="text-xs">PNG, JPG, GIF up to 50MB</span>
+                  {!name.trim() && (
+                    <span className="text-xs text-red-400">Enter a tileset name first</span>
+                  )}
                 </Button>
               </div>
             ) : (
@@ -187,9 +225,11 @@ const CreateTilesetDialog = () => {
                   </Button>
                 </div>
                 {imageDimensions && (
-                  <p className="text-xs text-slate-400">
-                    Size: {imageDimensions.width}x{imageDimensions.height} pixels
-                  </p>
+                  <div className="text-xs text-slate-400 space-y-1">
+                    <p>Size: {imageDimensions.width}x{imageDimensions.height} pixels</p>
+                    {fileSize > 0 && <p>File size: {formatFileSize(fileSize)}</p>}
+                    {fileName && <p>File: {fileName}</p>}
+                  </div>
                 )}
               </div>
             )}
@@ -212,11 +252,11 @@ const CreateTilesetDialog = () => {
               type="submit"
               className="bg-blue-600 hover:bg-blue-700"
               disabled={!name.trim() || !imageData}
+              onClick={handleSubmit}
             >
               Create Tileset
             </Button>
           </div>
-        </form>
       </DialogContent>
     </Dialog>
   )

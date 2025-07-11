@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
+import { useProjects } from '../contexts/ProjectContext';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -14,27 +15,35 @@ const navigation = [
 
 export default function Navbar() {
   const location = useLocation();
+  const { hasSelectedProject, isLoading } = useProjects();
+
+  // Filter navigation items based on project selection
+  const visibleNavigation = hasSelectedProject 
+    ? navigation 
+    : navigation.filter(item => item.href === '/');
 
   return (
-    <nav className="border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold">
-              Pokemon Game Engine Editor
-            </Link>
-          </div>
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-4">
-              {navigation.map((item) => (
+    <nav className="bg-slate-900 border-b border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex">
+            <div className="flex-shrink-0 flex items-center">
+            <img
+              className="h-8 w-auto"
+              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg"
+              alt="Pokeball logo"
+            />
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {visibleNavigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    'px-3 py-2 text-sm font-medium rounded-md',
                     location.pathname === item.href
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'border-tealBlue text-white'
+                      : 'border-transparent text-slate-300 hover:border-slate-700 hover:text-white',
+                    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200'
                   )}
                 >
                   {item.name}
@@ -42,6 +51,12 @@ export default function Navbar() {
               ))}
             </div>
           </div>
+          
+          {isLoading && (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-tealBlue"></div>
+            </div>
+          )}
         </div>
       </div>
     </nav>

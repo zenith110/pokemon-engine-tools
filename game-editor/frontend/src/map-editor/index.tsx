@@ -52,7 +52,14 @@ const useMaps = () => {
       layers: [...DEFAULT_LAYERS],
       permissions: [],
       npcs: [],
-      encounters: []
+      encounters: [],
+      properties: {
+        weather: "clear",
+        timeOfDay: "day",
+        encounterRate: 10,
+        music: undefined,
+        description: undefined,
+      }
     },
     {
       id: "2", 
@@ -61,7 +68,14 @@ const useMaps = () => {
       layers: [...DEFAULT_LAYERS],
       permissions: [],
       npcs: [],
-      encounters: []
+      encounters: [],
+      properties: {
+        weather: "clear",
+        timeOfDay: "day",
+        encounterRate: 10,
+        music: undefined,
+        description: undefined,
+      }
     },
   ])
 
@@ -77,7 +91,14 @@ const useMaps = () => {
       layers: [...DEFAULT_LAYERS],
       permissions: [],
       npcs: [],
-      encounters: []
+      encounters: [],
+      properties: mapData.properties || {
+        weather: mapData.weather || "clear",
+        timeOfDay: mapData.timeOfDay || "day",
+        encounterRate: mapData.encounterRate || 10,
+        music: mapData.music,
+        description: mapData.description,
+      }
     }
     setMaps(prev => [...prev, newMap])
     return newMap
@@ -132,6 +153,26 @@ const MapSelectionScreen = ({
               <p>Size: {map.width}x{map.height}</p>
               <p>Type: {map.type}</p>
               <p>Tileset: {map.tileset}</p>
+              {map.properties?.description && (
+                <p className="text-xs text-slate-500 mt-2">{map.properties.description}</p>
+              )}
+              <div className="flex gap-2 mt-2">
+                {map.properties?.weather && (
+                  <span className="px-2 py-1 bg-slate-800 rounded text-xs">
+                    {map.properties.weather}
+                  </span>
+                )}
+                {map.properties?.timeOfDay && (
+                  <span className="px-2 py-1 bg-slate-800 rounded text-xs">
+                    {map.properties.timeOfDay}
+                  </span>
+                )}
+                {map.properties?.encounterRate && (
+                  <span className="px-2 py-1 bg-slate-800 rounded text-xs">
+                    {map.properties.encounterRate}% encounters
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           

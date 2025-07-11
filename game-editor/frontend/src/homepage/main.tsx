@@ -1,24 +1,16 @@
 import React from "react";
-import { useEffect, useState } from "react"
-import { ParseProjects, ImportProject} from "../../wailsjs/go/core/App";
-import { Project } from "../models/project";
+import { useState } from "react"
+import { ImportProject} from "../../wailsjs/go/core/App";
+import { useProjects } from "../contexts/ProjectContext";
 
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";
 import WelcomeMessage from "./WelcomeMessage";
 
 const HomePage = () => {
-    const [projects, setProjects] = useState<Project[]>([])
+    const { projects, refreshProjects } = useProjects();
     const [clickedNewProject, setClickedNewProject] = useState(false)
     const [currentProjectIndex, setCurrentProjectIndex] = useState(0)
-
-    useEffect(() => {
-        const fetchProjects = async() => {
-            let data = await ParseProjects();
-            setProjects(data);
-        }
-        fetchProjects()
-    }, [])
 
     const handlePrevProject = () => {
         setCurrentProjectIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -32,7 +24,9 @@ const HomePage = () => {
         if (projects && projects.length > 0) {
             const updatedProjects = [...projects];
             updatedProjects.splice(currentProjectIndex, 1);
-            setProjects(updatedProjects);
+            // Note: This would need to be handled by the backend to actually remove the project
+            // For now, we'll just refresh the projects list
+            refreshProjects();
             
             // Adjust currentProjectIndex if necessary
             if (currentProjectIndex >= updatedProjects.length) {
@@ -41,56 +35,65 @@ const HomePage = () => {
         }
     };
 
-    return(
-        <div className="flex flex-col items-center min-h-screen bg-slate-800 p-6">
-            <div className="w-full max-w-3xl bg-slate-700 rounded-2xl shadow-lg p-6">
-                <div className="flex flex-col items-center space-y-6">
-                    <h1 className="text-2xl font-bold text-white mb-4">Project Manager</h1>
-                    
-                    <div className="flex items-center justify-center w-full relative px-12">
-                        <button 
-                            onClick={handlePrevProject}
-                            disabled={currentProjectIndex === 0}
-                            className={`absolute left-0 p-2 rounded-full ${currentProjectIndex === 0 ? 'bg-slate-600 text-gray-400' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            <div className="container mx-auto px-4 py-8">
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-white mb-4">
+                        Pokemon Game Engine Editor
+                    </h1>
+                    <p className="text-slate-300 text-lg">
+                        Welcome to your project management dashboard
+                    </p>
+                </div>
 
-                        <div className="flex flex-col items-center w-full space-y-4">
-                            {projects?.length > 0 ? (
-                                <>
-                                    <ProjectCard key={projects[currentProjectIndex].ID} project={projects[currentProjectIndex]} />
-                                    <button 
-                                        onClick={handleRemoveProject}
-                                        className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200 flex items-center space-x-2"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                        <span>Remove Project</span>
-                                    </button>
-                                </>
-                            ) : (
-                                <WelcomeMessage />
-                            )}
+                <div className="flex flex-col items-center space-y-8">
+                    {/* Project Navigation */}
+                    {projects?.length > 1 && (
+                        <div className="flex items-center space-x-4">
+                            <button
+                                onClick={handlePrevProject}
+                                disabled={currentProjectIndex === 0}
+                                className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Previous
+                            </button>
+                            <span className="text-white">
+                                {currentProjectIndex + 1} of {projects.length}
+                            </span>
+                            <button
+                                onClick={handleNextProject}
+                                disabled={currentProjectIndex === projects.length - 1}
+                                className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Next
+                            </button>
                         </div>
+                    )}
 
-                        <button 
-                            onClick={handleNextProject}
-                            disabled={currentProjectIndex === (projects?.length || 0) - 1}
-                            className={`absolute right-0 p-2 rounded-full ${currentProjectIndex === (projects?.length || 0) - 1 ? 'bg-slate-600 text-gray-400' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                        </button>
+                    <div className="flex flex-col items-center w-full space-y-4">
+                        {projects?.length > 0 ? (
+                            <>
+                                <ProjectCard key={projects[currentProjectIndex].ID} project={projects[currentProjectIndex]} />
+                                <button 
+                                    onClick={handleRemoveProject}
+                                    className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200 flex items-center space-x-2"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    <span>Remove Project</span>
+                                </button>
+                            </>
+                        ) : (
+                            <WelcomeMessage />
+                        )}
                     </div>
 
-                    <div className="flex items-center space-x-4 mt-6">
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-4 mt-8">
                         <button 
-                            onClick={() => setClickedNewProject(true)} 
+                            onClick={() => setClickedNewProject(true)}
                             className="px-6 py-2 bg-tealBlue text-white rounded-xl hover:bg-wildBlueYonder transition-colors duration-200 flex items-center space-x-2"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -100,7 +103,11 @@ const HomePage = () => {
                         </button>
 
                         <button 
-                            onClick={() => ImportProject()} 
+                            onClick={async () => {
+                                await ImportProject();
+                                // Refresh the projects list
+                                await refreshProjects();
+                            }} 
                             className="px-6 py-2 bg-tealBlue text-white rounded-xl hover:bg-wildBlueYonder transition-colors duration-200 flex items-center space-x-2"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
