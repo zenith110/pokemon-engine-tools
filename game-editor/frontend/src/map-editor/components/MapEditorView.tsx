@@ -1,19 +1,23 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../components/ui/button"
-import { Map, Grid, Users, Zap } from "lucide-react"
+import { Map, Grid, Users, Zap, Save } from "lucide-react"
+import { UpdateMapJson } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { models } from "../../../wailsjs/go/models"
 
 // Components
 import TilePalette from "./TilePalette"
 import LayerPanel from "./LayerPanel"
 import MapView from "./MapView"
-import PermissionView from "./PermissionView"
-import NPCView from "./NPCView"
+// import PermissionView from "./PermissionView"
+// import NPCView from "./NPCView"
 import EncounterView from "./EncounterView"
 import type { SelectedTile } from "./TilePalette"
 import MapToolbar from "./MapToolbar"
 import { MapEditorViewProps } from "../types"
+import { ParseMapData } from "../../../wailsjs/go/parsing/ParsingApp"
 
-type ViewMode = "map" | "permissions" | "npcs" | "encounters"
+type ViewMode = "map" | "encounters"
+// type ViewMode = "map" | "permissions" | "npcs" | "encounters"
 
 const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   // Convert Go model to frontend MapData structure
@@ -35,42 +39,175 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     }
   }
 
-  // LIFTED STATE: layers
-  const [layers, setLayers] = useState([
-    {
-      id: 1,
-      name: "Ground",
-      visible: true,
-      locked: false,
-      tiles: [],
-    },
-    {
-      id: 2,
-      name: "Objects",
-      visible: true,
-      locked: false,
-      tiles: [],
-    },
-  ]);
+  // LIFTED STATE: layers - start with empty array, will be populated from JSON
+  const [layers, setLayers] = useState<Array<{
+    id: number;
+    name: string;
+    visible: boolean;
+    locked: boolean;
+    tiles: Array<{
+      x: number;
+      y: number;
+      tileId: string;
+      autoTileId?: string;
+    }>;
+  }>>([]);
 
-  // History for layers
-  const [history, setHistory] = useState<Array<typeof layers>>([[
-    {
-      id: 1,
-      name: "Ground",
-      visible: true,
-      locked: false,
-      tiles: [],
-    },
-    {
-      id: 2,
-      name: "Objects",
-      visible: true,
-      locked: false,
-      tiles: [],
-    },
-  ]]);
+  // History for layers - start with empty array
+  const [history, setHistory] = useState<Array<typeof layers>>([[]]);
   const [historyIndex, setHistoryIndex] = useState<number>(0);
+
+  // Load map data from JSON file
+  useEffect(() => {
+    const loadMapData = async () => {
+      try {
+        // Get the JSON file path from the map properties
+        const jsonFilePath = map.Properties?.[0]?.FilePath || "";
+        if (!jsonFilePath) {
+          console.log("No JSON file path found for map, using default layers");
+          // Set default layers if no JSON file path
+          const defaultLayers = [
+            {
+              id: 1,
+              name: "Ground",
+              visible: true,
+              locked: false,
+              tiles: [],
+            },
+            {
+              id: 2,
+              name: "Objects",
+              visible: true,
+              locked: false,
+              tiles: [],
+            },
+          ];
+          setLayers(defaultLayers);
+          setHistory([defaultLayers]);
+          setHistoryIndex(0);
+          return;
+        }
+
+        console.log("Loading map data from:", jsonFilePath);
+        console.log()
+        const result = await ParseMapData(jsonFilePath);
+        
+        if (result.success && result.data) {
+          const mapJsonData = result.data as any;
+          console.log("Loaded map data:", mapJsonData);
+          
+          // Update layers with data from JSON
+          if (mapJsonData.layers && mapJsonData.layers.length > 0) {
+            console.log(mapJsonData.layers)
+            const loadedLayers = mapJsonData.layers.map((layer: any) => ({
+              id: layer.id,
+              name: layer.name,
+              visible: layer.visible,
+              locked: layer.locked || false,
+              tiles: layer.tiles.map((tile: any) => ({
+                x: tile.x,
+                y: tile.y,
+                tileId: tile.tileId,
+                autoTileId: tile.autoTileId || undefined,
+              })),
+            }));
+            
+            console.log("Setting loaded layers:", loadedLayers);
+            setLayers(loadedLayers);
+            
+            // Set the active layer based on CurrentSelectedLayer property
+            if (mapJsonData.currentlySelectedLayer && mapJsonData.currentlySelectedLayer !== "") {
+              // Check if the specified layer exists by name
+              const layerExists = loadedLayers.some(layer => layer.name === mapJsonData.currentlySelectedLayer);
+              if (layerExists) {
+                // Find the layer by name and set its ID as active
+                const targetLayer = loadedLayers.find(layer => layer.name === mapJsonData.currentlySelectedLayer);
+                setActiveLayerId(targetLayer?.id || 1);
+              } else {
+                // If the specified layer doesn't exist, default to the first layer
+                setActiveLayerId(loadedLayers[0]?.id || 1);
+              }
+            } else {
+              // Default to the first layer if CurrentSelectedLayer is null/empty
+              setActiveLayerId(loadedLayers[0]?.id || 1);
+            }
+            
+            // Update history with loaded layers
+            setHistory([loadedLayers]);
+            setHistoryIndex(0);
+          } else {
+            // Set default layers if no layers found in JSON
+            console.log("No layers found in JSON, using default layers");
+            const defaultLayers = [
+              {
+                id: 1,
+                name: "Ground",
+                visible: true,
+                locked: false,
+                tiles: [],
+              },
+              {
+                id: 2,
+                name: "Objects",
+                visible: true,
+                locked: false,
+                tiles: [],
+              },
+            ];
+            setLayers(defaultLayers);
+            setHistory([defaultLayers]);
+            setHistoryIndex(0);
+          }
+        } else {
+          console.log("Failed to load map data, using default layers");
+          // Set default layers if loading failed
+          const defaultLayers = [
+            {
+              id: 1,
+              name: "Ground",
+              visible: true,
+              locked: false,
+              tiles: [],
+            },
+            {
+              id: 2,
+              name: "Objects",
+              visible: true,
+              locked: false,
+              tiles: [],
+            },
+          ];
+          setLayers(defaultLayers);
+          setHistory([defaultLayers]);
+          setHistoryIndex(0);
+        }
+      } catch (error) {
+        console.error("Error loading map data:", error);
+        // Set default layers on error
+        const defaultLayers = [
+          {
+            id: 1,
+            name: "Ground",
+            visible: true,
+            locked: false,
+            tiles: [],
+          },
+          {
+            id: 2,
+            name: "Objects",
+            visible: true,
+            locked: false,
+            tiles: [],
+          },
+        ];
+        setLayers(defaultLayers);
+        setHistory([defaultLayers]);
+        setHistoryIndex(0);
+      }
+    };
+
+    loadMapData();
+  }, [map.ID]); // Reload when map ID changes
 
   const [activeView, setActiveView] = useState<ViewMode>("map")
   const [selectedTile, setSelectedTile] = useState<SelectedTile | null>(null)
@@ -140,6 +277,56 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     handleMapChange({ ...mapData, encounters })
   }
 
+  const handleSave = async () => {
+    try {
+      // Create the MapJsonData structure from current state
+      const mapJsonData = {
+        id: parseInt(mapData.id),
+        name: mapData.name,
+        width: mapData.width,
+        height: mapData.height,
+        tileSize: mapData.tileSize,
+        type: mapData.type,
+        tilesetPath: mapData.tileset,
+        layers: layers.map(layer => ({
+          id: layer.id,
+          name: layer.name,
+          visible: layer.visible,
+          locked: layer.locked,
+          tiles: layer.tiles.map(tile => ({
+            x: tile.x,
+            y: tile.y,
+            tileId: tile.tileId,
+            autoTileId: tile.autoTileId || "",
+          })),
+        })),
+        mapEncounters: {
+          grass: mapData.encounters.filter(e => e.type === 'grass'),
+          fishing: mapData.encounters.filter(e => e.type === 'fishing'),
+          cave: mapData.encounters.filter(e => e.type === 'cave'),
+          diving: mapData.encounters.filter(e => e.type === 'diving'),
+        },
+        properties: {
+          music: mapData.properties.music,
+        },
+        currentlySelectedLayer: layers.find(layer => layer.id === activeLayerId)?.name || "",
+      };
+
+      const result = await UpdateMapJson(models.MapJsonData.createFrom(mapJsonData));
+      
+      if (result.success) {
+        console.log("Map saved successfully:", result.message);
+        // You could add a toast notification here
+      } else {
+        console.error("Failed to save map:", result.errorMessage);
+        // You could add an error toast notification here
+      }
+    } catch (error) {
+      console.error("Error saving map:", error);
+      // You could add an error toast notification here
+    }
+  };
+
   const renderViewTabs = () => (
     <div className="flex space-x-2">
       <Button
@@ -149,7 +336,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
         <Map className="h-4 w-4 mr-2" />
         Map
       </Button>
-      <Button
+      {/* <Button
         variant={activeView === "permissions" ? "default" : "ghost"}
         onClick={() => setActiveView("permissions")}
       >
@@ -162,7 +349,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       >
         <Users className="h-4 w-4 mr-2" />
         NPCs
-      </Button>
+      </Button> */}
       <Button
         variant={activeView === "encounters" ? "default" : "ghost"}
         onClick={() => setActiveView("encounters")}
@@ -189,28 +376,28 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             paintMode={paintMode}
           />
         )
-      case "permissions":
-        return (
-            <PermissionView
-            width={mapData.width}
-            height={mapData.height}
-            tileSize={mapData.tileSize}
-            layers={layers}
-            permissions={mapData.permissions}
-            setPermissions={handlePermissionsChange}
-          />
-        )
-      case "npcs":
-        return (
-          <NPCView
-            width={mapData.width}
-            height={mapData.height}
-            tileSize={mapData.tileSize}
-            layers={layers}
-            npcs={mapData.npcs}
-            setNPCs={handleNPCsChange}
-          />
-        )
+      // case "permissions":
+      //   return (
+      //       <PermissionView
+      //     width={mapData.width}
+      //     height={mapData.height}
+      //     tileSize={mapData.tileSize}
+      //     layers={layers}
+      //     permissions={mapData.permissions}
+      //     setPermissions={handlePermissionsChange}
+      //   />
+      // )
+      // case "npcs":
+      //   return (
+      //     <NPCView
+      //       width={mapData.width}
+      //       height={mapData.height}
+      //       tileSize={mapData.tileSize}
+      //       layers={layers}
+      //       npcs={mapData.npcs}
+      //       setNPCs={handleNPCsChange}
+      //     />
+      //   )
       case "encounters":
         return (
           <EncounterView
@@ -237,6 +424,13 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           </Button>
           <h1 className="text-xl font-semibold">{mapData.name}</h1>
         </div>
+        <Button
+          onClick={handleSave}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Map
+        </Button>
       </div>
 
       <div className="flex-1 flex" style={{ minWidth: 0 }}>
@@ -246,6 +440,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             selectedTile={selectedTile}
             setSelectedTile={setSelectedTile}
             tilesetPath={mapData.tileset}
+            tileSize={mapData.tileSize}
           />
         </div>
 

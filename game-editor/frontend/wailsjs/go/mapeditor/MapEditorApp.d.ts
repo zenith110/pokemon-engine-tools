@@ -11,3 +11,7 @@ export function CreateTilesetImage(arg1:string):Promise<Record<string, any>>;
 export function DeleteMapByID(arg1:number):Promise<Record<string, any>>;
 
 export function GetTilesetImageData(arg1:string):Promise<Record<string, any>>;
+
+export function UpdateMapEntryByID(arg1:models.Map):Promise<Record<string, any>>;
+
+export function UpdateMapJson(arg1:models.MapJsonData):Promise<Record<string, any>>;

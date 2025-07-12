@@ -21,3 +21,11 @@ export function DeleteMapByID(arg1) {
 export function GetTilesetImageData(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['GetTilesetImageData'](arg1);
 }
+
+export function UpdateMapEntryByID(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['UpdateMapEntryByID'](arg1);
+}
+
+export function UpdateMapJson(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['UpdateMapJson'](arg1);
+}

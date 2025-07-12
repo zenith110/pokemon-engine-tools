@@ -1,6 +1,7 @@
 package parsing
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -59,4 +60,34 @@ func (a *ParsingApp) GetAllMaps() []coreModels.Map {
 		maps = append(maps, mapData)
 	}
 	return maps
+}
+
+func (a *ParsingApp) ParseMapData(mapPath string) map[string]any {
+	var mapData coreModels.MapJsonData
+	localMapPath := fmt.Sprintf("%s/%s", a.app.DataDirectory, mapPath)
+	mapFile, mapFileError := os.Open(localMapPath)
+	if mapFileError != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error occured while opening the map file!\nerror is %v", mapFileError),
+		}
+	}
+	fileMapData, fileMapDataErr := io.ReadAll(mapFile)
+	if fileMapDataErr != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error occured while reading the map file!\nerror is %v", fileMapDataErr),
+		}
+	}
+	jsonErr := json.Unmarshal(fileMapData, &mapData)
+	if jsonErr != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error occured while reading the json file!\nerror is %v", jsonErr),
+		}
+	}
+	return map[string]any{
+		"success": true,
+		"data":    mapData,
+	}
 }

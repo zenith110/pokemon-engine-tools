@@ -282,6 +282,181 @@ export namespace models {
 		    return a;
 		}
 	}
+	export class MapEncounter {
+	    minLevel: number;
+	    maxLevel: number;
+	    pokemonName: string;
+	    pokemonId: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new MapEncounter(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.minLevel = source["minLevel"];
+	        this.maxLevel = source["maxLevel"];
+	        this.pokemonName = source["pokemonName"];
+	        this.pokemonId = source["pokemonId"];
+	    }
+	}
+	export class MapEncounters {
+	    grass: MapEncounter[];
+	    fishing: MapEncounter[];
+	    cave: MapEncounter[];
+	    diving: MapEncounter[];
+	
+	    static createFrom(source: any = {}) {
+	        return new MapEncounters(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.grass = this.convertValues(source["grass"], MapEncounter);
+	        this.fishing = this.convertValues(source["fishing"], MapEncounter);
+	        this.cave = this.convertValues(source["cave"], MapEncounter);
+	        this.diving = this.convertValues(source["diving"], MapEncounter);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class MapProperties {
+	    music: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new MapProperties(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.music = source["music"];
+	    }
+	}
+	export class MapTile {
+	    x: number;
+	    y: number;
+	    tileId: string;
+	    autoTileId?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new MapTile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.x = source["x"];
+	        this.y = source["y"];
+	        this.tileId = source["tileId"];
+	        this.autoTileId = source["autoTileId"];
+	    }
+	}
+	export class MapLayer {
+	    id: number;
+	    name: string;
+	    visible: boolean;
+	    locked?: boolean;
+	    tiles: MapTile[];
+	
+	    static createFrom(source: any = {}) {
+	        return new MapLayer(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.visible = source["visible"];
+	        this.locked = source["locked"];
+	        this.tiles = this.convertValues(source["tiles"], MapTile);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class MapJsonData {
+	    id: number;
+	    name: string;
+	    width: number;
+	    height: number;
+	    tileSize: number;
+	    type: string;
+	    tilesetPath: string;
+	    layers: MapLayer[];
+	    currentlySelectedLayer: string;
+	    mapEncounters: MapEncounters;
+	    properties: MapProperties;
+	
+	    static createFrom(source: any = {}) {
+	        return new MapJsonData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	        this.tileSize = source["tileSize"];
+	        this.type = source["type"];
+	        this.tilesetPath = source["tilesetPath"];
+	        this.layers = this.convertValues(source["layers"], MapLayer);
+	        this.currentlySelectedLayer = source["currentlySelectedLayer"];
+	        this.mapEncounters = this.convertValues(source["mapEncounters"], MapEncounters);
+	        this.properties = this.convertValues(source["properties"], MapProperties);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+	
+	
 	
 	export class Moves {
 	    Name: string;

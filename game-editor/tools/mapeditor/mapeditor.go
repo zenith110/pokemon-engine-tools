@@ -2,6 +2,7 @@ package mapeditor
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -282,6 +283,7 @@ func (a *MapEditorApp) CreateTileset(createNewTilesetData coreModels.CreateNewTi
 }
 
 func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string]any {
+	// First, create/update the TOML file as before
 	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
 	var existingMap coreModels.MapEditerMapData
 	file, err := os.Open(mapTomlPath)
@@ -312,7 +314,7 @@ func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string
 		}
 	}
 
-	// Marshal and write back
+	// Marshal and write back TOML
 	out, err := toml.Marshal(existingMap)
 	if err != nil {
 		return map[string]any{
@@ -326,15 +328,187 @@ func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string
 			"errorMessage": fmt.Errorf("error writing maps TOML: %w", err),
 		}
 	}
+
+	// Now create JSON file for each map
+	for _, mapItem := range mapData.Map {
+		// Create JSON data structure
+		jsonData := coreModels.MapJsonData{
+			ID:                   mapItem.ID,
+			Name:                 mapItem.Name,
+			Width:                mapItem.Width,
+			Height:               mapItem.Height,
+			TileSize:             mapItem.TileSize,
+			Type:                 mapItem.Properties[0].TypeOfMap,
+			TilesetPath:          mapItem.Properties[0].TilesetImagePath,
+			CurrentSelectedLayer: "",
+			Layers: []coreModels.MapLayer{
+				{
+					ID:      1,
+					Name:    "Ground",
+					Visible: true,
+					Locked:  false,
+					Tiles:   []coreModels.MapTile{},
+				},
+				{
+					ID:      2,
+					Name:    "Objects",
+					Visible: true,
+					Locked:  false,
+					Tiles:   []coreModels.MapTile{},
+				},
+			},
+		}
+
+		jsonData.Properties.Music = mapItem.Properties[0].BgMusic
+
+		// Create JSON file path
+		jsonFilePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, mapItem.Properties[0].FilePath)
+
+		// Ensure directory exists
+		jsonDir := filepath.Dir(jsonFilePath)
+		if err := os.MkdirAll(jsonDir, 0755); err != nil {
+			return map[string]any{
+				"success":      false,
+				"errorMessage": fmt.Errorf("error creating JSON directory: %w", err),
+			}
+		}
+
+		// Marshal to JSON
+		jsonBytes, err := json.MarshalIndent(jsonData, "", "  ")
+		if err != nil {
+			return map[string]any{
+				"success":      false,
+				"errorMessage": fmt.Errorf("error marshaling map JSON: %w", err),
+			}
+		}
+
+		// Write JSON file
+		if err := os.WriteFile(jsonFilePath, jsonBytes, 0644); err != nil {
+			return map[string]any{
+				"success":      false,
+				"errorMessage": fmt.Errorf("error writing map JSON: %w", err),
+			}
+		}
+	}
+
 	return map[string]any{
 		"success": true,
+	}
+}
+
+func (a *MapEditorApp) UpdateMapJson(mapData coreModels.MapJsonData) map[string]any {
+	// Create JSON file path - we need to construct this from the map data
+	// Since MapJsonData doesn't have a file path, we'll construct it based on the map name
+	jsonFilePath := fmt.Sprintf("%s/data/assets/maps/%s.json", a.app.DataDirectory, mapData.Name)
+
+	// Ensure directory exists
+	jsonDir := filepath.Dir(jsonFilePath)
+	if err := os.MkdirAll(jsonDir, 0755); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error creating JSON directory: %w", err),
+		}
+	}
+
+	// Marshal to JSON
+	jsonBytes, err := json.MarshalIndent(mapData, "", "  ")
+	if err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error marshaling map JSON: %w", err),
+		}
+	}
+
+	// Write JSON file
+	if err := os.WriteFile(jsonFilePath, jsonBytes, 0644); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error writing map JSON: %w", err),
+		}
+	}
+
+	return map[string]any{
+		"success": true,
+		"message": fmt.Sprintf("Successfully updated map JSON file: %s", mapData.Name),
+	}
+}
+
+func (a *MapEditorApp) UpdateMapEntryByID(updatedMap coreModels.Map) map[string]any {
+	// Read the existing TOML file
+	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
+	var existingData coreModels.MapEditerMapData
+
+	file, err := os.Open(mapTomlPath)
+	if err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error opening maps.toml: %w", err),
+		}
+	}
+	defer file.Close()
+
+	fileData, err := io.ReadAll(file)
+	if err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error reading maps.toml: %w", err),
+		}
+	}
+
+	// Unmarshal existing data
+	if len(fileData) > 0 {
+		if err := toml.Unmarshal(fileData, &existingData); err != nil {
+			return map[string]any{
+				"success":      false,
+				"errorMessage": fmt.Errorf("error parsing existing maps.toml: %w", err),
+			}
+		}
+	}
+
+	// Find and update the map with the specified ID
+	mapFound := false
+	for i, mapItem := range existingData.Map {
+		if mapItem.ID == updatedMap.ID {
+			// Ensure the updated map has the same ID
+			existingData.Map[i] = updatedMap
+			mapFound = true
+			break
+		}
+	}
+
+	if !mapFound {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Sprintf("map with ID %d not found", updatedMap.ID),
+		}
+	}
+
+	// Marshal and write back to TOML
+	out, err := toml.Marshal(existingData)
+	if err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error marshaling updated maps TOML: %w", err),
+		}
+	}
+
+	if err := os.WriteFile(mapTomlPath, out, 0644); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error writing updated maps TOML: %w", err),
+		}
+	}
+
+	return map[string]any{
+		"success": true,
+		"message": fmt.Sprintf("Successfully updated map with ID %d", updatedMap.ID),
 	}
 }
 
 func (a *MapEditorApp) DeleteMapByID(id int) map[string]any {
 	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
 	var data coreModels.MapEditerMapData
-
+	var oldMap coreModels.Map
 	// Read the file
 	file, err := os.Open(mapTomlPath)
 	if err != nil {
@@ -353,11 +527,20 @@ func (a *MapEditorApp) DeleteMapByID(id int) map[string]any {
 
 	// Filter out the map with the given ID
 	newMaps := make([]coreModels.Map, 0, len(data.Map))
+	mapFound := false
 	for _, m := range data.Map {
 		if m.ID != id {
 			newMaps = append(newMaps, m)
+		} else {
+			oldMap = m
+			mapFound = true
 		}
 	}
+
+	if !mapFound {
+		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Map with ID %d not found", id)}
+	}
+
 	data.Map = newMaps
 
 	// Write back to TOML
@@ -367,6 +550,15 @@ func (a *MapEditorApp) DeleteMapByID(id int) map[string]any {
 	}
 	if err := os.WriteFile(mapTomlPath, out, 0644); err != nil {
 		return map[string]any{"success": false, "errorMessage": fmt.Sprintf("Error writing TOML: %v", err)}
+	}
+
+	// Only try to delete JSON file if map name is not empty
+	if oldMap.Name != "" {
+		jsonFilePath := fmt.Sprintf("%s/data/assets/maps/%s.json", a.app.DataDirectory, oldMap.Name)
+		if removeJsonFileErr := os.Remove(jsonFilePath); removeJsonFileErr != nil {
+			// Log the error but don't fail the operation since TOML was updated successfully
+			fmt.Printf("Warning: Could not delete JSON file %s: %v\n", jsonFilePath, removeJsonFileErr)
+		}
 	}
 
 	return map[string]any{"success": true}

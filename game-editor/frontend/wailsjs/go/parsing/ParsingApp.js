@@ -30,6 +30,10 @@ export function ParseHeldItems() {
   return window['go']['parsing']['ParsingApp']['ParseHeldItems']();
 }
 
+export function ParseMapData(arg1) {
+  return window['go']['parsing']['ParsingApp']['ParseMapData'](arg1);
+}
+
 export function ParsePokemonData() {
   return window['go']['parsing']['ParsingApp']['ParsePokemonData']();
 }

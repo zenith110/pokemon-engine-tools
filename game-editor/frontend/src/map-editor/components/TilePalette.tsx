@@ -19,14 +19,13 @@ interface TilePaletteProps {
     selectedTile: SelectedTile | null;
     setSelectedTile: (tile: SelectedTile | null) => void;
     tilesetPath?: string;
+    tileSize?: number;
 }
 
-const TILE_SIZE = 16
 const MIN_SCALE = 1
 const MAX_SCALE = 6
 
-const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePaletteProps) => {
-    console.log("TilePalette component rendered with tilesetPath:", tilesetPath)
+const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: TilePaletteProps) => {
     const [tilesetImage, setTilesetImage] = useState<string>("")
     const [tilesetDims, setTilesetDims] = useState<{ width: number; height: number }>({ width: 0, height: 0 })
     const [error, setError] = useState<string>("")
@@ -42,7 +41,6 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
         const loadTilesetImage = async () => {
             console.log("Loading tileset image for path:", tilesetPath)
             if (!tilesetPath) {
-                console.log("No tileset path provided")
                 setTilesetImage("")
                 setTilesetDims({ width: 0, height: 0 })
                 setError("")
@@ -51,7 +49,6 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
 
             try {
                 setError("")
-                console.log("Calling GetTilesetImageData with path:", tilesetPath)
                 const result = await GetTilesetImageData(tilesetPath)
                 console.log("GetTilesetImageData result:", result)
                 
@@ -84,8 +81,8 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
     const getTileCoords = (clientX: number, clientY: number, rect: DOMRect) => {
         const x = clientX - rect.left
         const y = clientY - rect.top
-        const tileX = Math.floor(x / (TILE_SIZE * scale)) * TILE_SIZE
-        const tileY = Math.floor(y / (TILE_SIZE * scale)) * TILE_SIZE
+        const tileX = Math.floor(x / (tileSize * scale)) * tileSize
+        const tileY = Math.floor(y / (tileSize * scale)) * tileSize
         return { x: tileX, y: tileY }
     }
 
@@ -99,7 +96,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
         const { x, y } = getTileCoords(e.clientX, e.clientY, rect)
         console.log("Mouse down at tile coordinates:", x, y)
         setDragStart({ x, y })
-        setSelectedRegion({ x, y, w: TILE_SIZE, h: TILE_SIZE })
+        setSelectedRegion({ x, y, w: tileSize, h: tileSize })
         setDragging(true)
     }
 
@@ -115,8 +112,8 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
         const top = Math.min(startY, endY)
         const right = Math.max(startX, endX)
         const bottom = Math.max(startY, endY)
-        const w = (Math.floor((right - left) / TILE_SIZE) + 1) * TILE_SIZE
-        const h = (Math.floor((bottom - top) / TILE_SIZE) + 1) * TILE_SIZE
+        const w = (Math.floor((right - left) / tileSize) + 1) * tileSize
+        const h = (Math.floor((bottom - top) / tileSize) + 1) * tileSize
         setSelectedRegion({
             x: left,
             y: top,
@@ -151,19 +148,19 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
             )
             // Pre-crop sub-tiles for fast fill
             const subTiles: string[][] = [];
-            for (let dx = 0; dx < selectedRegion.w / TILE_SIZE; dx++) {
+            for (let dx = 0; dx < selectedRegion.w / tileSize; dx++) {
                 subTiles[dx] = [];
-                for (let dy = 0; dy < selectedRegion.h / TILE_SIZE; dy++) {
+                for (let dy = 0; dy < selectedRegion.h / tileSize; dy++) {
                     const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = TILE_SIZE;
-                    tempCanvas.height = TILE_SIZE;
+                    tempCanvas.width = tileSize;
+                    tempCanvas.height = tileSize;
                     const tempCtx = tempCanvas.getContext('2d');
                     if (tempCtx) {
-                        tempCtx.clearRect(0, 0, TILE_SIZE, TILE_SIZE);
+                        tempCtx.clearRect(0, 0, tileSize, tileSize);
                         tempCtx.drawImage(
                             canvasRef.current!,
-                            dx * TILE_SIZE, dy * TILE_SIZE, TILE_SIZE, TILE_SIZE,
-                            0, 0, TILE_SIZE, TILE_SIZE
+                            dx * tileSize, dy * tileSize, tileSize, tileSize,
+                            0, 0, tileSize, tileSize
                         );
                         subTiles[dx][dy] = tempCanvas.toDataURL('image/png');
                     }
@@ -173,8 +170,8 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
                 id: `tile_${selectedRegion.x}_${selectedRegion.y}_${selectedRegion.w}_${selectedRegion.h}`,
                 name: `Tiles (${selectedRegion.x},${selectedRegion.y}) size ${selectedRegion.w}x${selectedRegion.h}`,
                 image: canvasRef.current!.toDataURL('image/png'),
-                width: selectedRegion.w / TILE_SIZE,
-                height: selectedRegion.h / TILE_SIZE,
+                width: selectedRegion.w / tileSize,
+                height: selectedRegion.h / tileSize,
                 subTiles
             }
             console.log("Setting selected tile:", newSelectedTile)
@@ -187,7 +184,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
     const handleZoomOut = () => setScale((s) => Math.max(MIN_SCALE, s - 1))
 
     const handleScrollKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        const scrollStep = TILE_SIZE * scale // scroll by one tile at a time
+        const scrollStep = tileSize * scale // scroll by one tile at a time
         if (!scrollAreaRef.current) return
         if (selectedRegion) {
             let { x, y, w, h } = selectedRegion
@@ -196,22 +193,22 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
                 // Shift+arrow: resize selection
                 if (e.key === 'ArrowDown') {
                     if (y + h < tilesetDims.height) {
-                        h += TILE_SIZE
+                        h += tileSize
                         moved = true
                     }
                 } else if (e.key === 'ArrowUp') {
-                    if (h > TILE_SIZE) {
-                        h -= TILE_SIZE
+                    if (h > tileSize) {
+                        h -= tileSize
                         moved = true
                     }
                 } else if (e.key === 'ArrowRight') {
                     if (x + w < tilesetDims.width) {
-                        w += TILE_SIZE
+                        w += tileSize
                         moved = true
                     }
                 } else if (e.key === 'ArrowLeft') {
-                    if (w > TILE_SIZE) {
-                        w -= TILE_SIZE
+                    if (w > tileSize) {
+                        w -= tileSize
                         moved = true
                     }
                 }
@@ -281,7 +278,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
 
     // Calculate grid lines
     const gridLines = []
-    for (let x = 0; x <= tilesetDims.width; x += TILE_SIZE) {
+    for (let x = 0; x <= tilesetDims.width; x += tileSize) {
         gridLines.push(
             <div
                 key={`v-${x}`}
@@ -297,7 +294,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath }: TilePalette
             />
         )
     }
-    for (let y = 0; y <= tilesetDims.height; y += TILE_SIZE) {
+    for (let y = 0; y <= tilesetDims.height; y += tileSize) {
         gridLines.push(
             <div
                 key={`h-${y}`}

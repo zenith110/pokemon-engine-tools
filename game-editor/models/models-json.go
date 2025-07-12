@@ -73,7 +73,48 @@ type CreateNewTileset struct {
 	TypeOfTileSet string `json:"typeOfTileset"`
 	FileName      string `json:"fileName"`
 }
+type MapTile struct {
+	X          int    `json:"x"`
+	Y          int    `json:"y"`
+	TileID     string `json:"tileId"`
+	AutoTileID string `json:"autoTileId,omitempty"`
+}
 
+type MapLayer struct {
+	ID      int       `json:"id"`
+	Name    string    `json:"name"`
+	Visible bool      `json:"visible"`
+	Locked  bool      `json:"locked,omitempty"`
+	Tiles   []MapTile `json:"tiles"`
+}
+type MapEncounter struct {
+	MinLevel    int    `json:"minLevel"`
+	MaxLevel    int    `json:"maxLevel"`
+	PokemonName string `json:"pokemonName"`
+	PokemonId   string `json:"pokemonId"`
+}
+type MapEncounters struct {
+	Grass   []MapEncounter `json:"grass"`
+	Fishing []MapEncounter `json:"fishing"`
+	Cave    []MapEncounter `json:"cave"`
+	Diving  []MapEncounter `json:"diving"`
+}
+type MapProperties struct {
+	Music string `json:"music"`
+}
+type MapJsonData struct {
+	ID                   int           `json:"id"`
+	Name                 string        `json:"name"`
+	Width                int           `json:"width"`
+	Height               int           `json:"height"`
+	TileSize             int           `json:"tileSize"`
+	Type                 string        `json:"type"`
+	TilesetPath          string        `json:"tilesetPath"`
+	Layers               []MapLayer    `json:"layers"`
+	CurrentSelectedLayer string        `json:"currentlySelectedLayer"`
+	MapEncounters        MapEncounters `json:"mapEncounters"`
+	Properties           MapProperties `json:"properties"`
+}
 type HeldItem struct {
 	Name string
 }

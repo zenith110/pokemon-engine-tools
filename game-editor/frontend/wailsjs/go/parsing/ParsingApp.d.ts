@@ -17,6 +17,8 @@ export function LoadPokemonById(arg1:string):Promise<models.PokemonTrainerEditor
 
 export function ParseHeldItems():Promise<Array<models.HeldItem>>;
 
+export function ParseMapData(arg1:string):Promise<Record<string, any>>;
+
 export function ParsePokemonData():Promise<Array<parsing.OnLoadPokemonEditor>>;
 
 export function ParseTrainerClass():Promise<models.TrainerClasses>;
