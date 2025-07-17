@@ -61,6 +61,33 @@ func (a *ParsingApp) GetAllMaps() []coreModels.Map {
 	}
 	return maps
 }
+func (a *ParsingApp) GetMapTomlByID(id int) coreModels.Map {
+	var mapData coreModels.MapEditerMapData
+	var selectedMap coreModels.Map
+	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
+	mapFile, mapFileErr := os.Open(mapTomlPath)
+	if mapFileErr != nil {
+		fmt.Printf("Error occured while opening the toml file: %v\n", mapFileErr)
+	}
+	b, err := io.ReadAll(mapFile)
+	if err != nil {
+		fmt.Printf("Error reading maps.toml: %v\n", err)
+		return mapData.Map[0]
+	}
+
+	err = toml.Unmarshal(b, &mapData)
+	if err != nil {
+		fmt.Printf("Error unmarshaling maps.toml: %v\n", err)
+		return mapData.Map[0]
+	}
+	for _, mapData := range mapData.Map {
+		if int(mapData.ID) == id {
+			selectedMap = mapData
+			break
+		}
+	}
+	return selectedMap
+}
 
 func (a *ParsingApp) ParseMapData(mapPath string) map[string]any {
 	var mapData coreModels.MapJsonData

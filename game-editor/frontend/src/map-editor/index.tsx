@@ -4,10 +4,10 @@ import { Button } from "../components/ui/button"
 import CreateMapDialog from "./components/CreateMapDialog"
 import CreateTilesetDialog from "./components/CreateTilesetDialog"
 import MapEditorView from "./components/MapEditorView"
-import { CreateMapData, CreateTilesetData, MapTile, MapData } from "./types"
+import { CreateMapData, CreateTilesetData } from "./types"
 import { models } from "../../wailsjs/go/models"
 import { GetAllMaps } from "../../wailsjs/go/parsing/ParsingApp"; // adjust path as needed
-import { DeleteMapByID } from "../../wailsjs/go/mapeditor/MapEditorApp"
+import { DeleteMapByID, UpdateTomlMapEntryByID } from "../../wailsjs/go/mapeditor/MapEditorApp"
 // Hook for managing maps
 const useMaps = () => {
   const [maps, setMaps] = useState<models.Map[]>([]);
@@ -28,8 +28,9 @@ const useMaps = () => {
   }, []);
 
 
-  const updateMap = (updatedMap: models.Map) => {
+  const updateMap = async(updatedMap: models.Map) => {
     setMaps(prev => prev.map(m => m.ID === updatedMap.ID ? updatedMap : m))
+    await UpdateTomlMapEntryByID(updatedMap)
   }
 
   const deleteMap = async(mapId: number) => {

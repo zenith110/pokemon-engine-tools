@@ -114,6 +114,28 @@ export namespace models {
 		    return a;
 		}
 	}
+	export class CaveEncounters {
+	    Name: string;
+	    ID: string;
+	    MinLevel: number;
+	    MaxLevel: number;
+	    Rarity: number;
+	    Shiny: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new CaveEncounters(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.ID = source["ID"];
+	        this.MinLevel = source["MinLevel"];
+	        this.MaxLevel = source["MaxLevel"];
+	        this.Rarity = source["Rarity"];
+	        this.Shiny = source["Shiny"];
+	    }
+	}
 	export class CreateNewTileset {
 	    tilesetHeight: number;
 	    tilesetWidth: number;
@@ -180,6 +202,50 @@ export namespace models {
 	        this.Method2 = source["Method2"];
 	    }
 	}
+	export class FishingEncounters {
+	    Name: string;
+	    ID: string;
+	    MinLevel: number;
+	    MaxLevel: number;
+	    Rarity: number;
+	    Shiny: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new FishingEncounters(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.ID = source["ID"];
+	        this.MinLevel = source["MinLevel"];
+	        this.MaxLevel = source["MaxLevel"];
+	        this.Rarity = source["Rarity"];
+	        this.Shiny = source["Shiny"];
+	    }
+	}
+	export class GrassEncounters {
+	    Name: string;
+	    ID: string;
+	    MinLevel: number;
+	    MaxLevel: number;
+	    Rarity: number;
+	    Shiny: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new GrassEncounters(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.ID = source["ID"];
+	        this.MinLevel = source["MinLevel"];
+	        this.MaxLevel = source["MaxLevel"];
+	        this.Rarity = source["Rarity"];
+	        this.Shiny = source["Shiny"];
+	    }
+	}
 	export class HeldItem {
 	    Name: string;
 	
@@ -190,6 +256,28 @@ export namespace models {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.Name = source["Name"];
+	    }
+	}
+	export class WaterEncounters {
+	    Name: string;
+	    ID: string;
+	    MinLevel: number;
+	    MaxLevel: number;
+	    Rarity: number;
+	    Shiny: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new WaterEncounters(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Name = source["Name"];
+	        this.ID = source["ID"];
+	        this.MinLevel = source["MinLevel"];
+	        this.MaxLevel = source["MaxLevel"];
+	        this.Rarity = source["Rarity"];
+	        this.Shiny = source["Shiny"];
 	    }
 	}
 	export class Properties {
@@ -217,8 +305,12 @@ export namespace models {
 	    ID: number;
 	    Width: number;
 	    Height: number;
-	    Properties: Properties[];
 	    TileSize: number;
+	    Properties: Properties[];
+	    GrassEncounters: GrassEncounters[];
+	    WaterEncounters: WaterEncounters[];
+	    CaveEncounters: CaveEncounters[];
+	    FishingEncounters: FishingEncounters[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Map(source);
@@ -230,8 +322,12 @@ export namespace models {
 	        this.ID = source["ID"];
 	        this.Width = source["Width"];
 	        this.Height = source["Height"];
-	        this.Properties = this.convertValues(source["Properties"], Properties);
 	        this.TileSize = source["TileSize"];
+	        this.Properties = this.convertValues(source["Properties"], Properties);
+	        this.GrassEncounters = this.convertValues(source["GrassEncounters"], GrassEncounters);
+	        this.WaterEncounters = this.convertValues(source["WaterEncounters"], WaterEncounters);
+	        this.CaveEncounters = this.convertValues(source["CaveEncounters"], CaveEncounters);
+	        this.FishingEncounters = this.convertValues(source["FishingEncounters"], FishingEncounters);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "../../components/ui/button"
 import { Map, Grid, Users, Zap, Save } from "lucide-react"
-import { UpdateMapJson } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { UpdateMapJson, UpdateTomlMapEntryByID } from "../../../wailsjs/go/mapeditor/MapEditorApp"
 import { models } from "../../../wailsjs/go/models"
 
 // Components
@@ -14,7 +14,7 @@ import EncounterView from "./EncounterView"
 import type { SelectedTile } from "./TilePalette"
 import MapToolbar from "./MapToolbar"
 import { MapEditorViewProps } from "../types"
-import { ParseMapData } from "../../../wailsjs/go/parsing/ParsingApp"
+import { ParseMapData, GetMapTomlByID } from "../../../wailsjs/go/parsing/ParsingApp"
 
 type ViewMode = "map" | "encounters"
 // type ViewMode = "map" | "permissions" | "npcs" | "encounters"
@@ -31,7 +31,10 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     tileset: map.Properties?.[0]?.TilesetImagePath || "",
     permissions: [],
     npcs: [],
-    encounters: [],
+    grassEncounters: map.GrassEncounters || [],
+    waterEncounters: map.WaterEncounters || [],
+    caveEncounters: map.CaveEncounters || [],
+    fishingEncounters: map.FishingEncounters || [],
     properties: {
       encounterRate: 10,
       music: map.Properties?.[0]?.BgMusic || "",
@@ -61,6 +64,17 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   useEffect(() => {
     const loadMapData = async () => {
       try {
+        console.log("Loading map data from:", map.ID);
+        const mapToml = await GetMapTomlByID(map.ID);
+        console.log("Map TOML data:", mapToml);
+        
+        // Update mapData with TOML encounter data
+        if (mapToml) {
+          mapData.grassEncounters = mapToml.GrassEncounters || [];
+          mapData.waterEncounters = mapToml.WaterEncounters || [];
+          mapData.caveEncounters = mapToml.CaveEncounters || [];
+          mapData.fishingEncounters = mapToml.FishingEncounters || [];
+        }
         // Get the JSON file path from the map properties
         const jsonFilePath = map.Properties?.[0]?.FilePath || "";
         if (!jsonFilePath) {
@@ -69,14 +83,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           const defaultLayers = [
             {
               id: 1,
-              name: "Ground",
-              visible: true,
-              locked: false,
-              tiles: [],
-            },
-            {
-              id: 2,
-              name: "Objects",
+              name: "Base Layer",
               visible: true,
               locked: false,
               tiles: [],
@@ -88,17 +95,13 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           return;
         }
 
-        console.log("Loading map data from:", jsonFilePath);
-        console.log()
         const result = await ParseMapData(jsonFilePath);
         
         if (result.success && result.data) {
           const mapJsonData = result.data as any;
-          console.log("Loaded map data:", mapJsonData);
           
           // Update layers with data from JSON
           if (mapJsonData.layers && mapJsonData.layers.length > 0) {
-            console.log(mapJsonData.layers)
             const loadedLayers = mapJsonData.layers.map((layer: any) => ({
               id: layer.id,
               name: layer.name,
@@ -141,14 +144,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             const defaultLayers = [
               {
                 id: 1,
-                name: "Ground",
-                visible: true,
-                locked: false,
-                tiles: [],
-              },
-              {
-                id: 2,
-                name: "Objects",
+                name: "Base Layer",
                 visible: true,
                 locked: false,
                 tiles: [],
@@ -159,19 +155,11 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             setHistoryIndex(0);
           }
         } else {
-          console.log("Failed to load map data, using default layers");
           // Set default layers if loading failed
           const defaultLayers = [
             {
               id: 1,
-              name: "Ground",
-              visible: true,
-              locked: false,
-              tiles: [],
-            },
-            {
-              id: 2,
-              name: "Objects",
+              name: "Base Layer",
               visible: true,
               locked: false,
               tiles: [],
@@ -187,14 +175,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
         const defaultLayers = [
           {
             id: 1,
-            name: "Ground",
-            visible: true,
-            locked: false,
-            tiles: [],
-          },
-          {
-            id: 2,
-            name: "Objects",
+            name: "Base Layer",
             visible: true,
             locked: false,
             tiles: [],
@@ -273,8 +254,38 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     handleMapChange({ ...mapData, npcs })
   }
 
-  const handleEncountersChange = (encounters: typeof mapData.encounters) => {
-    handleMapChange({ ...mapData, encounters })
+  const handleEncountersChange = (type: string, encounters: any[]) => {
+    switch (type) {
+      case "grass":
+        map.GrassEncounters = encounters;
+        break;
+      case "water":
+        map.WaterEncounters = encounters;
+        break;
+      case "cave":
+        map.CaveEncounters = encounters;
+        break;
+      case "fishing":
+        map.FishingEncounters = encounters;
+        break;
+    }
+  
+    // Update local UI state
+    handleMapChange({
+      ...mapData,
+      grassEncounters: type === "grass"
+        ? map.GrassEncounters.slice()
+        : mapData.grassEncounters,
+      waterEncounters: type === "water"
+        ? map.WaterEncounters.slice()
+        : mapData.waterEncounters,
+      caveEncounters: type === "cave"
+        ? map.CaveEncounters.slice()
+        : mapData.caveEncounters,
+      fishingEncounters: type === "fishing"
+        ? map.FishingEncounters.slice()
+        : mapData.fishingEncounters,
+    });
   }
 
   const handleSave = async () => {
@@ -301,10 +312,10 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           })),
         })),
         mapEncounters: {
-          grass: mapData.encounters.filter(e => e.type === 'grass'),
-          fishing: mapData.encounters.filter(e => e.type === 'fishing'),
-          cave: mapData.encounters.filter(e => e.type === 'cave'),
-          diving: mapData.encounters.filter(e => e.type === 'diving'),
+          grass: mapData.grassEncounters,
+          fishing: mapData.fishingEncounters,
+          cave: mapData.caveEncounters,
+          diving: mapData.waterEncounters,
         },
         properties: {
           music: mapData.properties.music,
@@ -313,8 +324,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       };
 
       const result = await UpdateMapJson(models.MapJsonData.createFrom(mapJsonData));
-      
-      if (result.success) {
+      const resultToml = await UpdateTomlMapEntryByID(map);
+      if (result.success && resultToml.success) {
         console.log("Map saved successfully:", result.message);
         // You could add a toast notification here
       } else {
@@ -401,7 +412,10 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       case "encounters":
         return (
           <EncounterView
-            encounters={mapData.encounters}
+            grassEncounters={mapData.grassEncounters}
+            waterEncounters={mapData.waterEncounters}
+            caveEncounters={mapData.caveEncounters}
+            fishingEncounters={mapData.fishingEncounters}
             setEncounters={handleEncountersChange}
           />
         )

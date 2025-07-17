@@ -40,7 +40,6 @@ const MapView = ({
 
     // Render the map
     const renderMap = async () => {
-        console.log("renderMap called with layers:", layers)
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -73,11 +72,9 @@ const MapView = ({
         // Draw visible layers in order (bottom to top)
         for (const layer of layers) {
             if (!layer.visible) continue;
-            console.log(`Rendering layer ${layer.id} with ${layer.tiles.length} tiles`)
 
             for (const tile of layer.tiles) {
                 try {
-                    console.log(`Drawing tile at (${tile.x}, ${tile.y}) with tileId:`, tile.tileId.substring(0, 50) + "...")
                     // tileId is already the base64 image data, so we can use it directly
                     const tileImage = await loadTileImage(tile.tileId);
                     ctx.drawImage(
@@ -117,7 +114,6 @@ const MapView = ({
         if (paintMode === 'stamp') {
             placeStamp(x, y);
         } else if (paintMode === 'fill') {
-            console.log('Filling entire map with tile:', selectedTile);
             fillEntireMap();
         } else if (paintMode === 'remove') {
             removeTile(x, y);
@@ -197,8 +193,6 @@ const MapView = ({
     };
 
     const placeStamp = (x: number, y: number) => {
-        console.log("placeStamp called at", x, y, "with selectedTile:", selectedTile)
-        console.log("placeStamp: activeLayerId", activeLayerId, "layer ids", layers.map(l => l.id));
         if (!selectedTile || x < 0 || x >= width || y < 0 || y >= height) return;
 
         const regionW = selectedTile.width || 1;
@@ -243,25 +237,21 @@ const MapView = ({
                     });
                 }
             }
-            console.log(`placeStamp: newTiles for layer ${layer.id}:`, newTiles);
             return {
                 ...layer,
                 tiles: newTiles,
             };
         });
 
-        console.log("placeStamp: Setting new layers:", newLayers)
         setLayers(newLayers);
         addToHistory(newLayers);
     };
 
     const fillEntireMap = () => {
-        console.log('fillEntireMap called with selectedTile:', selectedTile);
         if (!selectedTile) return;
 
         const regionW = selectedTile.width || 1;
         const regionH = selectedTile.height || 1;
-        console.log('Fill region size:', { regionW, regionH, mapSize: { width, height } });
 
         const newLayers = layers.map((layer) => {
             if (layer.id !== activeLayerId) return layer;

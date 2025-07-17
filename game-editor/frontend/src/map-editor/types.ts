@@ -37,6 +37,29 @@ export interface MapNPC {
   script?: string;
 }
 
+// TOML Encounter Types (from backend models)
+export interface TOMLEncounter {
+  name: string;
+  id: string;
+  minLevel: number;
+  maxLevel: number;
+  rarity: number;
+  shiny: boolean;
+}
+
+export interface TOMLMap {
+  name: string;
+  id: number;
+  width: number;
+  height: number;
+  tileSize: number;
+  properties: any
+  grassEncounters: TOMLEncounter[]
+  waterEncounters: TOMLEncounter[];
+  caveEncounters: TOMLEncounter[];
+  fishingEncounters: TOMLEncounter[];
+}
+
 export interface MapEncounter {
   id: string;
   name: string;

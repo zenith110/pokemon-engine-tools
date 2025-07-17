@@ -7,6 +7,8 @@ export function GetAllMaps():Promise<Array<models.Map>>;
 
 export function GetAllTilesets():Promise<Array<models.Tileset>>;
 
+export function GetMapTomlByID(arg1:number):Promise<models.Map>;
+
 export function GrabAllMoves():Promise<models.AllMoves>;
 
 export function GrabMusicTracks():Promise<Array<models.Song>>;

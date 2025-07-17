@@ -10,6 +10,10 @@ export function GetAllTilesets() {
   return window['go']['parsing']['ParsingApp']['GetAllTilesets']();
 }
 
+export function GetMapTomlByID(arg1) {
+  return window['go']['parsing']['ParsingApp']['GetMapTomlByID'](arg1);
+}
+
 export function GrabAllMoves() {
   return window['go']['parsing']['ParsingApp']['GrabAllMoves']();
 }

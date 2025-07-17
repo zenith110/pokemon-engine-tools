@@ -433,7 +433,7 @@ func (a *MapEditorApp) UpdateMapJson(mapData coreModels.MapJsonData) map[string]
 	}
 }
 
-func (a *MapEditorApp) UpdateMapEntryByID(updatedMap coreModels.Map) map[string]any {
+func (a *MapEditorApp) UpdateTomlMapEntryByID(updatedMap coreModels.Map) map[string]any {
 	// Read the existing TOML file
 	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)
 	var existingData coreModels.MapEditerMapData
