@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { ScrollArea } from "../../components/ui/scroll-area"
 import { Button } from "../../components/ui/button"
-import { ZoomIn, ZoomOut } from "lucide-react"
+import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react"
 import { ResizableBox } from "react-resizable"
 import "react-resizable/css/styles.css"
 import { GetTilesetImageData } from "../../../wailsjs/go/mapeditor/MapEditorApp"
@@ -33,6 +33,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
     const [scale, setScale] = useState<number>(2)
     const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
     const [dragging, setDragging] = useState<boolean>(false)
+    const [isExpanded, setIsExpanded] = useState<boolean>(false)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
 
@@ -171,6 +172,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
 
     const handleZoomIn = () => setScale((s) => Math.min(MAX_SCALE, s + 1))
     const handleZoomOut = () => setScale((s) => Math.max(MIN_SCALE, s - 1))
+    const handleToggleExpand = () => setIsExpanded(!isExpanded)
 
     const handleScrollKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
         const scrollStep = tileSize * scale // scroll by one tile at a time
@@ -300,24 +302,23 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
         )
     }
 
-    return (
-        <ResizableBox
-            width={350}
-            height={Infinity}
-            minConstraints={[200, 100]}
-            maxConstraints={[600, Infinity]}
-            axis="x"
-            resizeHandles={["e"]}
-            handle={<span className="custom-resize-handle" style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 8, cursor: 'ew-resize', background: 'rgba(51,65,85,0.2)', zIndex: 10 }} />}
-        >
-            <div className="flex flex-col h-full bg-slate-950" style={{ height: '100vh', boxSizing: 'border-box', border: '2px solid #334155', borderRadius: 8 }}>
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex flex-col">
-                        <h3 className="text-lg font-semibold">Tile Palette</h3>
-                        <p className="text-xs text-gray-400">Select tiles from the loaded tileset</p>
-                    </div>
+    const renderTilePaletteContent = () => (
+        <div className="flex flex-col h-full bg-slate-950" style={{ height: '100vh', boxSizing: 'border-box', border: '2px solid #334155', borderRadius: 8 }}>
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col">
+                    <h3 className="text-lg font-semibold">Tile Palette</h3>
+                    <p className="text-xs text-gray-400">Select tiles from the loaded tileset</p>
                 </div>
-                <div className="flex items-center gap-2 mb-2">
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleToggleExpand} 
+                    title={isExpanded ? "Minimize" : "Maximize"}
+                >
+                    {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </Button>
+            </div>
+                            <div className="flex items-center gap-2 mb-2">
                     <Button variant="ghost" size="icon" onClick={handleZoomOut} disabled={scale === MIN_SCALE} title="Zoom Out"><ZoomOut className="h-4 w-4" /></Button>
                     <span className="text-xs text-gray-400">Zoom: {scale}x</span>
                     <Button variant="ghost" size="icon" onClick={handleZoomIn} disabled={scale === MAX_SCALE} title="Zoom In"><ZoomIn className="h-4 w-4" /></Button>
@@ -329,7 +330,7 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
                 )}
                 <ScrollArea
                     className="h-[calc(100vh-10rem)] rounded-md border border-slate-800"
-                    style={{ overflowY: 'auto', overflowX: 'auto' }}
+                    style={{ overflowY: 'auto', overflowX: 'auto', width: '100%' }}
                     tabIndex={0}
                     ref={scrollAreaRef}
                     onKeyDown={handleScrollKey}
@@ -343,8 +344,8 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
                                 userSelect: 'none',
                                 minWidth: tilesetDims.width * scale,
                                 minHeight: tilesetDims.height * scale,
-                                maxWidth: 'unset',
-                                maxHeight: 'unset',
+                                maxWidth: 'none',
+                                maxHeight: 'none',
                             }}
                             onMouseDown={handleMouseDown}
                             onMouseMove={handleMouseMove}
@@ -359,8 +360,8 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
                                     height: tilesetDims.height * scale,
                                     display: 'block',
                                     pointerEvents: 'none',
-                                    maxWidth: 'unset',
-                                    maxHeight: 'unset',
+                                    maxWidth: 'none',
+                                    maxHeight: 'none',
                                 }}
                             />
                             {/* Grid overlay */}
@@ -388,7 +389,28 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
                     )}
                 </ScrollArea>
             </div>
-        </ResizableBox>
+    )
+
+    return (
+        <>
+            {isExpanded ? (
+                <div className="fixed inset-0 z-50 bg-slate-950">
+                    {renderTilePaletteContent()}
+                </div>
+            ) : (
+                <ResizableBox
+                    width={350}
+                    height={Infinity}
+                    minConstraints={[200, 100]}
+                    maxConstraints={[800, Infinity]}
+                    axis="x"
+                    resizeHandles={["e"]}
+                    handle={<span className="custom-resize-handle" style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 8, cursor: 'ew-resize', background: 'rgba(51,65,85,0.2)', zIndex: 10 }} />}
+                >
+                    {renderTilePaletteContent()}
+                </ResizableBox>
+            )}
+        </>
     )
 }
 

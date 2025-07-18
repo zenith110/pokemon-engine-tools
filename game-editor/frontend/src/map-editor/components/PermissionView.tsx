@@ -44,9 +44,15 @@ const PermissionView = ({
         canvas.width = width * tileSize;
         canvas.height = height * tileSize;
 
-        // Draw background
-        ctx.fillStyle = "#1e293b";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw checkerboard pattern for transparency
+        const checkerSize = 8; // Size of each checker square
+        for (let x = 0; x < canvas.width; x += checkerSize) {
+            for (let y = 0; y < canvas.height; y += checkerSize) {
+                const isEven = ((x / checkerSize) + (y / checkerSize)) % 2 === 0;
+                ctx.fillStyle = isEven ? '#ffffff' : '#cccccc';
+                ctx.fillRect(x, y, checkerSize, checkerSize);
+            }
+        }
 
         // Draw map layers (reuse logic from MapView, simplified here)
         for (const layer of layers) {
@@ -66,8 +72,8 @@ const PermissionView = ({
             }
         }
 
-        // Draw grid
-        ctx.strokeStyle = "rgba(255,255,255,0.1)";
+        // Draw grid with a subtle pattern to show transparency
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
         for (let x = 0; x <= width; x++) {
             ctx.beginPath();
             ctx.moveTo(x * tileSize, 0);
@@ -147,7 +153,7 @@ const PermissionView = ({
             <Card className="p-4 bg-slate-900">
                 <canvas
                     ref={canvasRef}
-                    style={{ cursor: "crosshair" }}
+                    style={{ cursor: "crosshair", background: "transparent" }}
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}

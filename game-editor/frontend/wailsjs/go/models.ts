@@ -1,3 +1,216 @@
+export namespace mapeditor {
+	
+	export class Tile {
+	    x: number;
+	    y: number;
+	    tileId: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Tile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.x = source["x"];
+	        this.y = source["y"];
+	        this.tileId = source["tileId"];
+	    }
+	}
+	export class Layer {
+	    id: number;
+	    name: string;
+	    visible: boolean;
+	    locked: boolean;
+	    tiles: Tile[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Layer(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.visible = source["visible"];
+	        this.locked = source["locked"];
+	        this.tiles = this.convertValues(source["tiles"], Tile);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RenderRequest {
+	    width: number;
+	    height: number;
+	    tileSize: number;
+	    layers: Layer[];
+	    showGrid: boolean;
+	    showCheckerboard: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new RenderRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.width = source["width"];
+	        this.height = source["height"];
+	        this.tileSize = source["tileSize"];
+	        this.layers = this.convertValues(source["layers"], Layer);
+	        this.showGrid = source["showGrid"];
+	        this.showCheckerboard = source["showCheckerboard"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RenderResponse {
+	    success: boolean;
+	    imageData?: string;
+	    error?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RenderResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.imageData = source["imageData"];
+	        this.error = source["error"];
+	    }
+	}
+	export class SelectedTile {
+	    id: string;
+	    name: string;
+	    image: string;
+	    width: number;
+	    height: number;
+	    subTiles?: string[][];
+	
+	    static createFrom(source: any = {}) {
+	        return new SelectedTile(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.image = source["image"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	        this.subTiles = source["subTiles"];
+	    }
+	}
+	export class StampRequest {
+	    selectedTile?: SelectedTile;
+	    x: number;
+	    y: number;
+	    width: number;
+	    height: number;
+	    layers: Layer[];
+	    activeLayerId: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new StampRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.selectedTile = this.convertValues(source["selectedTile"], SelectedTile);
+	        this.x = source["x"];
+	        this.y = source["y"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	        this.layers = this.convertValues(source["layers"], Layer);
+	        this.activeLayerId = source["activeLayerId"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class StampResponse {
+	    success: boolean;
+	    layers: Layer[];
+	    error?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StampResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.layers = this.convertValues(source["layers"], Layer);
+	        this.error = source["error"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+
+}
+
 export namespace models {
 	
 	export class Abilities {
@@ -204,6 +417,32 @@ export namespace models {
 	        this.Method2 = source["Method2"];
 	    }
 	}
+	export class FishingEncounter {
+	    name: string;
+	    id: string;
+	    minLevel: number;
+	    maxLevel: number;
+	    rarity: number;
+	    shiny: boolean;
+	    timeOfDayToCatch: string;
+	    highestRod: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FishingEncounter(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.id = source["id"];
+	        this.minLevel = source["minLevel"];
+	        this.maxLevel = source["maxLevel"];
+	        this.rarity = source["rarity"];
+	        this.shiny = source["shiny"];
+	        this.timeOfDayToCatch = source["timeOfDayToCatch"];
+	        this.highestRod = source["highestRod"];
+	    }
+	}
 	export class FishingEncounters {
 	    Name: string;
 	    ID: string;
@@ -212,6 +451,7 @@ export namespace models {
 	    Rarity: number;
 	    Shiny: boolean;
 	    TimeOfDayToCatch: string;
+	    HighestRod: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FishingEncounters(source);
@@ -226,6 +466,7 @@ export namespace models {
 	        this.Rarity = source["Rarity"];
 	        this.Shiny = source["Shiny"];
 	        this.TimeOfDayToCatch = source["TimeOfDayToCatch"];
+	        this.HighestRod = source["HighestRod"];
 	    }
 	}
 	export class GrassEncounters {
@@ -387,10 +628,13 @@ export namespace models {
 		}
 	}
 	export class MapEncounter {
+	    name: string;
+	    id: string;
 	    minLevel: number;
 	    maxLevel: number;
-	    pokemonName: string;
-	    pokemonId: string;
+	    rarity: number;
+	    shiny: boolean;
+	    timeOfDayToCatch: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new MapEncounter(source);
@@ -398,15 +642,18 @@ export namespace models {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.id = source["id"];
 	        this.minLevel = source["minLevel"];
 	        this.maxLevel = source["maxLevel"];
-	        this.pokemonName = source["pokemonName"];
-	        this.pokemonId = source["pokemonId"];
+	        this.rarity = source["rarity"];
+	        this.shiny = source["shiny"];
+	        this.timeOfDayToCatch = source["timeOfDayToCatch"];
 	    }
 	}
 	export class MapEncounters {
 	    grass: MapEncounter[];
-	    fishing: MapEncounter[];
+	    fishing: FishingEncounter[];
 	    cave: MapEncounter[];
 	    diving: MapEncounter[];
 	
@@ -417,7 +664,7 @@ export namespace models {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.grass = this.convertValues(source["grass"], MapEncounter);
-	        this.fishing = this.convertValues(source["fishing"], MapEncounter);
+	        this.fishing = this.convertValues(source["fishing"], FishingEncounter);
 	        this.cave = this.convertValues(source["cave"], MapEncounter);
 	        this.diving = this.convertValues(source["diving"], MapEncounter);
 	    }

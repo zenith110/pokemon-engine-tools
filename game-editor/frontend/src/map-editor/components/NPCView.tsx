@@ -68,12 +68,18 @@ const NPCView = ({
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw background
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw checkerboard pattern for transparency
+        const checkerSize = 8; // Size of each checker square
+        for (let x = 0; x < canvas.width; x += checkerSize) {
+            for (let y = 0; y < canvas.height; y += checkerSize) {
+                const isEven = ((x / checkerSize) + (y / checkerSize)) % 2 === 0;
+                ctx.fillStyle = isEven ? '#ffffff' : '#cccccc';
+                ctx.fillRect(x, y, checkerSize, checkerSize);
+            }
+        }
 
-        // Draw grid
-        ctx.strokeStyle = 'rgba(51,65,85,0.1)';
+        // Draw grid with a subtle pattern to show transparency
+        ctx.strokeStyle = 'rgba(51,65,85,0.3)';
         ctx.lineWidth = 1;
         for (let x = 0; x <= width; x++) {
             ctx.beginPath();

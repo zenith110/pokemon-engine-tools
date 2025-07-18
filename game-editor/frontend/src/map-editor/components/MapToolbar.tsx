@@ -1,5 +1,5 @@
 import { Button } from "../../components/ui/button";
-import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw } from "lucide-react";
+import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw, Save, Link } from "lucide-react";
 
 interface MapToolbarProps {
   paintMode: 'stamp' | 'fill' | 'remove';
@@ -11,6 +11,10 @@ interface MapToolbarProps {
   redo: () => void;
   setPaintMode: (mode: 'stamp' | 'fill' | 'remove') => void;
   clearMap: () => void;
+  onSave: () => void;
+  onConnectMap: () => void;
+  hasUnsavedChanges: boolean;
+  isSaving: boolean;
 }
 
 const activeBtnClass =
@@ -26,6 +30,10 @@ const MapToolbar = ({
   redo,
   setPaintMode,
   clearMap,
+  onSave,
+  onConnectMap,
+  hasUnsavedChanges,
+  isSaving,
 }: MapToolbarProps) => (
   <>
     {selectedTile && (
@@ -82,6 +90,25 @@ const MapToolbar = ({
       </Button>
       <Button variant="ghost" size="icon" onClick={clearMap} title="Clear Map">
         <RotateCcw className="h-4 w-4" />
+      </Button>
+      <div className="w-px h-6 bg-slate-600 mx-2"></div>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={onSave} 
+        disabled={isSaving || !hasUnsavedChanges}
+        title={isSaving ? "Saving..." : hasUnsavedChanges ? "Save Map" : "No changes to save"}
+        className={hasUnsavedChanges ? "text-blue-400 hover:text-blue-300" : "text-slate-500"}
+      >
+        <Save className="h-4 w-4" />
+      </Button>
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={onConnectMap}
+        title="Connect Maps"
+      >
+        <Link className="h-4 w-4" />
       </Button>
     </div>
   </>

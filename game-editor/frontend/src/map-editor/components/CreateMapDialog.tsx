@@ -71,6 +71,10 @@ const CreateMapDialog = ({ handleCreateMap }: CreateMapDialogProps) => {
             setError("Map dimensions must be greater than 0")
             return
         }
+        if (parseInt(width) > 200 || parseInt(height) > 200) {
+            setError("Map dimensions cannot exceed 200x200")
+            return
+        }
         if (tilesets.length === 0) {
             setError("No tilesets available. Please create a tileset first.")
             return
@@ -159,7 +163,7 @@ const CreateMapDialog = ({ handleCreateMap }: CreateMapDialogProps) => {
                                     id="width"
                                     type="number"
                                     min="1"
-                                    max="100"
+                                    max="200"
                                     value={width}
                                     onChange={(e) => setWidth(e.target.value)}
                                     className="col-span-3 bg-slate-800 border-slate-700 text-white"
@@ -171,7 +175,7 @@ const CreateMapDialog = ({ handleCreateMap }: CreateMapDialogProps) => {
                                     id="height"
                                     type="number"
                                     min="1"
-                                    max="100"
+                                    max="200"
                                     value={height}
                                     onChange={(e) => setHeight(e.target.value)}
                                     className="col-span-3 bg-slate-800 border-slate-700 text-white"

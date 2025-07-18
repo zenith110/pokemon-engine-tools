@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { Card } from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
-import { Trash2, Edit, Plus, ChevronLeft, ChevronRight } from "lucide-react";
-import { Label } from "../../components/ui/label";
-import { TOMLEncounter } from "../types";
+import { Button } from "../../../components/ui/button";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Label } from "../../../components/ui/label";
+import { TOMLEncounter } from "../../types";
 import EncounterDialog from "./EncounterDialog";
-import {LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp"
 import PokemonSprite from "./PokemonSprite";
 interface EncounterViewProps {
     grassEncounters: TOMLEncounter[];
