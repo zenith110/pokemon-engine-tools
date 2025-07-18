@@ -150,7 +150,7 @@ const MapEditor = () => {
           TileSize: mapData.tilesetSize,
           Properties: [{
             TilesetImagePath: mapData.tilesetPath,
-            FilePath: `data/assets/maps/${mapData.mapName.toLowerCase().replace(/\s+/g, '_')}.json`,
+            FilePath: `data/assets/maps/${mapData.mapName}.json`,
             TypeOfMap: mapData.type,
             BgMusic: mapData.music || "",
             Description: mapData.description || "",
@@ -172,7 +172,7 @@ const MapEditor = () => {
           Height: mapData.height,
           Properties: [{
             TilesetImagePath: mapData.tilesetPath,
-            FilePath: `data/assets/maps/${mapData.mapName.toLowerCase().replace(/\s+/g, '_')}.json`,
+            FilePath: `data/assets/maps/${mapData.mapName}.json`,
             TypeOfMap: mapData.type,
             BgMusic: mapData.music || "",
             Description: mapData.description || ""

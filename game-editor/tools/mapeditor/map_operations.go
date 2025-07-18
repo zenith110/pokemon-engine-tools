@@ -24,7 +24,7 @@ func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string
 			Type:                 "overworld",
 			TilesetPath:          mapItem.Properties[0].TilesetImagePath,
 			Layers:               []coreModels.MapLayer{},
-			CurrentSelectedLayer: "Layer 1",
+			CurrentSelectedLayer: "Base Layer",
 			MapEncounters: coreModels.MapEncounters{
 				Grass:   []coreModels.MapEncounter{},
 				Fishing: []coreModels.FishingEncounter{},
@@ -89,7 +89,7 @@ func (a *MapEditorApp) CreateMap(mapData coreModels.MapEditerMapData) map[string
 		// Create default layers
 		jsonData.Layers = append(jsonData.Layers, coreModels.MapLayer{
 			ID:      1,
-			Name:    "Layer 1",
+			Name:    "Base Layer",
 			Visible: true,
 			Locked:  false,
 			Tiles:   []coreModels.MapTile{},

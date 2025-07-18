@@ -20,8 +20,8 @@ interface MapEditorViewProps {
 }
 
 const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
-  // Convert Go model to frontend MapData structure
-  const mapData = {
+  // State for map data
+  const [mapData, setMapData] = useState({
     id: map.ID?.toString() || "1",
     name: map.Name || "Untitled Map",
     width: map.Width || 20,
@@ -41,7 +41,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       music: map.Properties?.[0]?.BgMusic || "",
       description: map.Properties?.[0]?.Description || "",
     }
-  };
+  });
 
   // LIFTED STATE: layers - start with empty array, will be populated from JSON
   const [layers, setLayers] = useState<Array<{
@@ -75,20 +75,29 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   // Load map data from JSON file
   useEffect(() => {
     const loadMapData = async () => {
+              console.log("Loading map data for map ID:", map.ID);
       setIsLoading(true);
       try {
         const mapToml = await GetMapTomlByID(map.ID);
+
         
         // Update mapData with TOML encounter data
         if (mapToml) {
-          mapData.grassEncounters = mapToml.GrassEncounters || [];
-          mapData.waterEncounters = mapToml.WaterEncounters || [];
-          mapData.caveEncounters = mapToml.CaveEncounters || [];
-          mapData.fishingEncounters = mapToml.FishingEncounters || [];
+          setMapData(prev => ({
+            ...prev,
+            grassEncounters: mapToml.GrassEncounters || [],
+            waterEncounters: mapToml.WaterEncounters || [],
+            caveEncounters: mapToml.CaveEncounters || [],
+            fishingEncounters: mapToml.FishingEncounters || [],
+          }));
         }
+        
         // Get the JSON file path from the map properties
         const jsonFilePath = map.Properties?.[0]?.FilePath || "";
+        console.log("JSON file path:", jsonFilePath);
+        
         if (!jsonFilePath) {
+          console.log("No JSON file path found, setting default layers");
           // Set default layers if no JSON file path
           const defaultLayers = [
             {
@@ -107,33 +116,38 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
 
         const result = await ParseMapData(jsonFilePath);
         
+        console.log("ParseMapData result:", result);
+        
         if (result.success && result.data) {
           const mapJsonData = result.data as any;
           
-          // Update layers with data from JSON
-          if (mapJsonData.layers && mapJsonData.layers.length > 0) {
-            const loadedLayers = mapJsonData.layers.map((layer: any) => ({
-              id: layer.id,
-              name: layer.name,
-              visible: layer.visible,
-              locked: layer.locked || false,
-              tiles: layer.tiles.map((tile: any) => ({
-                x: tile.x,
-                y: tile.y,
-                tileId: tile.tileId,
-                autoTileId: tile.autoTileId || undefined,
+          // Update layers with data from JSON - fix field name mismatches
+          if (mapJsonData.Layers && mapJsonData.Layers.length > 0) {
+            const loadedLayers = mapJsonData.Layers.map((layer: any) => ({
+              id: layer.ID || layer.id,
+              name: layer.Name || layer.name,
+              visible: layer.Visible !== undefined ? layer.Visible : (layer.visible !== undefined ? layer.visible : true),
+              locked: layer.Locked !== undefined ? layer.Locked : (layer.locked !== undefined ? layer.locked : false),
+              tiles: (layer.Tiles || layer.tiles || []).map((tile: any) => ({
+                x: tile.X || tile.x,
+                y: tile.Y || tile.y,
+                tileId: tile.TileID || tile.tileId || tile.TileId,
+                autoTileId: tile.AutoTileID || tile.autoTileId || tile.AutoTileId || undefined,
               })),
             }));
             
+            console.log("Loaded layers:", loadedLayers);
             setLayers(loadedLayers);
             
             // Set the active layer based on CurrentSelectedLayer property
-            if (mapJsonData.currentlySelectedLayer && mapJsonData.currentlySelectedLayer !== "") {
+            const currentLayerName = mapJsonData.CurrentSelectedLayer || mapJsonData.currentlySelectedLayer || "";
+            
+            if (currentLayerName && currentLayerName !== "") {
               // Check if the specified layer exists by name
-              const layerExists = loadedLayers.some(layer => layer.name === mapJsonData.currentlySelectedLayer);
+              const layerExists = loadedLayers.some(layer => layer.name === currentLayerName);
               if (layerExists) {
                 // Find the layer by name and set its ID as active
-                const targetLayer = loadedLayers.find(layer => layer.name === mapJsonData.currentlySelectedLayer);
+                const targetLayer = loadedLayers.find(layer => layer.name === currentLayerName);
                 setActiveLayerId(targetLayer?.id || 1);
               } else {
                 // If the specified layer doesn't exist, default to the first layer
@@ -163,6 +177,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             setHistoryIndex(0);
           }
         } else {
+          console.error("Failed to parse map data:", result.errorMessage);
           // Set default layers if loading failed
           const defaultLayers = [
             {
@@ -226,70 +241,70 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
         return;
       }
 
-      // Create the MapJsonData structure from current state
+      // Create the MapJsonData structure from current state - use correct field names for Go models
       const mapJsonData = {
-        id: parseInt(mapData.id),
-        name: mapData.name,
-        width: mapData.width,
-        height: mapData.height,
-        tileSize: mapData.tileSize,
-        type: mapData.type,
-        tilesetPath: mapData.tileset,
-        layers: layers.map(layer => ({
-          id: layer.id,
-          name: layer.name,
-          visible: layer.visible,
-          locked: layer.locked,
-          tiles: layer.tiles.map(tile => ({
-            x: tile.x,
-            y: tile.y,
-            tileId: tile.tileId,
-            autoTileId: tile.autoTileId || "",
+        ID: parseInt(mapData.id),
+        Name: mapData.name,
+        Width: mapData.width,
+        Height: mapData.height,
+        TileSize: mapData.tileSize,
+        Type: mapData.type,
+        TilesetPath: mapData.tileset,
+        Layers: layers.map(layer => ({
+          ID: layer.id,
+          Name: layer.name,
+          Visible: layer.visible,
+          Locked: layer.locked,
+          Tiles: layer.tiles.map(tile => ({
+            X: tile.x,
+            Y: tile.y,
+            TileID: tile.tileId,
+            AutoTileID: tile.autoTileId || "",
           })),
         })),
-        mapEncounters: {
-          grass: mapData.grassEncounters.map(encounter => ({
-            name: encounter.Name,
-            id: encounter.ID,
-            minLevel: encounter.MinLevel,
-            maxLevel: encounter.MaxLevel,
-            rarity: encounter.Rarity,
-            shiny: encounter.Shiny,
-            timeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
+        MapEncounters: {
+          Grass: mapData.grassEncounters.map(encounter => ({
+            Name: encounter.Name,
+            ID: encounter.ID,
+            MinLevel: encounter.MinLevel,
+            MaxLevel: encounter.MaxLevel,
+            Rarity: encounter.Rarity,
+            Shiny: encounter.Shiny,
+            TimeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
           })),
-          fishing: mapData.fishingEncounters.map(encounter => ({
-            name: encounter.Name,
-            id: encounter.ID,
-            minLevel: encounter.MinLevel,
-            maxLevel: encounter.MaxLevel,
-            rarity: encounter.Rarity,
-            shiny: encounter.Shiny,
-            timeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
-            highestRod: encounter.HighestRod || "Old Rod",
+          Fishing: mapData.fishingEncounters.map(encounter => ({
+            Name: encounter.Name,
+            ID: encounter.ID,
+            MinLevel: encounter.MinLevel,
+            MaxLevel: encounter.MaxLevel,
+            Rarity: encounter.Rarity,
+            Shiny: encounter.Shiny,
+            TimeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
+            HighestRod: encounter.HighestRod || "Old Rod",
           })),
-          cave: mapData.caveEncounters.map(encounter => ({
-            name: encounter.Name,
-            id: encounter.ID,
-            minLevel: encounter.MinLevel,
-            maxLevel: encounter.MaxLevel,
-            rarity: encounter.Rarity,
-            shiny: encounter.Shiny,
-            timeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
+          Cave: mapData.caveEncounters.map(encounter => ({
+            Name: encounter.Name,
+            ID: encounter.ID,
+            MinLevel: encounter.MinLevel,
+            MaxLevel: encounter.MaxLevel,
+            Rarity: encounter.Rarity,
+            Shiny: encounter.Shiny,
+            TimeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
           })),
-          diving: mapData.waterEncounters.map(encounter => ({
-            name: encounter.Name,
-            id: encounter.ID,
-            minLevel: encounter.MinLevel,
-            maxLevel: encounter.MaxLevel,
-            rarity: encounter.Rarity,
-            shiny: encounter.Shiny,
-            timeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
+          Diving: mapData.waterEncounters.map(encounter => ({
+            Name: encounter.Name,
+            ID: encounter.ID,
+            MinLevel: encounter.MinLevel,
+            MaxLevel: encounter.MaxLevel,
+            Rarity: encounter.Rarity,
+            Shiny: encounter.Shiny,
+            TimeOfDayToCatch: encounter.TimeOfDayToCatch || "Morning",
           })),
         },
-        properties: {
-          music: mapData.properties.music,
+        Properties: {
+          Music: mapData.properties.music,
         },
-        currentlySelectedLayer: layers.find(layer => layer.id === activeLayerId)?.name || "",
+        CurrentSelectedLayer: layers.find(layer => layer.id === activeLayerId)?.name || "",
       };
 
       // Save to the correct JSON file path using the file path from map properties
@@ -318,6 +333,9 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   
 
   const handleMapChange = (updatedMapData: typeof mapData) => {
+    // Update local state
+    setMapData(updatedMapData);
+    
     // Convert back to Go model for the callback
     const updatedMap = {
       ...map,
@@ -375,7 +393,6 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     // Update map data
     const clearedMapData = {
       ...mapData,
-      layers: [baseLayer]
     };
     handleMapChange(clearedMapData);
   };
@@ -393,37 +410,26 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   };
 
   const handleEncountersChange = (type: string, encounters: TOMLEncounter[]) => {
-    switch (type) {
-      case "grass":
-        map.GrassEncounters = encounters;
-        break;
-      case "water":
-        map.WaterEncounters = encounters;
-        break;
-      case "cave":
-        map.CaveEncounters = encounters;
-        break;
-      case "fishing":
-        map.FishingEncounters = encounters;
-        break;
-    }
-  
-    // Update local UI state
-    handleMapChange({
-      ...mapData,
-      grassEncounters: type === "grass"
-        ? map.GrassEncounters.slice()
-        : mapData.grassEncounters,
-      waterEncounters: type === "water"
-        ? map.WaterEncounters.slice()
-        : mapData.waterEncounters,
-      caveEncounters: type === "cave"
-        ? map.CaveEncounters.slice()
-        : mapData.caveEncounters,
-      fishingEncounters: type === "fishing"
-        ? map.FishingEncounters.slice()
-        : mapData.fishingEncounters,
-    });
+    // Update local state directly
+    setMapData(prev => ({
+      ...prev,
+      grassEncounters: type === "grass" ? encounters : prev.grassEncounters,
+      waterEncounters: type === "water" ? encounters : prev.waterEncounters,
+      caveEncounters: type === "cave" ? encounters : prev.caveEncounters,
+      fishingEncounters: type === "fishing" ? encounters : prev.fishingEncounters,
+    }));
+    
+    // Update the Go model
+    const updatedMap = {
+      ...map,
+      GrassEncounters: type === "grass" ? encounters : map.GrassEncounters,
+      WaterEncounters: type === "water" ? encounters : map.WaterEncounters,
+      CaveEncounters: type === "cave" ? encounters : map.CaveEncounters,
+      FishingEncounters: type === "fishing" ? encounters : map.FishingEncounters,
+    };
+    
+    // Call the parent callback
+    onMapChange(updatedMap);
     
     // Mark as having unsaved changes when encounters change
     setHasUnsavedChanges(true);
@@ -437,19 +443,19 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     type: string;
     music: string;
   }) => {
-    // Update local mapData with new settings
-    const updatedMapData = {
-      ...mapData,
+    // Update local state directly
+    setMapData(prev => ({
+      ...prev,
       name: settings.name,
       width: settings.width,
       height: settings.height,
       tileSize: settings.tileSize,
       type: settings.type,
       properties: {
-        ...mapData.properties,
+        ...prev.properties,
         music: settings.music,
       },
-    };
+    }));
 
     // Update the Go model
     const updatedMap = {
@@ -467,15 +473,14 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     // Call the parent callback
     onMapChange(updatedMap);
     
-    // Update local state
-    handleMapChange(updatedMapData);
-    
     // Mark as having unsaved changes when settings change
     setHasUnsavedChanges(true);
   };
 
 
 
+
+  
   return (
     <div className="min-h-screen min-w-screen flex flex-col bg-slate-950 text-white">
       <MapEditorHeader
