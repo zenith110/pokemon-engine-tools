@@ -88,16 +88,31 @@ type MapLayer struct {
 	Tiles   []MapTile `json:"tiles"`
 }
 type MapEncounter struct {
-	MinLevel    int    `json:"minLevel"`
-	MaxLevel    int    `json:"maxLevel"`
-	PokemonName string `json:"pokemonName"`
-	PokemonId   string `json:"pokemonId"`
+	Name             string `json:"name"`
+	ID               string `json:"id"`
+	MinLevel         int    `json:"minLevel"`
+	MaxLevel         int    `json:"maxLevel"`
+	Rarity           int    `json:"rarity"`
+	Shiny            bool   `json:"shiny"`
+	TimeOfDayToCatch string `json:"timeOfDayToCatch"`
 }
+
+type FishingEncounter struct {
+	Name             string `json:"name"`
+	ID               string `json:"id"`
+	MinLevel         int    `json:"minLevel"`
+	MaxLevel         int    `json:"maxLevel"`
+	Rarity           int    `json:"rarity"`
+	Shiny            bool   `json:"shiny"`
+	TimeOfDayToCatch string `json:"timeOfDayToCatch"`
+	HighestRod       string `json:"highestRod"`
+}
+
 type MapEncounters struct {
-	Grass   []MapEncounter `json:"grass"`
-	Fishing []MapEncounter `json:"fishing"`
-	Cave    []MapEncounter `json:"cave"`
-	Diving  []MapEncounter `json:"diving"`
+	Grass   []MapEncounter     `json:"grass"`
+	Fishing []FishingEncounter `json:"fishing"`
+	Cave    []MapEncounter     `json:"cave"`
+	Diving  []MapEncounter     `json:"diving"`
 }
 type MapProperties struct {
 	Music string `json:"music"`

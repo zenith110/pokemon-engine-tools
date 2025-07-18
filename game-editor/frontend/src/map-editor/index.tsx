@@ -140,7 +140,6 @@ const MapEditor = () => {
 
   const handleCreateMap = async (mapData: CreateMapData) => {
     try {
-      console.log(mapData)
       // Create the map data for backend
       const backendMapData = {
         Map: [{
@@ -200,11 +199,6 @@ const MapEditor = () => {
     }
   }
 
-  const handleCreateTileset = (tilesetData: CreateTilesetData) => {
-    console.log('Creating tileset:', tilesetData)
-    // TODO: Implement tileset creation logic
-    alert(`Tileset "${tilesetData.name}" created successfully!`)
-  }
 
   const handleMapChange = (updatedMap: models.Map) => {
     setSelectedMap(updatedMap)

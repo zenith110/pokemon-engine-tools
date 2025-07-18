@@ -39,12 +39,14 @@ export interface MapNPC {
 
 // TOML Encounter Types (from backend models)
 export interface TOMLEncounter {
-  name: string;
-  id: string;
-  minLevel: number;
-  maxLevel: number;
-  rarity: number;
-  shiny: boolean;
+  Name: string;
+  ID: string;
+  MinLevel: number;
+  MaxLevel: number;
+  Rarity: number;
+  Shiny: boolean;
+  TimeOfDayToCatch?: "Morning" | "Afternoon" | "Night";
+  HighestRod?: "Old Rod" | "Normal Rod" | "Super Rod";
 }
 
 export interface TOMLMap {

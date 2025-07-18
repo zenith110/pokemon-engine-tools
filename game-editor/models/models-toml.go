@@ -24,36 +24,41 @@ type Properties struct {
 }
 
 type GrassEncounters struct {
-	Name     string `toml:"name"`
-	ID       string `toml:"id"`
-	MinLevel int    `toml:"minLevel"`
-	MaxLevel int    `toml:"maxLevel"`
-	Rarity   int    `toml:"rarity"`
-	Shiny    bool   `toml:"shiny"`
+	Name             string `toml:"name"`
+	ID               string `toml:"id"`
+	MinLevel         int    `toml:"minLevel"`
+	MaxLevel         int    `toml:"maxLevel"`
+	Rarity           int    `toml:"rarity"`
+	Shiny            bool   `toml:"shiny"`
+	TimeOfDayToCatch string `toml:"timeOfDayToCatch"`
 }
 type WaterEncounters struct {
-	Name     string `toml:"name"`
-	ID       string `toml:"id"`
-	MinLevel int    `toml:"minLevel"`
-	MaxLevel int    `toml:"maxLevel"`
-	Rarity   int    `toml:"rarity"`
-	Shiny    bool   `toml:"shiny"`
+	Name             string `toml:"name"`
+	ID               string `toml:"id"`
+	MinLevel         int    `toml:"minLevel"`
+	MaxLevel         int    `toml:"maxLevel"`
+	Rarity           int    `toml:"rarity"`
+	Shiny            bool   `toml:"shiny"`
+	TimeOfDayToCatch string `toml:"timeOfDayToCatch"`
 }
 type CaveEncounters struct {
-	Name     string `toml:"name"`
-	ID       string `toml:"id"`
-	MinLevel int    `toml:"minLevel"`
-	MaxLevel int    `toml:"maxLevel"`
-	Rarity   int    `toml:"rarity"`
-	Shiny    bool   `toml:"shiny"`
+	Name             string `toml:"name"`
+	ID               string `toml:"id"`
+	MinLevel         int    `toml:"minLevel"`
+	MaxLevel         int    `toml:"maxLevel"`
+	Rarity           int    `toml:"rarity"`
+	Shiny            bool   `toml:"shiny"`
+	TimeOfDayToCatch string `toml:"timeOfDayToCatch"`
 }
 type FishingEncounters struct {
-	Name     string `toml:"name"`
-	ID       string `toml:"id"`
-	MinLevel int    `toml:"minLevel"`
-	MaxLevel int    `toml:"maxLevel"`
-	Rarity   int    `toml:"rarity"`
-	Shiny    bool   `toml:"shiny"`
+	Name             string `toml:"name"`
+	ID               string `toml:"id"`
+	MinLevel         int    `toml:"minLevel"`
+	MaxLevel         int    `toml:"maxLevel"`
+	Rarity           int    `toml:"rarity"`
+	Shiny            bool   `toml:"shiny"`
+	TimeOfDayToCatch string `toml:"timeOfDayToCatch"`
+	HighestRod       string `toml:"highestRod"`
 }
 type Map struct {
 	Name              string              `toml:"name"`

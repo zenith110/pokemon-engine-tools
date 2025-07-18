@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { ScrollArea } from "../../components/ui/scroll-area";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Label } from "../../components/ui/label";
 import { TOMLEncounter } from "../types";
 import EncounterDialog from "./EncounterDialog";
-
+import {LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp"
+import PokemonSprite from "./PokemonSprite";
 interface EncounterViewProps {
     grassEncounters: TOMLEncounter[];
     waterEncounters: TOMLEncounter[];
@@ -30,6 +30,7 @@ type EncounterGroup = {
     encounters: TOMLEncounter[];
 };
 
+
 const EncounterView = ({
     grassEncounters,
     waterEncounters,
@@ -37,12 +38,39 @@ const EncounterView = ({
     fishingEncounters,
     setEncounters,
 }: EncounterViewProps) => {
+    const [currentPages, setCurrentPages] = useState<Record<string, number>>({
+        grass: 0,
+        water: 0,
+        cave: 0,
+        fishing: 0,
+    });
+
+    const ITEMS_PER_PAGE = 8;
+
     const encounterGroups: EncounterGroup[] = [
         { type: "grass", label: "Grass", encounters: grassEncounters },
         { type: "water", label: "Water", encounters: waterEncounters },
         { type: "cave", label: "Cave", encounters: caveEncounters },
         { type: "fishing", label: "Fishing", encounters: fishingEncounters },
     ];
+
+    const getPaginatedEncounters = (encounters: TOMLEncounter[], type: string) => {
+        const startIndex = currentPages[type] * ITEMS_PER_PAGE;
+        return encounters.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    };
+
+    const totalPages = (encounters: TOMLEncounter[]) => Math.ceil(encounters.length / ITEMS_PER_PAGE);
+
+    const handlePageChange = (type: string, direction: 'prev' | 'next') => {
+        const currentPage = currentPages[type];
+        const maxPage = totalPages(encounterGroups.find(g => g.type === type)?.encounters || []) - 1;
+        
+        if (direction === 'prev' && currentPage > 0) {
+            setCurrentPages(prev => ({ ...prev, [type]: currentPage - 1 }));
+        } else if (direction === 'next' && currentPage < maxPage) {
+            setCurrentPages(prev => ({ ...prev, [type]: currentPage + 1 }));
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -56,48 +84,83 @@ const EncounterView = ({
                             encounters={encounters}
                             onSave={updated => setEncounters(type, updated)}
                             trigger={
-                                <Button variant="outline" className="ml-2">+ Add</Button>
+                                <Button variant="outline" className="ml-2 flex items-center gap-1">
+                                    <Plus className="h-4 w-4" />
+                                    Add Pokemon
+                                </Button>
                             }
                         />
                     </div>
-                    <ScrollArea className="max-h-72">
-                        <div className="space-y-2">
-                            {encounters.length === 0 && (
-                                <div className="text-slate-400 italic">No encounters.</div>
+                    
+                    {encounters.length === 0 ? (
+                        <div className="text-slate-400 italic text-center py-8">No encounters yet. Click "Add Pokemon" to get started!</div>
+                    ) : (
+                        <div className="relative">
+                            {/* Navigation Arrows */}
+                            {totalPages(encounters) > 1 && (
+                                <>
+                                    <button
+                                        onClick={() => handlePageChange(type, 'prev')}
+                                        disabled={currentPages[type] === 0}
+                                        className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-900 disabled:text-slate-600 text-slate-300 p-2 rounded-full transition-colors"
+                                    >
+                                        <ChevronLeft className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => handlePageChange(type, 'next')}
+                                        disabled={currentPages[type] >= totalPages(encounters) - 1}
+                                        className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-900 disabled:text-slate-600 text-slate-300 p-2 rounded-full transition-colors"
+                                    >
+                                        <ChevronRight className="h-5 w-5" />
+                                    </button>
+                                </>
                             )}
-                            {encounters.map((encounter, idx) => (
-                                <Card key={encounter.id || idx} className="p-4 bg-slate-800 border-slate-700 flex items-center justify-between">
-                                    <div>
-                                        <div className="font-medium text-slate-200">{encounter.name}</div>
-                                        <div className="text-xs text-slate-400">Lv. {encounter.minLevel} - {encounter.maxLevel} | Rarity: {encounter.rarity}% | Shiny: {encounter.shiny ? "Yes" : "No"}</div>
+                            
+                            {/* Pokemon Grid */}
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-8">
+                                {getPaginatedEncounters(encounters, type).map((encounter, idx) => {
+                                    const actualIndex = currentPages[type] * ITEMS_PER_PAGE + idx;
+                                    return (
+                                        <div key={`${type}-${actualIndex}`} className="relative group">
+                                            <EncounterDialog
+                                                encounterType={encounterTypes[type]}
+                                                encounters={encounters}
+                                                onSave={updated => setEncounters(type, updated)}
+                                                existingEncounterIndex={actualIndex}
+                                                trigger={
+                                                    <div className="cursor-pointer">
+                                                        <PokemonSprite 
+                                                            pokemonId={encounter.ID} 
+                                                            pokemonName={encounter.Name}
+                                                            timeOfDay={encounter.TimeOfDayToCatch}
+                                                        />
+                                                    </div>
+                                                }
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            
+                            {/* Page Indicator */}
+                            {totalPages(encounters) > 1 && (
+                                <div className="flex justify-center mt-4">
+                                    <div className="flex gap-1">
+                                        {Array.from({ length: totalPages(encounters) }, (_, i) => (
+                                            <div
+                                                key={i}
+                                                className={`w-2 h-2 rounded-full transition-colors ${
+                                                    i === currentPages[type] 
+                                                        ? 'bg-slate-300' 
+                                                        : 'bg-slate-600'
+                                                }`}
+                                            />
+                                        ))}
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <EncounterDialog
-                                            encounterType={encounterTypes[type]}
-                                            encounters={encounters}
-                                            onSave={updated => setEncounters(type, updated)}
-                                            existingEncounterIndex={idx}
-                                            trigger={
-                                                <button className="text-slate-400 hover:text-blue-400">
-                                                    <Edit className="h-4 w-4" />
-                                                </button>
-                                            }
-                                        />
-                                        <button
-                                            onClick={() => {
-                                                const updated = encounters.slice();
-                                                updated.splice(idx, 1);
-                                                setEncounters(type, updated);
-                                            }}
-                                            className="text-slate-400 hover:text-red-400"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                </Card>
-                            ))}
+                                </div>
+                            )}
                         </div>
-                    </ScrollArea>
+                    )}
                 </div>
             ))}
         </div>

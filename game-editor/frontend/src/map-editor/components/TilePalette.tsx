@@ -39,7 +39,6 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
     // Load tileset image when tilesetPath changes
     useEffect(() => {
         const loadTilesetImage = async () => {
-            console.log("Loading tileset image for path:", tilesetPath)
             if (!tilesetPath) {
                 setTilesetImage("")
                 setTilesetDims({ width: 0, height: 0 })
@@ -50,16 +49,13 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
             try {
                 setError("")
                 const result = await GetTilesetImageData(tilesetPath)
-                console.log("GetTilesetImageData result:", result)
                 
                 if (result.success) {
                     setTilesetImage(result.imageData)
-                    console.log("Tileset image loaded successfully")
                     
                     // Get image dimensions
                     const img = new Image()
                     img.onload = () => {
-                        console.log("Image loaded with dimensions:", img.width, "x", img.height)
                         setTilesetDims({ width: img.width, height: img.height })
                     }
                     img.src = result.imageData
@@ -87,14 +83,11 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
     }
 
     const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        console.log("Mouse down event triggered")
         if (!tilesetImage) {
-            console.log("No tileset image available")
             return
         }
         const rect = e.currentTarget.getBoundingClientRect()
         const { x, y } = getTileCoords(e.clientX, e.clientY, rect)
-        console.log("Mouse down at tile coordinates:", x, y)
         setDragStart({ x, y })
         setSelectedRegion({ x, y, w: tileSize, h: tileSize })
         setDragging(true)
@@ -123,12 +116,9 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
     }
 
     const handleMouseUp = () => {
-        console.log("Mouse up event triggered")
         if (!tilesetImage || !selectedRegion) {
-            console.log("No tileset image or selected region")
             return
         }
-        console.log("Selected region:", selectedRegion)
         setDragging(false)
         // Extract the selected region using a canvas
         if (!canvasRef.current) {
@@ -174,7 +164,6 @@ const TilePalette = ({ selectedTile, setSelectedTile, tilesetPath, tileSize }: T
                 height: selectedRegion.h / tileSize,
                 subTiles
             }
-            console.log("Setting selected tile:", newSelectedTile)
             setSelectedTile(newSelectedTile)
         }
         img.src = tilesetImage

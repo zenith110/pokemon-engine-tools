@@ -1,5 +1,5 @@
 import { Button } from "../../components/ui/button";
-import { Pencil, Undo, Redo, PaintBucket, Trash2 } from "lucide-react";
+import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw } from "lucide-react";
 
 interface MapToolbarProps {
   paintMode: 'stamp' | 'fill' | 'remove';
@@ -78,10 +78,10 @@ const MapToolbar = ({
         title="Remove Tile"
         className={paintMode === 'remove' ? activeBtnClass : ''}
       >
-        <Trash2 className="h-4 w-4" />
+        <Eraser className="h-4 w-4" />
       </Button>
       <Button variant="ghost" size="icon" onClick={clearMap} title="Clear Map">
-        <Trash2 className="h-4 w-4" />
+        <RotateCcw className="h-4 w-4" />
       </Button>
     </div>
   </>

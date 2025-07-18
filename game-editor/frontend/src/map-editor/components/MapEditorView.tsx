@@ -64,9 +64,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   useEffect(() => {
     const loadMapData = async () => {
       try {
-        console.log("Loading map data from:", map.ID);
         const mapToml = await GetMapTomlByID(map.ID);
-        console.log("Map TOML data:", mapToml);
         
         // Update mapData with TOML encounter data
         if (mapToml) {
@@ -78,7 +76,6 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
         // Get the JSON file path from the map properties
         const jsonFilePath = map.Properties?.[0]?.FilePath || "";
         if (!jsonFilePath) {
-          console.log("No JSON file path found for map, using default layers");
           // Set default layers if no JSON file path
           const defaultLayers = [
             {
@@ -115,7 +112,6 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
               })),
             }));
             
-            console.log("Setting loaded layers:", loadedLayers);
             setLayers(loadedLayers);
             
             // Set the active layer based on CurrentSelectedLayer property
@@ -140,7 +136,6 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             setHistoryIndex(0);
           } else {
             // Set default layers if no layers found in JSON
-            console.log("No layers found in JSON, using default layers");
             const defaultLayers = [
               {
                 id: 1,
@@ -230,9 +225,31 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   };
 
   const clearMap = () => {
+    // Create a single base layer with no tiles
+    const baseLayer = {
+      id: 1,
+      name: "Base Layer",
+      visible: true,
+      locked: false,
+      tiles: [],
+    };
+    
+    // Update layers to only contain the base layer
+    setLayers([baseLayer]);
+    
+    // Set the active layer to the base layer
+    setActiveLayerId(1);
+    
+    // Update history
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push([baseLayer]);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    
+    // Update map data
     const clearedMapData = {
       ...mapData,
-      layers: layers.map(layer => ({ ...layer, tiles: [] }))
+      layers: [baseLayer]
     }
     handleMapChange(clearedMapData)
   }
@@ -326,7 +343,6 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       const result = await UpdateMapJson(models.MapJsonData.createFrom(mapJsonData));
       const resultToml = await UpdateTomlMapEntryByID(map);
       if (result.success && resultToml.success) {
-        console.log("Map saved successfully:", result.message);
         // You could add a toast notification here
       } else {
         console.error("Failed to save map:", result.errorMessage);

@@ -121,6 +121,7 @@ export namespace models {
 	    MaxLevel: number;
 	    Rarity: number;
 	    Shiny: boolean;
+	    TimeOfDayToCatch: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new CaveEncounters(source);
@@ -134,6 +135,7 @@ export namespace models {
 	        this.MaxLevel = source["MaxLevel"];
 	        this.Rarity = source["Rarity"];
 	        this.Shiny = source["Shiny"];
+	        this.TimeOfDayToCatch = source["TimeOfDayToCatch"];
 	    }
 	}
 	export class CreateNewTileset {
@@ -209,6 +211,7 @@ export namespace models {
 	    MaxLevel: number;
 	    Rarity: number;
 	    Shiny: boolean;
+	    TimeOfDayToCatch: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FishingEncounters(source);
@@ -222,6 +225,7 @@ export namespace models {
 	        this.MaxLevel = source["MaxLevel"];
 	        this.Rarity = source["Rarity"];
 	        this.Shiny = source["Shiny"];
+	        this.TimeOfDayToCatch = source["TimeOfDayToCatch"];
 	    }
 	}
 	export class GrassEncounters {
@@ -231,6 +235,7 @@ export namespace models {
 	    MaxLevel: number;
 	    Rarity: number;
 	    Shiny: boolean;
+	    TimeOfDayToCatch: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new GrassEncounters(source);
@@ -244,6 +249,7 @@ export namespace models {
 	        this.MaxLevel = source["MaxLevel"];
 	        this.Rarity = source["Rarity"];
 	        this.Shiny = source["Shiny"];
+	        this.TimeOfDayToCatch = source["TimeOfDayToCatch"];
 	    }
 	}
 	export class HeldItem {
@@ -265,6 +271,7 @@ export namespace models {
 	    MaxLevel: number;
 	    Rarity: number;
 	    Shiny: boolean;
+	    TimeOfDayToCatch: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new WaterEncounters(source);
@@ -278,6 +285,7 @@ export namespace models {
 	        this.MaxLevel = source["MaxLevel"];
 	        this.Rarity = source["Rarity"];
 	        this.Shiny = source["Shiny"];
+	        this.TimeOfDayToCatch = source["TimeOfDayToCatch"];
 	    }
 	}
 	export class Properties {
