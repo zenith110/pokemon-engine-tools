@@ -13,9 +13,21 @@ export function CreateTilesetImage(arg1:string):Promise<Record<string, any>>;
 
 export function DeleteMapByID(arg1:number):Promise<Record<string, any>>;
 
+export function GetPreloadProgress():Promise<Record<string, any>>;
+
+export function GetRenderProgress():Promise<Record<string, any>>;
+
 export function GetTilesetImageData(arg1:string):Promise<Record<string, any>>;
 
-export function RenderMap(arg1:mapeditor.RenderRequest):Promise<mapeditor.RenderResponse>;
+export function PreloadTilesWithProgress(arg1:Array<string>,arg2:mapeditor.RenderRequest):Promise<Record<string, any>>;
+
+export function RenameMapFile(arg1:string,arg2:string):Promise<Record<string, any>>;
+
+export function RenderMap(arg1:mapeditor.RenderRequest):Promise<Record<string, any>>;
+
+export function RenderMapAfterPreload(arg1:mapeditor.RenderRequest):Promise<Record<string, any>>;
+
+export function RenderMapWithProgress(arg1:mapeditor.RenderRequest):Promise<Record<string, any>>;
 
 export function StampTile(arg1:mapeditor.StampRequest):Promise<mapeditor.StampResponse>;
 

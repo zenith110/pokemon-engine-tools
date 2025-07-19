@@ -261,6 +261,42 @@ func (a *MapEditorApp) UpdateMapJsonWithPath(mapData coreModels.MapJsonData, fil
 	}
 }
 
+// RenameMapFile renames a map JSON file when the map name changes
+func (a *MapEditorApp) RenameMapFile(oldFilePath string, newFilePath string) map[string]any {
+	oldFullPath := fmt.Sprintf("%s/%s", a.app.DataDirectory, oldFilePath)
+	newFullPath := fmt.Sprintf("%s/%s", a.app.DataDirectory, newFilePath)
+
+	// Check if old file exists
+	if _, err := os.Stat(oldFullPath); os.IsNotExist(err) {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Sprintf("Old file does not exist: %s", oldFilePath),
+		}
+	}
+
+	// Ensure new directory exists
+	newDir := filepath.Dir(newFullPath)
+	if err := os.MkdirAll(newDir, 0755); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error creating new directory: %w", err),
+		}
+	}
+
+	// Rename the file
+	if err := os.Rename(oldFullPath, newFullPath); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error renaming file: %w", err),
+		}
+	}
+
+	return map[string]any{
+		"success": true,
+		"message": fmt.Sprintf("Successfully renamed map file from %s to %s", oldFilePath, newFilePath),
+	}
+}
+
 func (a *MapEditorApp) UpdateTomlMapEntryByID(updatedMap coreModels.Map) map[string]any {
 	// Read the existing TOML file
 	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)

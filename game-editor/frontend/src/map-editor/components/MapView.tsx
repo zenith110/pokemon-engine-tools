@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react"
-import { RenderMap, StampTile, ClearTileCache } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { StampTile, ClearTileCache } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { EventsOn } from "../../../wailsjs/runtime/runtime"
 import { mapeditor } from "../../../wailsjs/go/models"
 import { MapViewProps } from "../types";
 
@@ -42,7 +43,9 @@ const MapView = ({
     setLayers,
     activeLayerId,
     paintMode,
-}: MapViewProps) => {
+    onInitialRenderReady,
+    isMapAlreadyRendered = false,
+}: MapViewProps & { onInitialRenderReady?: () => void; isMapAlreadyRendered?: boolean }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [history, setHistory] = useState<Array<{ layers: any[] }>>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
@@ -52,123 +55,163 @@ const MapView = ({
     // Debounced render function
     const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Optimized render function using Go backend
-    const renderMap = useCallback(async () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
 
-        try {
-            // Prepare render request for Go backend
-            const renderRequest = new mapeditor.RenderRequest({
-                width: width,
-                height: height,
-                tileSize: tileSize,
-                layers: layers.map(layer => new mapeditor.Layer({
-                    id: layer.id,
-                    name: layer.name,
-                    visible: layer.visible,
-                    locked: layer.locked,
-                    tiles: layer.tiles.map(tile => new mapeditor.Tile({
-                        x: tile.x,
-                        y: tile.y,
-                        tileId: tile.tileId
-                    }))
-                })),
-                showGrid: true,
-                showCheckerboard: true
-            });
-
-            // Call Go backend for rendering
-            const response = await RenderMap(renderRequest);
-            
-            if (response.success && response.imageData) {
-                // Create image from base64 data
-                const img = new Image();
-                img.onload = () => {
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                        // Clear canvas and draw the rendered image
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        ctx.drawImage(img, 0, 0);
-                    }
-                };
-                img.src = `data:image/png;base64,${response.imageData}`;
-            } else {
-                console.error('Rendering failed:', response.error);
-            }
-        } catch (error) {
-            console.error('Error rendering map:', error);
-        }
-    }, [layers, tileSize, width, height]);
-
-    // Debounced render function
+    // Debounced render function for updates after changes
     const debouncedRender = useCallback(() => {
         if (renderTimeoutRef.current) {
             clearTimeout(renderTimeoutRef.current);
         }
         renderTimeoutRef.current = setTimeout(() => {
-            renderMap();
+            // For updates after changes, we can use the existing renderAffectedArea function
+            // or trigger a new backend render if needed
+            console.log("Debounced render triggered - backend should handle this");
         }, 8); // Reduced delay for better responsiveness
-    }, [renderMap]);
+    }, []);
 
-    // Optimized tile placement using Go backend
+    const addToHistory = useCallback((newLayers: any[]) => {
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push({ layers: newLayers });
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+    }, [history, historyIndex]);
+
+    // Render only the affected area for better performance
+    const renderAffectedArea = useCallback(async (x: number, y: number, regionW: number, regionH: number) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Clear only the affected area
+        const startX = x * tileSize;
+        const startY = y * tileSize;
+        const endX = Math.min((x + regionW) * tileSize, canvas.width);
+        const endY = Math.min((y + regionH) * tileSize, canvas.height);
+        
+        // Clear the affected area
+        ctx.clearRect(startX, startY, endX - startX, endY - startY);
+
+        // Draw checkerboard pattern in the affected area if needed
+        const checkerSize = 8;
+        for (let cx = startX; cx < endX; cx += checkerSize) {
+            for (let cy = startY; cy < endY; cy += checkerSize) {
+                const isEven = ((cx / checkerSize) + (cy / checkerSize)) % 2 === 0;
+                ctx.fillStyle = isEven ? '#ffffff' : '#cccccc';
+                ctx.fillRect(cx, cy, Math.min(checkerSize, endX - cx), Math.min(checkerSize, endY - cy));
+            }
+        }
+
+        // Draw grid lines in the affected area
+        ctx.strokeStyle = 'rgba(51,65,85,0.3)';
+        ctx.lineWidth = 1;
+        
+        // Vertical lines
+        for (let gridX = Math.floor(startX / tileSize); gridX <= Math.floor(endX / tileSize); gridX++) {
+            const lineX = gridX * tileSize;
+            ctx.beginPath();
+            ctx.moveTo(lineX, startY);
+            ctx.lineTo(lineX, endY);
+            ctx.stroke();
+        }
+        
+        // Horizontal lines
+        for (let gridY = Math.floor(startY / tileSize); gridY <= Math.floor(endY / tileSize); gridY++) {
+            const lineY = gridY * tileSize;
+            ctx.beginPath();
+            ctx.moveTo(startX, lineY);
+            ctx.lineTo(endX, lineY);
+            ctx.stroke();
+        }
+
+        // Draw only the tiles in the affected area
+        for (const layer of layers) {
+            if (!layer.visible) continue;
+
+            for (const tile of layer.tiles) {
+                const tileX = tile.x * tileSize;
+                const tileY = tile.y * tileSize;
+                
+                // Check if this tile is in the affected area
+                if (tileX >= startX && tileX < endX && tileY >= startY && tileY < endY) {
+                    try {
+                        // Load and draw the tile image
+                        const img = new Image();
+                        img.onload = () => {
+                            ctx.drawImage(img, tileX, tileY, tileSize, tileSize);
+                        };
+                        
+                        // Handle data URL format
+                        if (tile.tileId.startsWith('data:image/')) {
+                            img.src = tile.tileId;
+                        } else {
+                            img.src = `data:image/png;base64,${tile.tileId}`;
+                        }
+                    } catch (error) {
+                        console.error('Failed to load tile image:', error);
+                    }
+                }
+            }
+        }
+    }, [layers, tileSize, width, height]);
+
+    // Optimized tile placement with frontend rendering for immediate feedback
     const placeStamp = useCallback((x: number, y: number) => {
         if (!selectedTile || x < 0 || x >= width || y < 0 || y >= height) return;
 
-        // Prepare stamp request for Go backend
-        const stampRequest = new mapeditor.StampRequest({
-            selectedTile: new mapeditor.SelectedTile({
-                id: selectedTile.id,
-                name: selectedTile.name,
-                image: selectedTile.image,
-                width: selectedTile.width || 1,
-                height: selectedTile.height || 1,
-                subTiles: selectedTile.subTiles
-            }),
-            x: x,
-            y: y,
-            width: width,
-            height: height,
-            layers: layers.map(layer => new mapeditor.Layer({
-                id: layer.id,
-                name: layer.name,
-                visible: layer.visible,
-                locked: layer.locked,
-                tiles: layer.tiles.map(tile => new mapeditor.Tile({
-                    x: tile.x,
-                    y: tile.y,
-                    tileId: tile.tileId
-                }))
-            })),
-            activeLayerId: activeLayerId
+        // Update layers locally first for immediate feedback
+        const regionW = selectedTile.width || 1;
+        const regionH = selectedTile.height || 1;
+
+        const newLayers = layers.map((layer) => {
+            if (layer.id !== activeLayerId) return layer;
+
+            // Create a copy of the layer's tiles
+            const existingTiles = [...layer.tiles];
+            
+            // Remove existing tiles in the region
+            const filteredTiles = existingTiles.filter(tile => {
+                const dx = tile.x - x;
+                const dy = tile.y - y;
+                return dx < 0 || dx >= regionW || dy < 0 || dy >= regionH;
+            });
+
+            // Add new tiles
+            const newTiles = [...filteredTiles];
+            for (let dx = 0; dx < regionW; dx++) {
+                for (let dy = 0; dy < regionH; dy++) {
+                    const tx = x + dx;
+                    const ty = y + dy;
+
+                    if (tx < 0 || tx >= width || ty < 0 || ty >= height) continue;
+
+                    // Determine tile image
+                    let tileImage = selectedTile.image;
+                    if (selectedTile.subTiles && (regionW > 1 || regionH > 1)) {
+                        tileImage = selectedTile.subTiles[dx][dy];
+                    }
+
+                    newTiles.push({
+                        x: tx,
+                        y: ty,
+                        tileId: tileImage
+                    });
+                }
+            }
+
+            return {
+                ...layer,
+                tiles: newTiles,
+            };
         });
 
-        // Call Go backend for stamping
-        StampTile(stampRequest).then(response => {
-            if (response.success) {
-                // Update layers with the response from Go backend
-                const newLayers = response.layers.map(goLayer => ({
-                    id: goLayer.id,
-                    name: goLayer.name,
-                    visible: goLayer.visible,
-                    locked: goLayer.locked,
-                    tiles: goLayer.tiles.map(goTile => ({
-                        x: goTile.x,
-                        y: goTile.y,
-                        tileId: goTile.tileId
-                    }))
-                }));
-                
-                setLayers(newLayers);
-                addToHistory(newLayers);
-                debouncedRender();
-            } else {
-                console.error('Stamping failed:', response.error);
-            }
-        }).catch(error => {
-            console.error('Error stamping tile:', error);
-        });
-    }, [selectedTile, width, height, layers, activeLayerId, setLayers, debouncedRender]);
+        // Update state immediately for responsive UI
+        setLayers(newLayers);
+        addToHistory(newLayers);
+        
+        // Use frontend rendering for immediate feedback
+        renderAffectedArea(x, y, regionW, regionH);
+    }, [selectedTile, width, height, layers, activeLayerId, setLayers, addToHistory, renderAffectedArea]);
 
     // Handle mouse events
     const getTileCoords = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -180,6 +223,22 @@ const MapView = ({
         const y = Math.floor((e.clientY - rect.top) / tileSize);
         return { x, y };
     }, [tileSize]);
+
+    const removeTile = useCallback((x: number, y: number) => {
+        const newLayers = layers.map((layer) => {
+            if (layer.id !== activeLayerId) return layer;
+            
+            return {
+                ...layer,
+                tiles: layer.tiles.filter((t) => t.x !== x || t.y !== y),
+            };
+        });
+        setLayers(newLayers);
+        addToHistory(newLayers);
+        
+        // Use frontend rendering for immediate feedback
+        renderAffectedArea(x, y, 1, 1);
+    }, [layers, activeLayerId, setLayers, addToHistory, renderAffectedArea]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!selectedTile && paintMode !== 'remove') return;
@@ -197,7 +256,7 @@ const MapView = ({
         } else if (paintMode === 'remove') {
             removeTile(x, y);
         }
-    }, [selectedTile, paintMode, getTileCoords, width, height, placeStamp]);
+    }, [selectedTile, paintMode, getTileCoords, width, height, placeStamp, removeTile]);
 
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!isDrawing) return;
@@ -214,7 +273,7 @@ const MapView = ({
                 removeTile(x, y);
             }
         }
-    }, [isDrawing, getTileCoords, width, height, lastPainted, paintMode, placeStamp]);
+    }, [isDrawing, getTileCoords, width, height, lastPainted, paintMode, placeStamp, removeTile]);
 
     const handleMouseUp = useCallback(() => {
         setIsDrawing(false);
@@ -265,27 +324,6 @@ const MapView = ({
         debouncedRender();
     }, [selectedTile, width, height, layers, activeLayerId, setLayers, debouncedRender]);
 
-    const addToHistory = useCallback((newLayers: any[]) => {
-        const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push({ layers: newLayers });
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length - 1);
-    }, [history, historyIndex]);
-
-    const removeTile = useCallback((x: number, y: number) => {
-        const newLayers = layers.map((layer) => {
-            if (layer.id !== activeLayerId) return layer;
-            
-            return {
-                ...layer,
-                tiles: layer.tiles.filter((t) => t.x !== x || t.y !== y),
-            };
-        });
-        setLayers(newLayers);
-        addToHistory(newLayers);
-        debouncedRender();
-    }, [layers, activeLayerId, setLayers, debouncedRender, addToHistory]);
-
     // Initialize canvas
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -293,8 +331,106 @@ const MapView = ({
 
         canvas.width = width * tileSize;
         canvas.height = height * tileSize;
-        renderMap();
-    }, [width, height, tileSize, renderMap]);
+        
+        if (isMapAlreadyRendered && onInitialRenderReady) {
+            console.log("MapView: Map already rendered by backend, ready to display");
+            onInitialRenderReady();
+        }
+    }, [width, height, tileSize, isMapAlreadyRendered, onInitialRenderReady]);
+
+    // Listen for backend rendering events
+    useEffect(() => {
+        if (!isMapAlreadyRendered) return; // Only listen if backend is handling rendering
+
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Listen for render progress events
+        const unsubscribeProgress = EventsOn("map-render-progress", (data: string) => {
+            console.log("MapView: Received render progress:", data);
+            try {
+                const progress = JSON.parse(data);
+                console.log(`MapView: Render progress: ${progress.current}/${progress.total} - ${progress.message}`);
+                
+                // If we have image data, update the canvas
+                if (progress.imageData) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                        }
+                    };
+                    img.src = `data:image/png;base64,${progress.imageData}`;
+                }
+            } catch (error) {
+                console.error("MapView: Error parsing render progress data:", error);
+            }
+        });
+
+        // Listen for render completion
+        const unsubscribeComplete = EventsOn("map-render-complete", (data: any) => {
+            console.log("MapView: Map rendering completed:", data);
+            console.log("MapView: Received data keys:", Object.keys(data));
+            console.log("MapView: imageData present:", !!data.imageData);
+            console.log("MapView: imageData length:", data.imageData ? data.imageData.length : 0);
+            
+            // Clean up event listeners
+            unsubscribeProgress();
+            unsubscribeComplete();
+            
+            // Update canvas with final rendered image
+            if (data.imageData) {
+                console.log("MapView: Updating canvas with imageData");
+                const img = new Image();
+                img.onload = () => {
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        console.log("MapView: Canvas updated successfully");
+                        
+                        // Call the callback after the image is loaded and displayed
+                        if (onInitialRenderReady) {
+                            onInitialRenderReady();
+                        }
+                    }
+                };
+                img.onerror = (error) => {
+                    console.error("MapView: Failed to load image:", error);
+                };
+                img.src = `data:image/png;base64,${data.imageData}`;
+            } else {
+                console.warn("MapView: No imageData received in map-render-complete event");
+                // If no image data, still call the callback
+                if (onInitialRenderReady) {
+                    onInitialRenderReady();
+                }
+            }
+        });
+
+        // Listen for render errors
+        const unsubscribeError = EventsOn("map-render-error", (data: any) => {
+            console.error("MapView: Map rendering error:", data);
+            
+            // Clean up event listeners
+            unsubscribeProgress();
+            unsubscribeComplete();
+            unsubscribeError();
+            
+            // Call the callback even on error to prevent infinite loading
+            if (onInitialRenderReady) {
+                onInitialRenderReady();
+            }
+        });
+
+        return () => {
+            unsubscribeProgress();
+            unsubscribeComplete();
+            unsubscribeError();
+        };
+    }, [isMapAlreadyRendered, onInitialRenderReady]);
 
     // Cleanup timeout on unmount
     useEffect(() => {

@@ -56,7 +56,8 @@ type SelectedTile struct {
 
 // StampResponse represents the response from stamping a tile
 type StampResponse struct {
-	Success bool    `json:"success"`
-	Layers  []Layer `json:"layers"`
-	Error   string  `json:"error,omitempty"`
+	Success   bool    `json:"success"`
+	Layers    []Layer `json:"layers"`
+	ImageData string  `json:"imageData,omitempty"`
+	Error     string  `json:"error,omitempty"`
 }

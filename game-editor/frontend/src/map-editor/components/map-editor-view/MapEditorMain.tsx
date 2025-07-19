@@ -46,6 +46,8 @@ interface MapEditorMainProps {
     type: string;
     music: string;
   }) => void;
+  onInitialRenderReady?: () => void;
+  isMapAlreadyRendered?: boolean;
 }
 
 const MapEditorMain = ({
@@ -59,6 +61,8 @@ const MapEditorMain = ({
   handleLayerChange,
   handleEncountersChange,
   handleSettingsChange,
+  onInitialRenderReady,
+  isMapAlreadyRendered,
 }: MapEditorMainProps) => {
   const renderMainView = () => {
     switch (activeView) {
@@ -74,6 +78,8 @@ const MapEditorMain = ({
             setLayers={handleLayerChange}
             activeLayerId={activeLayerId}
             paintMode={paintMode}
+            onInitialRenderReady={onInitialRenderReady}
+            isMapAlreadyRendered={isMapAlreadyRendered}
           />
         );
       case "encounters":

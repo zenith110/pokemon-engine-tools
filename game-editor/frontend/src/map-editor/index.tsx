@@ -228,6 +228,7 @@ const MapEditor = () => {
 
   return (
     <MapEditorView
+      key={selectedMap.ID} // Force re-render when map changes
       map={selectedMap}
       onMapChange={handleMapChange}
       onBack={handleBack}

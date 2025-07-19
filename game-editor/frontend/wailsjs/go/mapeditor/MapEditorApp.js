@@ -22,12 +22,36 @@ export function DeleteMapByID(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['DeleteMapByID'](arg1);
 }
 
+export function GetPreloadProgress() {
+  return window['go']['mapeditor']['MapEditorApp']['GetPreloadProgress']();
+}
+
+export function GetRenderProgress() {
+  return window['go']['mapeditor']['MapEditorApp']['GetRenderProgress']();
+}
+
 export function GetTilesetImageData(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['GetTilesetImageData'](arg1);
 }
 
+export function PreloadTilesWithProgress(arg1, arg2) {
+  return window['go']['mapeditor']['MapEditorApp']['PreloadTilesWithProgress'](arg1, arg2);
+}
+
+export function RenameMapFile(arg1, arg2) {
+  return window['go']['mapeditor']['MapEditorApp']['RenameMapFile'](arg1, arg2);
+}
+
 export function RenderMap(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['RenderMap'](arg1);
+}
+
+export function RenderMapAfterPreload(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['RenderMapAfterPreload'](arg1);
+}
+
+export function RenderMapWithProgress(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['RenderMapWithProgress'](arg1);
 }
 
 export function StampTile(arg1) {

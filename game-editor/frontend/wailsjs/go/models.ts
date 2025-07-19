@@ -94,22 +94,6 @@ export namespace mapeditor {
 		    return a;
 		}
 	}
-	export class RenderResponse {
-	    success: boolean;
-	    imageData?: string;
-	    error?: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new RenderResponse(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.success = source["success"];
-	        this.imageData = source["imageData"];
-	        this.error = source["error"];
-	    }
-	}
 	export class SelectedTile {
 	    id: string;
 	    name: string;
@@ -177,6 +161,7 @@ export namespace mapeditor {
 	export class StampResponse {
 	    success: boolean;
 	    layers: Layer[];
+	    imageData?: string;
 	    error?: string;
 	
 	    static createFrom(source: any = {}) {
@@ -187,6 +172,7 @@ export namespace mapeditor {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.success = source["success"];
 	        this.layers = this.convertValues(source["layers"], Layer);
+	        this.imageData = source["imageData"];
 	        this.error = source["error"];
 	    }
 	
