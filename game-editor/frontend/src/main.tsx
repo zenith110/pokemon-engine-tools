@@ -13,25 +13,29 @@ import ScriptEditor from "./script-editor/main";
 import Homepage from "./homepage/main"
 import OverworldEditor from "./overworld-editor/main"
 import NewOverworlds from "./overworld-editor/new-overworlds/NewOverworlds"
-import MapViewer from "./map-viewer"
+import MapEditor from "./map-editor"
+import { ProjectProvider } from "./contexts/ProjectContext";
+
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
 root.render(
     <React.StrictMode>
-        <HashRouter>
-            <Navbar /> 
-            <Routes>
-                 <Route path="/" element={<Homepage />} />
-                 <Route path="/trainer-editor" element={<TrainerEditor />} />
-                 <Route path="/pokemon-editor" element={<PokemonEditor/>} />
-                 <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
-                 <Route path="/jukebox" element={<Jukebox/>}/>
-                 <Route path="/move-editor" element={<MoveEditor/>}/>
-                 <Route path="/script-editor" element={<ScriptEditor/>}/>
-                 <Route path="/overworld-editor" element={<OverworldEditor/>}/>
-                 <Route path="/overworld-editor/new-overworld" element={<NewOverworlds/>}/>
-                 <Route path="/map-viewer" element={<MapViewer/>}/>
-             </Routes>
-        </HashRouter>
+        <ProjectProvider>
+            <HashRouter>
+                <Navbar /> 
+                <Routes>
+                     <Route path="/" element={<Homepage />} />
+                     <Route path="/trainer-editor" element={<TrainerEditor />} />
+                     <Route path="/pokemon-editor" element={<PokemonEditor/>} />
+                     <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
+                     <Route path="/jukebox" element={<Jukebox/>}/>
+                     <Route path="/move-editor" element={<MoveEditor/>}/>
+                     <Route path="/script-editor" element={<ScriptEditor/>}/>
+                     <Route path="/overworld-editor" element={<OverworldEditor/>}/>
+                     <Route path="/overworld-editor/new-overworld" element={<NewOverworlds/>}/>
+                     <Route path="/map-editor" element={<MapEditor/>}/>
+                 </Routes>
+            </HashRouter>
+        </ProjectProvider>
     </React.StrictMode>
 )

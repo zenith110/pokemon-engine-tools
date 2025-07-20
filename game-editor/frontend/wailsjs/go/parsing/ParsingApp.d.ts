@@ -3,13 +3,23 @@
 import {models} from '../models';
 import {parsing} from '../models';
 
+export function GetAllMaps():Promise<Array<models.Map>>;
+
+export function GetAllTilesets():Promise<Array<models.Tileset>>;
+
+export function GetMapTomlByID(arg1:number):Promise<models.Map>;
+
 export function GrabAllMoves():Promise<models.AllMoves>;
+
+export function GrabMusicTracks():Promise<Array<models.Song>>;
 
 export function GrabTrainerSprites():Promise<Array<models.TrainerSprite>>;
 
 export function LoadPokemonById(arg1:string):Promise<models.PokemonTrainerEditor>;
 
 export function ParseHeldItems():Promise<Array<models.HeldItem>>;
+
+export function ParseMapData(arg1:string):Promise<Record<string, any>>;
 
 export function ParsePokemonData():Promise<Array<parsing.OnLoadPokemonEditor>>;
 

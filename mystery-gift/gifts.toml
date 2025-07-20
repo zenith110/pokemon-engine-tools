@@ -1,0 +1,18 @@
+[[mysterygift]]
+name = "celebi"
+giftType = "Pokemon"
+beginningDate = "2025-07-08T10:52:34.588392"
+endDate = "2025-08-07T10:52:34.588392"
+
+[mysterygift.pokemongift]
+originalTrainer = "test"
+id = 251
+species = "Celebi"
+nickname = "Celebi"
+shiny = false
+locationOfOrigin = "Johto"
+types = [ "Grass",]
+abilites = [ "Overgrowth",]
+stats = [ 10, 10, 10, 10, 10, 10, 10,]
+moves = [ "Tackle", "Leaf Storm", "Life Leech", "Pound",]
+pokeballCaughtIn = "pokeball"

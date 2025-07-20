@@ -65,6 +65,71 @@ type PokemonTrainerEditor struct {
 	Cry            string
 }
 
+type CreateNewTileset struct {
+	TilesetHeight int    `json:"tilesetHeight"`
+	TilesetWidth  int    `json:"tilesetWidth"`
+	NameOfTileset string `json:"nameOfTileset"`
+	Description   string `json:"tilesetDescription"`
+	TypeOfTileSet string `json:"typeOfTileset"`
+	FileName      string `json:"fileName"`
+}
+type MapTile struct {
+	X          int    `json:"x"`
+	Y          int    `json:"y"`
+	TileID     string `json:"tileId"`
+	AutoTileID string `json:"autoTileId,omitempty"`
+}
+
+type MapLayer struct {
+	ID      int       `json:"id"`
+	Name    string    `json:"name"`
+	Visible bool      `json:"visible"`
+	Locked  bool      `json:"locked,omitempty"`
+	Tiles   []MapTile `json:"tiles"`
+}
+type MapEncounter struct {
+	Name             string `json:"name"`
+	ID               string `json:"id"`
+	MinLevel         int    `json:"minLevel"`
+	MaxLevel         int    `json:"maxLevel"`
+	Rarity           int    `json:"rarity"`
+	Shiny            bool   `json:"shiny"`
+	TimeOfDayToCatch string `json:"timeOfDayToCatch"`
+}
+
+type FishingEncounter struct {
+	Name             string `json:"name"`
+	ID               string `json:"id"`
+	MinLevel         int    `json:"minLevel"`
+	MaxLevel         int    `json:"maxLevel"`
+	Rarity           int    `json:"rarity"`
+	Shiny            bool   `json:"shiny"`
+	TimeOfDayToCatch string `json:"timeOfDayToCatch"`
+	HighestRod       string `json:"highestRod"`
+}
+
+type MapEncounters struct {
+	Grass   []MapEncounter     `json:"grass"`
+	Fishing []FishingEncounter `json:"fishing"`
+	Cave    []MapEncounter     `json:"cave"`
+	Diving  []MapEncounter     `json:"diving"`
+}
+type MapProperties struct {
+	Music string `json:"music"`
+}
+type MapJsonData struct {
+	ID                   int           `json:"id"`
+	Name                 string        `json:"name"`
+	Width                int           `json:"width"`
+	Height               int           `json:"height"`
+	TileSize             int           `json:"tileSize"`
+	Type                 string        `json:"type"`
+	TilesetPath          string        `json:"tilesetPath"`
+	Layers               []MapLayer    `json:"layers"`
+	CurrentSelectedLayer string        `json:"currentlySelectedLayer"`
+	MapEncounters        MapEncounters `json:"mapEncounters"`
+	Properties           MapProperties `json:"properties"`
+}
 type HeldItem struct {
 	Name string
 }

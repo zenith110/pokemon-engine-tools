@@ -206,11 +206,11 @@ export default function PokemonEditor():React.ReactElement {
                                     const pokemon: Pokemon = {
                                         ...trainerEditor,
                                         DexEntry: "",
-                                        Evolutions: trainerEditor.Evolutions.map(evo => ({
+                                        Evolutions: trainerEditor.Evolutions ? trainerEditor.Evolutions.map(evo => ({
                                             ...evo,
                                             Method1: evo.Method1 ? [evo.Method1] : [],
                                             Method2: evo.Method2 ? [evo.Method2] : []
-                                        }))
+                                        })) : []
                                     };
                                     updatePokemonSelection(pokemon);
                                 }
@@ -336,7 +336,7 @@ export default function PokemonEditor():React.ReactElement {
                                             isSearchable={false}
                                             isMulti={false}
                                             options={pokemonTypes.map(type => ({ value: type, label: type }))}
-                                            defaultValue={{ value: selectedPokemon?.Types[0], label: selectedPokemon?.Types[0] }}
+                                            defaultValue={{ value: selectedPokemon?.Types[0] ? selectedPokemon?.Types[0] : "None", label: selectedPokemon?.Types[0] ? selectedPokemon?.Types[0] : "None" }}
                                             classNames={{
                                                 control: () => "rounded-xl bg-slate-800 border-none hover:border-none min-w-[150px]",
                                                 option: (state) => `bg-slate-800 ${state.isFocused ? 'bg-slate-700' : ''} hover:bg-slate-700`,
@@ -499,7 +499,7 @@ export default function PokemonEditor():React.ReactElement {
                         </div>
                     </div>
                     <div className="flex flex-row justify-between gap-2 h-[25vh]">
-                        {selectedPokemon?.Evolutions && selectedPokemon.Evolutions.length > 0 && (
+                        {selectedPokemon?.Evolutions && selectedPokemon.Evolutions.length > 0 && selectedPokemon.Evolutions[currentEvoIndex] && (
                             <div className="flex flex-col bg-slate-700 rounded-xl p-2 w-1/2">
                                 <div className="flex flex-col items-center h-full">
                                     <h3 className="text-lg font-medium mb-2">Evolution Chain</h3>
@@ -531,16 +531,16 @@ export default function PokemonEditor():React.ReactElement {
                                                     <div className="flex flex-col items-center">
                                                         <button 
                                                             onClick={async() => {
-                                                                if (evolution) {
+                                                                if (evolution && evolution.Evolutions) {
                                                                     let evo = await LoadPokemonById(evolution.ID)
                                                                     const pokemon: Pokemon = {
                                                                         ...evo,
                                                                         DexEntry: "",
-                                                                        Evolutions: evo.Evolutions.map(evo => ({
+                                                                        Evolutions: evo.Evolutions ? evo.Evolutions.map(evo => ({
                                                                             ...evo,
                                                                             Method1: evo.Method1 ? [evo.Method1] : [],
                                                                             Method2: evo.Method2 ? [evo.Method2] : []
-                                                                        }))
+                                                                        })) : []
                                                                     };
                                                                     updatePokemonSelection(pokemon);
                                                                 }
