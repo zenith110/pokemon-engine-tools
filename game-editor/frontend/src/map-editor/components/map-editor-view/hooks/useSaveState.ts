@@ -21,9 +21,16 @@ export const useSaveState = () => {
       let jsonFilePath = map.Properties?.[0]?.FilePath || "";
       const oldFilePath = jsonFilePath;
       
+      console.log("Save operation - Original map name:", map.Name);
+      console.log("Save operation - New map name:", mapData.name);
+      console.log("Save operation - Old file path:", oldFilePath);
+      
       // If the map name has changed, update the file path
       if (mapData.name !== map.Name) {
         jsonFilePath = `data/assets/maps/${mapData.name}.json`;
+        console.log("Save operation - Map name changed, new file path:", jsonFilePath);
+      } else {
+        console.log("Save operation - Map name unchanged, using existing path:", jsonFilePath);
       }
       
       if (!jsonFilePath) {
@@ -97,17 +104,52 @@ export const useSaveState = () => {
         currentlySelectedLayer: layers.find(layer => layer.id === activeLayerId)?.name || "",
       };
 
-      // Handle file renaming if map name changed
+      // Handle file operations if map name changed
       if (mapData.name !== map.Name && oldFilePath !== jsonFilePath) {
-        const renameResult = await RenameMapFile(oldFilePath, jsonFilePath);
-        if (!renameResult.success) {
-          console.error("Failed to rename map file:", renameResult.errorMessage);
-          // Continue with save even if rename fails
+        console.log(`Map name changed from "${map.Name}" to "${mapData.name}"`);
+        console.log(`Old file path: "${oldFilePath}"`);
+        console.log(`New file path: "${jsonFilePath}"`);
+        
+        // Only attempt operations if the old file path is not empty
+        if (oldFilePath && oldFilePath.trim() !== "") {
+          console.log("Attempting to rename file...");
+          const renameResult = await RenameMapFile(oldFilePath, jsonFilePath);
+          console.log("Rename result:", renameResult);
+          
+          if (!renameResult.success) {
+            console.error("Failed to rename map file:", renameResult.errorMessage);
+            console.log("Will create new file - old file will remain and may need manual cleanup");
+            // If rename fails, we'll try to save to the new path anyway
+            // The backend will create the new file if it doesn't exist
+            // Note: The old file will remain and may need to be deleted manually
+            // This is expected behavior when the old file doesn't exist or can't be renamed
+          } else {
+            console.log("Successfully renamed map file");
+          }
+        } else {
+          console.log("No old file path to rename, will create new file");
         }
+      } else {
+        console.log("No rename needed - map name unchanged or file paths are the same");
       }
       
       // Save to the correct JSON file path using the file path from map properties
+      console.log("Saving map to file path:", jsonFilePath);
+      console.log("Map JSON data being saved:", {
+        id: mapJsonData.id,
+        name: mapJsonData.name,
+        width: mapJsonData.width,
+        height: mapJsonData.height,
+        layersCount: mapJsonData.layers.length,
+        encountersCount: {
+          grass: mapJsonData.mapEncounters.grass.length,
+          fishing: mapJsonData.mapEncounters.fishing.length,
+          cave: mapJsonData.mapEncounters.cave.length,
+          diving: mapJsonData.mapEncounters.diving.length,
+        }
+      });
       const result = await UpdateMapJsonWithPath(mapJsonData as any, jsonFilePath);
+      console.log("Save result:", result);
       
       // Create updated map object with current data for TOML update
       const updatedMapForToml = {

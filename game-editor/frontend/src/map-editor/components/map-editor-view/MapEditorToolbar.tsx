@@ -417,14 +417,14 @@ const MapEditorToolbar = ({
 
             onExportImage={exportMapImage}
           />
-          <MapConnectionDialog
+          {/* <MapConnectionDialog
             currentMapId={currentMapId}
             currentMapName={currentMapName}
             onConnectionsChange={onConnectionsChange}
             existingConnections={existingConnections}
             open={connectDialogOpen}
             onOpenChange={setConnectDialogOpen}
-          />
+          /> */}
         </>
       )}
     </div>

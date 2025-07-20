@@ -297,6 +297,51 @@ func (a *MapEditorApp) RenameMapFile(oldFilePath string, newFilePath string) map
 	}
 }
 
+// CheckFileExists checks if a file exists at the given path
+func (a *MapEditorApp) CheckFileExists(filePath string) map[string]any {
+	fullPath := fmt.Sprintf("%s/%s", a.app.DataDirectory, filePath)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return map[string]any{
+			"success": false,
+			"exists":  false,
+			"message": fmt.Sprintf("File does not exist: %s", filePath),
+		}
+	}
+
+	return map[string]any{
+		"success": true,
+		"exists":  true,
+		"message": fmt.Sprintf("File exists: %s", filePath),
+	}
+}
+
+// DeleteMapFile deletes a map JSON file
+func (a *MapEditorApp) DeleteMapFile(filePath string) map[string]any {
+	fullPath := fmt.Sprintf("%s/%s", a.app.DataDirectory, filePath)
+
+	// Check if file exists
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Sprintf("File does not exist: %s", filePath),
+		}
+	}
+
+	// Delete the file
+	if err := os.Remove(fullPath); err != nil {
+		return map[string]any{
+			"success":      false,
+			"errorMessage": fmt.Errorf("error deleting file: %w", err),
+		}
+	}
+
+	return map[string]any{
+		"success": true,
+		"message": fmt.Sprintf("Successfully deleted file: %s", filePath),
+	}
+}
+
 func (a *MapEditorApp) UpdateTomlMapEntryByID(updatedMap coreModels.Map) map[string]any {
 	// Read the existing TOML file
 	mapTomlPath := fmt.Sprintf("%s/data/toml/maps.toml", a.app.DataDirectory)

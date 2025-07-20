@@ -3,6 +3,8 @@
 import {models} from '../models';
 import {mapeditor} from '../models';
 
+export function CheckFileExists(arg1:string):Promise<Record<string, any>>;
+
 export function ClearTileCache():Promise<Record<string, any>>;
 
 export function CreateMap(arg1:models.MapEditerMapData):Promise<Record<string, any>>;
@@ -12,6 +14,8 @@ export function CreateTileset(arg1:models.CreateNewTileset):Promise<Record<strin
 export function CreateTilesetImage(arg1:string):Promise<Record<string, any>>;
 
 export function DeleteMapByID(arg1:number):Promise<Record<string, any>>;
+
+export function DeleteMapFile(arg1:string):Promise<Record<string, any>>;
 
 export function GetPreloadProgress():Promise<Record<string, any>>;
 

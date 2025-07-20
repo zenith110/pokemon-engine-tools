@@ -112,7 +112,7 @@ export const useMapData = (map: any, markUnsavedChanges?: () => void) => {
     }
     
     return null;
-  }, [map.ID, map.Name, map.Properties, map.GrassEncounters, map.WaterEncounters, map.CaveEncounters, map.FishingEncounters]);
+  }, [map.ID]);
 
   const handleMapChange = useCallback((updatedMapData: MapData, onMapChange: (map: any) => void) => {
     // Update local state

@@ -116,7 +116,7 @@ const CreateMapDialog = ({ handleCreateMap }: CreateMapDialogProps) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>New Map</Button>
+                <Button variant="outline" className="bg-slate-800 border-slate-700 hover:bg-slate-700">New Map</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] bg-slate-900 text-white max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
