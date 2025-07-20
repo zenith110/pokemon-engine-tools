@@ -366,15 +366,7 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 					continue
 				}
 
-				// Skip tiles that are too short to be valid PNG images
-				fmt.Printf("DEBUG: Checking tile length: %d < 500 = %v\n", len(tile.TileID), len(tile.TileID) < 500)
-				if len(tile.TileID) < 500 {
-					fmt.Printf("Skipping tile at (%d, %d) - tile data too short (%d chars, minimum 500 required)\n", tile.X, tile.Y, len(tile.TileID))
-					continue
-				}
-				fmt.Printf("DEBUG: Tile length check passed\n")
-
-				// Check if tile data looks like a valid data URL
+				// Check if tile data looks like a valid data URL or base64
 				if strings.HasPrefix(tile.TileID, "data:image/") {
 					fmt.Printf("Tile at (%d, %d) is data URL format\n", tile.X, tile.Y)
 					// Validate data URL format
@@ -385,11 +377,18 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 
 					// Check if base64 part is reasonable length
 					parts := strings.Split(tile.TileID, ",")
-					if len(parts) != 2 || len(parts[1]) < 50 {
+					if len(parts) != 2 || len(parts[1]) < 20 {
 						fmt.Printf("Skipping tile at (%d, %d) - invalid data URL or base64 too short (parts: %d, base64 length: %d)\n", tile.X, tile.Y, len(parts), len(parts[1]))
 						continue
 					}
 					fmt.Printf("Tile at (%d, %d) passed data URL validation\n", tile.X, tile.Y)
+				} else {
+					// Assume it's raw base64 data - check minimum length
+					if len(tile.TileID) < 20 {
+						fmt.Printf("Skipping tile at (%d, %d) - base64 data too short (%d chars, minimum 20 required)\n", tile.X, tile.Y, len(tile.TileID))
+						continue
+					}
+					fmt.Printf("Tile at (%d, %d) is raw base64 format, length: %d\n", tile.X, tile.Y, len(tile.TileID))
 				}
 
 				// Skip tiles outside bounds
@@ -514,27 +513,6 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 		}
 	}
 
-	// Draw grid if requested
-	if req.ShowGrid {
-		gridColor := color.RGBA{51, 65, 85, 76} // rgba(51,65,85,0.3)
-
-		// Vertical lines
-		for x := 0; x <= req.Width; x++ {
-			lineX := x * req.TileSize
-			for y := 0; y < outputHeight; y++ {
-				outputImg.Set(lineX, y, gridColor)
-			}
-		}
-
-		// Horizontal lines
-		for y := 0; y <= req.Height; y++ {
-			lineY := y * req.TileSize
-			for x := 0; x < outputWidth; x++ {
-				outputImg.Set(x, lineY, gridColor)
-			}
-		}
-	}
-
 	// Emit progress for encoding
 	if ctx != nil {
 		progressData := map[string]any{
@@ -654,25 +632,6 @@ func renderAffectedArea(req RenderRequest, startX, startY, regionW, regionH int)
 	}
 
 	// Draw grid lines in the affected area if requested
-	if req.ShowGrid {
-		gridColor := color.RGBA{51, 65, 85, 76} // rgba(51,65,85,0.3)
-
-		// Vertical lines
-		for x := 0; x <= regionW; x++ {
-			lineX := x * req.TileSize
-			for y := 0; y < areaHeight; y++ {
-				areaImg.Set(lineX, y, gridColor)
-			}
-		}
-
-		// Horizontal lines
-		for y := 0; y <= regionH; y++ {
-			lineY := y * req.TileSize
-			for x := 0; x < areaWidth; x++ {
-				areaImg.Set(x, lineY, gridColor)
-			}
-		}
-	}
 
 	// Encode to PNG
 	var buf strings.Builder
@@ -778,7 +737,6 @@ func stampTile(req StampRequest) StampResponse {
 		Height:           req.Height,
 		TileSize:         32, // Default tile size, should be configurable
 		Layers:           req.Layers,
-		ShowGrid:         true,
 		ShowCheckerboard: true,
 	}
 

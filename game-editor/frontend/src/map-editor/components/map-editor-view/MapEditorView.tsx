@@ -46,8 +46,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   const [renderedImageData, setRenderedImageData] = useState<string | null>(null);
   const { preloadTileImages } = useTilePreloading();
   
-  // Grid visibility state
-  const [showGrid, setShowGrid] = useState(true);
+
 
   // Local state
   const [activeView, setActiveView] = useState<ViewMode>("map");
@@ -348,8 +347,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             onSave={handleSaveWrapper}
             hasUnsavedChanges={hasUnsavedChanges}
             isSaving={isSaving}
-            showGrid={showGrid}
-            setShowGrid={setShowGrid}
+
           />
 
           <MapEditorMain
@@ -366,7 +364,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             onInitialRenderReady={handleInitialRenderReady}
             isMapAlreadyRendered={isMapReady}
             renderedImageData={renderedImageData}
-            showGrid={showGrid}
+
           />
         </div>
 

@@ -76,7 +76,7 @@ export const useTilePreloading = () => {
             tileId: tile.tileId
           }))
         })),
-        showGrid: true,
+
         showCheckerboard: !hasTiles // Only show checkerboard for empty maps
       });
       

@@ -1,5 +1,5 @@
 import { Button } from "../../components/ui/button";
-import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw, Save, Link, Grid, Download } from "lucide-react";
+import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw, Save, Link, Download } from "lucide-react";
 
 interface MapToolbarProps {
   paintMode: 'stamp' | 'fill' | 'remove';
@@ -15,8 +15,7 @@ interface MapToolbarProps {
   onConnectMap: () => void;
   hasUnsavedChanges: boolean;
   isSaving: boolean;
-  showGrid: boolean;
-  onToggleGrid: () => void;
+
   onExportImage: () => void;
 }
 
@@ -37,8 +36,6 @@ const MapToolbar = ({
   onConnectMap,
   hasUnsavedChanges,
   isSaving,
-  showGrid,
-  onToggleGrid,
   onExportImage,
 }: MapToolbarProps) => (
   <>
@@ -98,15 +95,7 @@ const MapToolbar = ({
         <RotateCcw className="h-4 w-4" />
       </Button>
       <div className="w-px h-6 bg-slate-600 mx-2"></div>
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={onToggleGrid}
-        title={showGrid ? "Hide Grid" : "Show Grid"}
-        className={showGrid ? activeBtnClass : ''}
-      >
-        <Grid className="h-4 w-4" />
-      </Button>
+
       <Button 
         variant="ghost" 
         size="icon" 

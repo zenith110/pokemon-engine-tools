@@ -59,7 +59,6 @@ export namespace mapeditor {
 	    height: number;
 	    tileSize: number;
 	    layers: Layer[];
-	    showGrid: boolean;
 	    showCheckerboard: boolean;
 	
 	    static createFrom(source: any = {}) {
@@ -72,7 +71,6 @@ export namespace mapeditor {
 	        this.height = source["height"];
 	        this.tileSize = source["tileSize"];
 	        this.layers = this.convertValues(source["layers"], Layer);
-	        this.showGrid = source["showGrid"];
 	        this.showCheckerboard = source["showCheckerboard"];
 	    }
 	

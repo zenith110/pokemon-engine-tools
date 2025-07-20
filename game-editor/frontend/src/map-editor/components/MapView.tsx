@@ -17,17 +17,48 @@ const MapView = ({
     onInitialRenderReady,
     isMapAlreadyRendered = false,
     renderedImageData,
-    showGrid = true,
-}: MapViewProps & { onInitialRenderReady?: () => void; isMapAlreadyRendered?: boolean; renderedImageData?: string | null; showGrid?: boolean }) => {
+}: MapViewProps & { onInitialRenderReady?: () => void; isMapAlreadyRendered?: boolean; renderedImageData?: string | null }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [history, setHistory] = useState<Array<{ layers: any[] }>>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
     const [isDrawing, setIsDrawing] = useState(false);
     const [lastPainted, setLastPainted] = useState<{ x: number; y: number } | null>(null);
     
+    // Tile cache for immediate rendering
+    const tileCache = useRef<Map<string, HTMLImageElement>>(new Map());
+    
     // Debounced render function
     const renderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    
+    // Track if we're in a stamping operation to avoid unnecessary re-renders
+    const isStampingRef = useRef(false);
 
+    // Preload tile into cache
+    const preloadTile = useCallback((tileId: string): Promise<HTMLImageElement> => {
+        return new Promise((resolve, reject) => {
+            if (tileCache.current.has(tileId)) {
+                resolve(tileCache.current.get(tileId)!);
+                return;
+            }
+            
+            const img = new Image();
+            img.onload = () => {
+                tileCache.current.set(tileId, img);
+                resolve(img);
+            };
+            img.onerror = (error) => {
+                console.error('Tile failed to load:', error);
+                reject(error);
+            };
+            
+            // Handle data URL format
+            if (tileId.startsWith('data:image/')) {
+                img.src = tileId;
+            } else {
+                img.src = `data:image/png;base64,${tileId}`;
+            }
+        });
+    }, []);
 
     // Debounced render function for updates after changes
     const debouncedRender = useCallback(() => {
@@ -58,29 +89,7 @@ const MapView = ({
                 }
             }
 
-            // Draw grid lines if grid is enabled
-            if (showGrid) {
-                ctx.strokeStyle = 'rgba(51,65,85,0.3)';
-                ctx.lineWidth = 1;
-                
-                // Vertical lines
-                for (let x = 0; x <= width; x++) {
-                    const lineX = x * tileSize;
-                    ctx.beginPath();
-                    ctx.moveTo(lineX, 0);
-                    ctx.lineTo(lineX, canvas.height);
-                    ctx.stroke();
-                }
-                
-                // Horizontal lines
-                for (let y = 0; y <= height; y++) {
-                    const lineY = y * tileSize;
-                    ctx.beginPath();
-                    ctx.moveTo(0, lineY);
-                    ctx.lineTo(canvas.width, lineY);
-                    ctx.stroke();
-                }
-            }
+
 
             // Draw all tiles
             for (const layer of layers) {
@@ -107,7 +116,7 @@ const MapView = ({
                 }
             }
         }, 8); // Reduced delay for better responsiveness
-    }, [layers, tileSize, width, height, showGrid]);
+    }, [layers, tileSize, width, height]);
 
     const addToHistory = useCallback((newLayers: any[]) => {
         const newHistory = history.slice(0, historyIndex + 1);
@@ -117,12 +126,15 @@ const MapView = ({
     }, [history, historyIndex]);
 
     // Render only the affected area for better performance
-    const renderAffectedArea = useCallback(async (x: number, y: number, regionW: number, regionH: number) => {
+    const renderAffectedArea = useCallback((x: number, y: number, regionW: number, regionH: number, layersToRender?: any[]) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+
+        // Use provided layers or fall back to current layers
+        const layersToUse = layersToRender || layers;
 
         // Clear only the affected area
         const startX = x * tileSize;
@@ -143,32 +155,8 @@ const MapView = ({
             }
         }
 
-        // Draw grid lines in the affected area if grid is enabled
-        if (showGrid) {
-            ctx.strokeStyle = 'rgba(51,65,85,0.3)';
-            ctx.lineWidth = 1;
-            
-            // Vertical lines
-            for (let gridX = Math.floor(startX / tileSize); gridX <= Math.floor(endX / tileSize); gridX++) {
-                const lineX = gridX * tileSize;
-                ctx.beginPath();
-                ctx.moveTo(lineX, startY);
-                ctx.lineTo(lineX, endY);
-                ctx.stroke();
-            }
-            
-            // Horizontal lines
-            for (let gridY = Math.floor(startY / tileSize); gridY <= Math.floor(endY / tileSize); gridY++) {
-                const lineY = gridY * tileSize;
-                ctx.beginPath();
-                ctx.moveTo(startX, lineY);
-                ctx.lineTo(endX, lineY);
-                ctx.stroke();
-            }
-        }
-
         // Draw only the tiles in the affected area
-        for (const layer of layers) {
+        for (const layer of layersToUse) {
             if (!layer.visible) continue;
 
             for (const tile of layer.tiles) {
@@ -178,17 +166,30 @@ const MapView = ({
                 // Check if this tile is in the affected area
                 if (tileX >= startX && tileX < endX && tileY >= startY && tileY < endY) {
                     try {
-                        // Load and draw the tile image
-                        const img = new Image();
-                        img.onload = () => {
-                            ctx.drawImage(img, tileX, tileY, tileSize, tileSize);
-                        };
-                        
-                        // Handle data URL format
-                        if (tile.tileId.startsWith('data:image/')) {
-                            img.src = tile.tileId;
+                        // Check if tile is in cache first
+                        const cachedImg = tileCache.current.get(tile.tileId);
+                        if (cachedImg) {
+                            // Draw immediately if cached
+                            ctx.drawImage(cachedImg, tileX, tileY, tileSize, tileSize);
                         } else {
-                            img.src = `data:image/png;base64,${tile.tileId}`;
+                            // Load and cache the tile, then draw it
+                            const img = new Image();
+                            img.onload = () => {
+                                // Cache the image for future use
+                                tileCache.current.set(tile.tileId, img);
+                                // Draw the tile
+                                ctx.drawImage(img, tileX, tileY, tileSize, tileSize);
+                            };
+                            img.onerror = (error) => {
+                                console.error('Failed to load tile image:', error);
+                            };
+                            
+                            // Handle data URL format
+                            if (tile.tileId.startsWith('data:image/')) {
+                                img.src = tile.tileId;
+                            } else {
+                                img.src = `data:image/png;base64,${tile.tileId}`;
+                            }
                         }
                     } catch (error) {
                         console.error('Failed to load tile image:', error);
@@ -196,11 +197,14 @@ const MapView = ({
                 }
             }
         }
-    }, [layers, tileSize, width, height, showGrid]);
+    }, [tileSize, width, height]);
 
     // Optimized tile placement with frontend rendering for immediate feedback
     const placeStamp = useCallback((x: number, y: number) => {
         if (!selectedTile || x < 0 || x >= width || y < 0 || y >= height) return;
+
+        // Set stamping flag to prevent full re-render
+        isStampingRef.current = true;
 
         // Update layers locally first for immediate feedback
         const regionW = selectedTile.width || 1;
@@ -248,12 +252,12 @@ const MapView = ({
             };
         });
 
-        // Update state immediately for responsive UI
+        // Use frontend rendering for immediate feedback with the new layers FIRST
+        renderAffectedArea(x, y, regionW, regionH, newLayers);
+        
+        // Then update state (this will trigger the layer change effect, but we have the flag set)
         setLayers(newLayers);
         addToHistory(newLayers);
-        
-        // Use frontend rendering for immediate feedback
-        renderAffectedArea(x, y, regionW, regionH);
     }, [selectedTile, width, height, layers, activeLayerId, setLayers, addToHistory, renderAffectedArea]);
 
     // Handle mouse events
@@ -268,6 +272,9 @@ const MapView = ({
     }, [tileSize]);
 
     const removeTile = useCallback((x: number, y: number) => {
+        // Set stamping flag to prevent full re-render
+        isStampingRef.current = true;
+        
         const newLayers = layers.map((layer) => {
             if (layer.id !== activeLayerId) return layer;
             
@@ -276,11 +283,13 @@ const MapView = ({
                 tiles: layer.tiles.filter((t) => t.x !== x || t.y !== y),
             };
         });
+        
+        // Use frontend rendering for immediate feedback with the new layers FIRST
+        renderAffectedArea(x, y, 1, 1, newLayers);
+        
+        // Then update state (this will trigger the layer change effect, but we have the flag set)
         setLayers(newLayers);
         addToHistory(newLayers);
-        
-        // Use frontend rendering for immediate feedback
-        renderAffectedArea(x, y, 1, 1);
     }, [layers, activeLayerId, setLayers, addToHistory, renderAffectedArea]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -495,6 +504,52 @@ const MapView = ({
             unsubscribeError();
         };
     }, [isMapAlreadyRendered, onInitialRenderReady]);
+
+    // Preload selected tile when it changes
+    useEffect(() => {
+        if (selectedTile) {
+            // Preload the main tile image
+            if (selectedTile.image) {
+                preloadTile(selectedTile.image);
+            }
+            // Preload sub-tiles if they exist
+            if (selectedTile.subTiles) {
+                for (let dx = 0; dx < selectedTile.width; dx++) {
+                    for (let dy = 0; dy < selectedTile.height; dy++) {
+                        if (selectedTile.subTiles[dx] && selectedTile.subTiles[dx][dy]) {
+                            preloadTile(selectedTile.subTiles[dx][dy]);
+                        }
+                    }
+                }
+            }
+        }
+    }, [selectedTile, preloadTile]);
+
+    // Re-render when layers change (for both frontend and backend rendering)
+    useEffect(() => {
+        console.log("MapView: Layers changed, triggering re-render");
+        
+        // Skip re-render if we're in the middle of a stamping operation
+        // The stamping operations handle their own rendering via renderAffectedArea
+        if (isStampingRef.current) {
+            console.log("MapView: Skipping re-render during stamping operation");
+            // Reset the flag after a longer delay to ensure stamping operations complete
+            setTimeout(() => {
+                isStampingRef.current = false;
+            }, 200);
+            return;
+        }
+        
+        if (isMapAlreadyRendered) {
+            // For backend rendering, trigger a frontend re-render to show immediate changes
+            debouncedRender();
+        } else {
+            // For frontend rendering, use the normal debounced render
+            debouncedRender();
+        }
+    }, [layers, debouncedRender, isMapAlreadyRendered]);
+
+
 
     // Cleanup timeout on unmount
     useEffect(() => {

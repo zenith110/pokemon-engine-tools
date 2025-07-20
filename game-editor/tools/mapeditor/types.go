@@ -18,12 +18,12 @@ type Layer struct {
 
 // RenderRequest represents a request to render the map
 type RenderRequest struct {
-	Width            int     `json:"width"`
-	Height           int     `json:"height"`
-	TileSize         int     `json:"tileSize"`
-	Layers           []Layer `json:"layers"`
-	ShowGrid         bool    `json:"showGrid"`
-	ShowCheckerboard bool    `json:"showCheckerboard"`
+	Width    int     `json:"width"`
+	Height   int     `json:"height"`
+	TileSize int     `json:"tileSize"`
+	Layers   []Layer `json:"layers"`
+
+	ShowCheckerboard bool `json:"showCheckerboard"`
 }
 
 // RenderResponse represents the response from rendering

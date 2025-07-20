@@ -6,6 +6,7 @@ import MapConnectionDialog from "../MapConnectionDialog";
 import { useState, useRef } from "react";
 import { RenderMap } from "../../../../wailsjs/go/mapeditor/MapEditorApp";
 import { mapeditor } from "../../../../wailsjs/go/models";
+import { EventsOn } from "../../../../wailsjs/runtime/runtime";
 
 type ViewMode = "map" | "encounters" | "settings";
 
@@ -51,8 +52,7 @@ interface MapEditorToolbarProps {
   onSave: () => void;
   hasUnsavedChanges: boolean;
   isSaving: boolean;
-  showGrid: boolean;
-  setShowGrid: (show: boolean) => void;
+
 }
 
 const MapEditorToolbar = ({
@@ -78,8 +78,7 @@ const MapEditorToolbar = ({
   onSave,
   hasUnsavedChanges,
   isSaving,
-  showGrid,
-  setShowGrid,
+
 }: MapEditorToolbarProps) => {
   const [editingLayerId, setEditingLayerId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
@@ -93,9 +92,7 @@ const MapEditorToolbar = ({
   const endIndex = startIndex + layersPerPage;
   const visibleLayers = layers.slice(startIndex, endIndex);
 
-  const toggleGrid = () => {
-    setShowGrid(!showGrid);
-  };
+
 
   const exportMapImage = async () => {
     try {
@@ -118,6 +115,16 @@ const MapEditorToolbar = ({
       
       console.log(`Exporting map with dimensions: ${mapWidth}x${mapHeight}, tiles: ${layers.reduce((sum, layer) => sum + layer.tiles.length, 0)}`);
       
+      // Debug: Log some tile data to see what's being sent
+      layers.forEach((layer, layerIndex) => {
+        if (layer.visible && layer.tiles.length > 0) {
+          console.log(`Layer ${layerIndex} (${layer.name}): ${layer.tiles.length} tiles`);
+          layer.tiles.slice(0, 3).forEach((tile, tileIndex) => {
+            console.log(`  Tile ${tileIndex} at (${tile.x}, ${tile.y}): tileId length = ${tile.tileId.length}, starts with data:image/ = ${tile.tileId.startsWith('data:image/')}`);
+          });
+        }
+      });
+      
       // Create render request for export
       const renderRequest = new mapeditor.RenderRequest({
         width: mapWidth,
@@ -134,22 +141,48 @@ const MapEditorToolbar = ({
             tileId: tile.tileId
           }))
         })),
-        showGrid: showGrid,
         showCheckerboard: false // Don't show checkerboard for export
       });
 
+      // Start rendering and wait for completion
       const result = await RenderMap(renderRequest);
       
-      if (result.success && result.imageData) {
+      if (result.success) {
+        // Wait for the rendering to complete by listening for the completion event
+        const imageData = await new Promise<string>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error('Export timeout - rendering took too long'));
+          }, 30000); // 30 second timeout
+          
+          const unsubscribe = EventsOn("map-render-complete", (data: any) => {
+            clearTimeout(timeout);
+            unsubscribe();
+            if (data.success && data.imageData) {
+              resolve(data.imageData);
+            } else {
+              reject(new Error('Rendering failed'));
+            }
+          });
+          
+          const unsubscribeError = EventsOn("map-render-error", (data: any) => {
+            clearTimeout(timeout);
+            unsubscribe();
+            unsubscribeError();
+            reject(new Error(data.message || 'Rendering failed'));
+          });
+        });
+        
         // Create a download link for the image
         const link = document.createElement('a');
-        link.href = `data:image/png;base64,${result.imageData}`;
+        link.href = `data:image/png;base64,${imageData}`;
         link.download = `${currentMapName || 'map'}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        console.log('Map exported successfully');
       } else {
-        console.error('Failed to export map image:', result.message);
+        console.error('Failed to start map export:', result.message);
       }
     } catch (error) {
       console.error('Error exporting map image:', error);
@@ -381,8 +414,7 @@ const MapEditorToolbar = ({
             onConnectMap={() => setConnectDialogOpen(true)}
             hasUnsavedChanges={hasUnsavedChanges}
             isSaving={isSaving}
-            showGrid={showGrid}
-            onToggleGrid={toggleGrid}
+
             onExportImage={exportMapImage}
           />
           <MapConnectionDialog
