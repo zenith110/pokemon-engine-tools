@@ -48,6 +48,8 @@ interface MapEditorMainProps {
   }) => void;
   onInitialRenderReady?: () => void;
   isMapAlreadyRendered?: boolean;
+  renderedImageData?: string | null;
+  showGrid?: boolean;
 }
 
 const MapEditorMain = ({
@@ -63,6 +65,8 @@ const MapEditorMain = ({
   handleSettingsChange,
   onInitialRenderReady,
   isMapAlreadyRendered,
+  renderedImageData,
+  showGrid,
 }: MapEditorMainProps) => {
   const renderMainView = () => {
     switch (activeView) {
@@ -80,6 +84,8 @@ const MapEditorMain = ({
             paintMode={paintMode}
             onInitialRenderReady={onInitialRenderReady}
             isMapAlreadyRendered={isMapAlreadyRendered}
+            renderedImageData={renderedImageData}
+            showGrid={showGrid}
           />
         );
       case "encounters":

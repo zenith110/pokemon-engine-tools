@@ -208,6 +208,17 @@ var (
 	isPreloading           bool
 )
 
+// PreloadTilesOnly preloads tile images with progress updates without rendering the map
+func (a *MapEditorApp) PreloadTilesOnly(tileIds []string) map[string]any {
+	// Start preloading in background with progress updates
+	go a.preloadTilesOnlyInBackground(tileIds)
+
+	return map[string]any{
+		"success": true,
+		"message": "Tile preloading started",
+	}
+}
+
 // PreloadTilesWithProgress preloads tile images with progress updates and renders the map
 func (a *MapEditorApp) PreloadTilesWithProgress(tileIds []string, req RenderRequest) map[string]any {
 	// Start preloading in background with progress updates
@@ -251,8 +262,8 @@ func (a *MapEditorApp) updateProgress(current int, total int, message string) {
 	runtime.EventsEmit(a.app.Ctx, "tile-preload-progress", string(progressData))
 }
 
-// preloadTilesInBackground handles the actual tile preloading with progress updates
-func (a *MapEditorApp) preloadTilesInBackground(tileIds []string, req RenderRequest) {
+// preloadTilesOnlyInBackground handles tile preloading without rendering the map
+func (a *MapEditorApp) preloadTilesOnlyInBackground(tileIds []string) {
 	// Set preloading state
 	preloadProgressMutex.Lock()
 	isPreloading = true
@@ -260,11 +271,14 @@ func (a *MapEditorApp) preloadTilesInBackground(tileIds []string, req RenderRequ
 
 	totalTiles := len(tileIds)
 
+	fmt.Printf("DEBUG: Starting preloadTilesOnlyInBackground with %d tiles\n", totalTiles)
+
 	// Initialize progress
-	a.updateProgress(0, totalTiles, "Starting tile preloading and map rendering...")
+	a.updateProgress(0, totalTiles, "Starting tile preloading...")
 
 	// Preload tiles in batches for better performance
 	batchSize := 10
+	fmt.Printf("DEBUG: About to start tile preloading loop with %d total tiles\n", totalTiles)
 	for i := 0; i < totalTiles; i += batchSize {
 		end := i + batchSize
 		if end > totalTiles {
@@ -334,6 +348,113 @@ func (a *MapEditorApp) preloadTilesInBackground(tileIds []string, req RenderRequ
 		// Small delay to prevent overwhelming the system
 		time.Sleep(10 * time.Millisecond)
 	}
+
+	fmt.Printf("DEBUG: Tile preloading loop completed\n")
+
+	// Emit completion event
+	runtime.EventsEmit(a.app.Ctx, "tile-preload-complete", map[string]any{
+		"success": true,
+		"total":   totalTiles,
+		"message": "Tile preloading completed",
+	})
+
+	fmt.Printf("DEBUG: tile-preload-complete event emitted\n")
+	fmt.Printf("Tile preloading completed\n")
+
+	// Mark preloading as complete
+	preloadProgressMutex.Lock()
+	isPreloading = false
+	preloadProgressMutex.Unlock()
+}
+
+// preloadTilesInBackground handles the actual tile preloading with progress updates
+func (a *MapEditorApp) preloadTilesInBackground(tileIds []string, req RenderRequest) {
+	// Set preloading state
+	preloadProgressMutex.Lock()
+	isPreloading = true
+	preloadProgressMutex.Unlock()
+
+	totalTiles := len(tileIds)
+
+	fmt.Printf("DEBUG: Starting preloadTilesInBackground with %d tiles\n", totalTiles)
+
+	// Initialize progress
+	a.updateProgress(0, totalTiles, "Starting tile preloading and map rendering...")
+
+	// Preload tiles in batches for better performance
+	batchSize := 10
+	fmt.Printf("DEBUG: About to start tile preloading loop with %d total tiles\n", totalTiles)
+	for i := 0; i < totalTiles; i += batchSize {
+		end := i + batchSize
+		if end > totalTiles {
+			end = totalTiles
+		}
+
+		batch := tileIds[i:end]
+
+		// Preload batch of tiles
+		for _, tileId := range batch {
+			// Safe slice for preview (avoid panic on short strings)
+			preview := tileId
+			if len(tileId) > 50 {
+				preview = tileId[:50] + "..."
+			}
+
+			fmt.Printf("DEBUG: Processing tile during preloading: %s (length: %d)\n", preview, len(tileId))
+
+			// Validate tile data before attempting to load
+			if len(tileId) == 0 {
+				fmt.Printf("Skipping empty tile during preloading\n")
+				continue
+			}
+
+			// Skip tiles that are too short to be valid PNG images
+			if len(tileId) < 500 {
+				fmt.Printf("Skipping tile during preloading - data too short (%d chars, minimum 500 required)\n", len(tileId))
+				continue
+			}
+
+			fmt.Printf("DEBUG: Tile passed validation, attempting to load\n")
+
+			// Load tile into cache with timeout protection
+			tileChan := make(chan struct {
+				img image.Image
+				err error
+			}, 1)
+
+			go func(tid string) {
+				fmt.Printf("DEBUG: Starting loadTileImage in goroutine for tile: %s\n", preview)
+				img, loadErr := loadTileImage(tid)
+				fmt.Printf("DEBUG: loadTileImage completed for tile: %s, error: %v\n", preview, loadErr)
+				tileChan <- struct {
+					img image.Image
+					err error
+				}{img, loadErr}
+			}(tileId)
+
+			// Wait for tile loading with timeout
+			select {
+			case result := <-tileChan:
+				if result.err != nil {
+					fmt.Printf("Failed to preload tile %s: %v\n", preview, result.err)
+				} else {
+					fmt.Printf("Preloaded tile: %s\n", preview)
+				}
+			case <-time.After(2 * time.Second): // 2 second timeout for preloading
+				fmt.Printf("Preload timeout for tile %s - skipping\n", preview)
+			}
+		}
+
+		// Update progress
+		progress := end
+		message := fmt.Sprintf("Preloading tiles... (%d/%d)", progress, totalTiles)
+		a.updateProgress(progress, totalTiles, message)
+
+		// Small delay to prevent overwhelming the system
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	fmt.Printf("DEBUG: Tile preloading loop completed, moving to rendering phase\n")
 
 	// After preloading tiles, render the map using SSE
 	a.updateProgress(totalTiles, totalTiles, "Tiles preloaded, starting map rendering...")

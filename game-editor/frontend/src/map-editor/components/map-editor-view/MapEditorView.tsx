@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { EventsOn } from "../../../../wailsjs/runtime/runtime";
 import { SelectedTile } from "../TilePalette";
 import MapEditorHeader from "./MapEditorHeader";
@@ -41,7 +41,13 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     setRenderComplete, 
     setRenderError 
   } = useLoadingState();
+
+  // State to store the rendered image data
+  const [renderedImageData, setRenderedImageData] = useState<string | null>(null);
   const { preloadTileImages } = useTilePreloading();
+  
+  // Grid visibility state
+  const [showGrid, setShowGrid] = useState(true);
 
   // Local state
   const [activeView, setActiveView] = useState<ViewMode>("map");
@@ -60,8 +66,19 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     logLayersChange();
   }, [layers, logLayersChange]);
 
-  // Add event listeners for render progress
+  // Add event listeners for render progress - only active during initial loading
+  const eventListenersSetUp = useRef(false);
+  
   useEffect(() => {
+    // Only set up event listeners if we're in the initial loading phase
+    if (!isLoading || eventListenersSetUp.current) {
+      console.log("Event listeners not needed or already set up, skipping...");
+      return;
+    }
+    
+    console.log("Setting up event listeners in MapEditorView for initial loading...");
+    eventListenersSetUp.current = true;
+    
     const unsubscribeProgress = EventsOn("map-render-progress", (data: string) => {
       console.log("Received map render progress event:", data);
       try {
@@ -80,6 +97,14 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     const unsubscribeComplete = EventsOn("map-render-complete", (data: any) => {
       console.log("Map rendering completed in MapEditorView:", data);
       console.log("Image data length:", data.imageData ? data.imageData.length : 0);
+      
+      // Store the rendered image data
+      if (data.imageData) {
+        console.log("Storing rendered image data");
+        setRenderedImageData(data.imageData);
+      }
+      
+      console.log("Calling setRenderComplete()");
       setRenderComplete();
     });
 
@@ -89,12 +114,16 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       setRenderError();
     });
 
+    console.log("Event listeners set up successfully in MapEditorView");
+
     return () => {
+      console.log("Cleaning up event listeners in MapEditorView");
+      eventListenersSetUp.current = false;
       unsubscribeProgress();
       unsubscribeComplete();
       unsubscribeError();
     };
-  }, [updateRenderProgress, setRenderComplete, setRenderError]);
+  }, [isLoading, updateRenderProgress, setRenderComplete, setRenderError]); // Only active during loading
 
   // Add a timeout to ensure handleInitialRenderReady is called
   useEffect(() => {
@@ -110,7 +139,18 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
   }, [isMapReady, handleInitialRenderReady]);
 
   // Load map data from JSON file
+  const mapLoadingRef = useRef<number | null>(null);
+  
   useEffect(() => {
+    // Prevent multiple loads for the same map
+    if (mapLoadingRef.current === map.ID) {
+      console.log("Map already loading, skipping...");
+      return;
+    }
+    
+    mapLoadingRef.current = map.ID;
+    console.log("Starting to load map ID:", map.ID);
+    
     const loadMapDataAsync = async () => {
       console.log("=== LOADING MAP DATA ===");
       console.log("Loading map data for map ID:", map.ID);
@@ -156,8 +196,10 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             setActiveLayerId(loadedData.layers[0]?.id || 1);
           }
           
-          // Update history with loaded layers
-          addToHistory(loadedData.layers);
+          // Update history with loaded layers (only if there are actual tiles)
+          if (loadedData.layers.some(layer => layer.tiles.length > 0)) {
+            addToHistory(loadedData.layers);
+          }
           
           // Preload tile images (which now handles both preloading and rendering)
           await preloadTileImages(loadedData.layers, updateLoadingProgress, setMapReady, mapData.width, mapData.height, mapData.tileSize);
@@ -179,7 +221,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             },
           ];
           setLayers(defaultLayers);
-          addToHistory(defaultLayers);
+          // Don't add empty default layers to history for brand new maps
           
           // Preload tile images (which now handles both preloading and rendering)
           await preloadTileImages(defaultLayers, updateLoadingProgress, setMapReady, mapData.width, mapData.height, mapData.tileSize);
@@ -203,7 +245,7 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
           },
         ];
         setLayers(defaultLayers);
-        addToHistory(defaultLayers);
+        // Don't add empty default layers to history for brand new maps
         
         // Show error in loading progress
         updateLoadingProgress({ current: 0, total: 0, message: `Error loading map: ${error}` });
@@ -219,11 +261,13 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       } finally {
         // Clear safety timeout
         clearTimeout(safetyTimeout);
+        // Reset the loading ref
+        mapLoadingRef.current = null;
       }
     };
 
     loadMapDataAsync();
-  }, [map.ID, loadMapData, setLayers, addToHistory, preloadTileImages, updateLoadingProgress, setMapReady, resetLoadingState]);
+  }, [map.ID, loadMapData, updateLoadingProgress, resetLoadingState]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -304,6 +348,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             onSave={handleSaveWrapper}
             hasUnsavedChanges={hasUnsavedChanges}
             isSaving={isSaving}
+            showGrid={showGrid}
+            setShowGrid={setShowGrid}
           />
 
           <MapEditorMain
@@ -319,6 +365,8 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
             handleSettingsChange={handleSettingsChangeWrapper}
             onInitialRenderReady={handleInitialRenderReady}
             isMapAlreadyRendered={isMapReady}
+            renderedImageData={renderedImageData}
+            showGrid={showGrid}
           />
         </div>
 

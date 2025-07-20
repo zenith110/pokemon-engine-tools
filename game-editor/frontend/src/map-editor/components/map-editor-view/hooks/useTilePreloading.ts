@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { PreloadTilesWithProgress } from "../../../../../wailsjs/go/mapeditor/MapEditorApp";
+import { PreloadTilesWithProgress, PreloadTilesOnly } from "../../../../../wailsjs/go/mapeditor/MapEditorApp";
 import { EventsOn } from "../../../../../wailsjs/runtime/runtime";
 import { mapeditor } from "../../../../../wailsjs/go/models";
 import { MapLayer } from "./useLayers";
@@ -12,7 +12,8 @@ export const useTilePreloading = () => {
     handleMapReady: () => void,
     mapWidth: number,
     mapHeight: number,
-    tileSize: number
+    tileSize: number,
+    useBackendRendering: boolean = true
   ) => {
     console.log("Starting tile preloading...");
     const uniqueTileIds = new Set<string>();
@@ -29,11 +30,22 @@ export const useTilePreloading = () => {
     const totalTiles = uniqueTileIds.size;
     console.log(`Preloading ${totalTiles} unique tiles...`);
     
-    if (totalTiles === 0) {
-      setLoadingProgress({ current: 0, total: 0, message: "No tiles to preload" });
+    // Check if there are any tiles in the layers
+    const hasTiles = layersToPreload.some(layer => layer.tiles.length > 0);
+    console.log(`Map has tiles: ${hasTiles}, total unique tiles: ${totalTiles}`);
+    
+    // Always use backend rendering for initial map load
+    const shouldUseBackendRendering = useBackendRendering;
+    console.log(`Using backend rendering: ${shouldUseBackendRendering}`);
+    
+    if (!shouldUseBackendRendering) {
+      // For subsequent operations, use frontend rendering
+      console.log("Subsequent operation, using frontend rendering");
+      handleMapReady();
       return;
     }
     
+    // For initial map load, always use backend rendering (both with and without tiles)
     setLoadingProgress({ current: 0, total: totalTiles, message: "Starting tile preloading..." });
     
     // Track if we've already completed to prevent duplicate calls
@@ -65,7 +77,7 @@ export const useTilePreloading = () => {
           }))
         })),
         showGrid: true,
-        showCheckerboard: true
+        showCheckerboard: !hasTiles // Only show checkerboard for empty maps
       });
       
       const result = await PreloadTilesWithProgress(tileIdsArray, renderRequest);
@@ -169,7 +181,7 @@ export const useTilePreloading = () => {
       // Fall back to frontend preloading
       await preloadTilesFrontend(uniqueTileIds, setLoadingProgress, handleMapReady);
     }
-  }, []);
+  }, []); // Empty dependency array is fine since PreloadTilesWithProgress and EventsOn are imported functions
 
   // Fallback frontend preloading function
   const preloadTilesFrontend = useCallback(async (

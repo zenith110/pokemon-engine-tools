@@ -4,6 +4,8 @@ import MapToolbar from "../MapToolbar";
 import { SelectedTile } from "../TilePalette";
 import MapConnectionDialog from "../MapConnectionDialog";
 import { useState, useRef } from "react";
+import { RenderMap } from "../../../../wailsjs/go/mapeditor/MapEditorApp";
+import { mapeditor } from "../../../../wailsjs/go/models";
 
 type ViewMode = "map" | "encounters" | "settings";
 
@@ -49,6 +51,8 @@ interface MapEditorToolbarProps {
   onSave: () => void;
   hasUnsavedChanges: boolean;
   isSaving: boolean;
+  showGrid: boolean;
+  setShowGrid: (show: boolean) => void;
 }
 
 const MapEditorToolbar = ({
@@ -74,6 +78,8 @@ const MapEditorToolbar = ({
   onSave,
   hasUnsavedChanges,
   isSaving,
+  showGrid,
+  setShowGrid,
 }: MapEditorToolbarProps) => {
   const [editingLayerId, setEditingLayerId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
@@ -86,6 +92,69 @@ const MapEditorToolbar = ({
   const startIndex = currentPage * layersPerPage;
   const endIndex = startIndex + layersPerPage;
   const visibleLayers = layers.slice(startIndex, endIndex);
+
+  const toggleGrid = () => {
+    setShowGrid(!showGrid);
+  };
+
+  const exportMapImage = async () => {
+    try {
+      // Calculate map dimensions from the layers
+      let maxX = 0;
+      let maxY = 0;
+      
+      layers.forEach(layer => {
+        if (layer.visible) {
+          layer.tiles.forEach(tile => {
+            maxX = Math.max(maxX, tile.x + 1);
+            maxY = Math.max(maxY, tile.y + 1);
+          });
+        }
+      });
+      
+      // Use minimum dimensions of 20x20 or actual tile bounds
+      const mapWidth = Math.max(20, maxX);
+      const mapHeight = Math.max(20, maxY);
+      
+      console.log(`Exporting map with dimensions: ${mapWidth}x${mapHeight}, tiles: ${layers.reduce((sum, layer) => sum + layer.tiles.length, 0)}`);
+      
+      // Create render request for export
+      const renderRequest = new mapeditor.RenderRequest({
+        width: mapWidth,
+        height: mapHeight,
+        tileSize: tileSize,
+        layers: layers.map(layer => new mapeditor.Layer({
+          id: layer.id,
+          name: layer.name,
+          visible: layer.visible,
+          locked: layer.locked,
+          tiles: layer.tiles.map(tile => new mapeditor.Tile({
+            x: tile.x,
+            y: tile.y,
+            tileId: tile.tileId
+          }))
+        })),
+        showGrid: showGrid,
+        showCheckerboard: false // Don't show checkerboard for export
+      });
+
+      const result = await RenderMap(renderRequest);
+      
+      if (result.success && result.imageData) {
+        // Create a download link for the image
+        const link = document.createElement('a');
+        link.href = `data:image/png;base64,${result.imageData}`;
+        link.download = `${currentMapName || 'map'}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        console.error('Failed to export map image:', result.message);
+      }
+    } catch (error) {
+      console.error('Error exporting map image:', error);
+    }
+  };
 
   const toggleLayerVisibility = (layerId: number) => {
     setLayers(layers.map(layer => 
@@ -312,6 +381,9 @@ const MapEditorToolbar = ({
             onConnectMap={() => setConnectDialogOpen(true)}
             hasUnsavedChanges={hasUnsavedChanges}
             isSaving={isSaving}
+            showGrid={showGrid}
+            onToggleGrid={toggleGrid}
+            onExportImage={exportMapImage}
           />
           <MapConnectionDialog
             currentMapId={currentMapId}

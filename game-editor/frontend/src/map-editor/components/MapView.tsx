@@ -1,37 +1,8 @@
 import { useRef, useState, useCallback, useEffect } from "react"
 import { StampTile, ClearTileCache } from "../../../wailsjs/go/mapeditor/MapEditorApp"
 import { EventsOn } from "../../../wailsjs/runtime/runtime"
-import { mapeditor } from "../../../wailsjs/go/models"
 import { MapViewProps } from "../types";
 
-// Spatial index for fast tile lookups
-class TileSpatialIndex {
-    private tiles: Map<string, any> = new Map();
-    
-    private getKey(x: number, y: number): string {
-        return `${x},${y}`;
-    }
-    
-    setTile(x: number, y: number, tile: any): void {
-        this.tiles.set(this.getKey(x, y), tile);
-    }
-    
-    getTile(x: number, y: number): any | undefined {
-        return this.tiles.get(this.getKey(x, y));
-    }
-    
-    removeTile(x: number, y: number): void {
-        this.tiles.delete(this.getKey(x, y));
-    }
-    
-    clear(): void {
-        this.tiles.clear();
-    }
-    
-    getAllTiles(): any[] {
-        return Array.from(this.tiles.values());
-    }
-}
 
 const MapView = ({
     width,
@@ -45,7 +16,9 @@ const MapView = ({
     paintMode,
     onInitialRenderReady,
     isMapAlreadyRendered = false,
-}: MapViewProps & { onInitialRenderReady?: () => void; isMapAlreadyRendered?: boolean }) => {
+    renderedImageData,
+    showGrid = true,
+}: MapViewProps & { onInitialRenderReady?: () => void; isMapAlreadyRendered?: boolean; renderedImageData?: string | null; showGrid?: boolean }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [history, setHistory] = useState<Array<{ layers: any[] }>>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
@@ -62,11 +35,79 @@ const MapView = ({
             clearTimeout(renderTimeoutRef.current);
         }
         renderTimeoutRef.current = setTimeout(() => {
-            // For updates after changes, we can use the existing renderAffectedArea function
-            // or trigger a new backend render if needed
-            console.log("Debounced render triggered - backend should handle this");
+            // Use frontend rendering for all updates after initial load
+            console.log("Debounced render triggered - using frontend rendering");
+            
+            // Re-render the entire map using frontend rendering
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            // Clear the entire canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw checkerboard pattern
+            const checkerSize = 8;
+            for (let cx = 0; cx < canvas.width; cx += checkerSize) {
+                for (let cy = 0; cy < canvas.height; cy += checkerSize) {
+                    const isEven = ((cx / checkerSize) + (cy / checkerSize)) % 2 === 0;
+                    ctx.fillStyle = isEven ? '#ffffff' : '#cccccc';
+                    ctx.fillRect(cx, cy, Math.min(checkerSize, canvas.width - cx), Math.min(checkerSize, canvas.height - cy));
+                }
+            }
+
+            // Draw grid lines if grid is enabled
+            if (showGrid) {
+                ctx.strokeStyle = 'rgba(51,65,85,0.3)';
+                ctx.lineWidth = 1;
+                
+                // Vertical lines
+                for (let x = 0; x <= width; x++) {
+                    const lineX = x * tileSize;
+                    ctx.beginPath();
+                    ctx.moveTo(lineX, 0);
+                    ctx.lineTo(lineX, canvas.height);
+                    ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let y = 0; y <= height; y++) {
+                    const lineY = y * tileSize;
+                    ctx.beginPath();
+                    ctx.moveTo(0, lineY);
+                    ctx.lineTo(canvas.width, lineY);
+                    ctx.stroke();
+                }
+            }
+
+            // Draw all tiles
+            for (const layer of layers) {
+                if (!layer.visible) continue;
+
+                for (const tile of layer.tiles) {
+                    const tileX = tile.x * tileSize;
+                    const tileY = tile.y * tileSize;
+                    
+                    try {
+                        const img = new Image();
+                        img.onload = () => {
+                            ctx.drawImage(img, tileX, tileY, tileSize, tileSize);
+                        };
+                        
+                        if (tile.tileId.startsWith('data:image/')) {
+                            img.src = tile.tileId;
+                        } else {
+                            img.src = `data:image/png;base64,${tile.tileId}`;
+                        }
+                    } catch (error) {
+                        console.error('Failed to load tile image:', error);
+                    }
+                }
+            }
         }, 8); // Reduced delay for better responsiveness
-    }, []);
+    }, [layers, tileSize, width, height, showGrid]);
 
     const addToHistory = useCallback((newLayers: any[]) => {
         const newHistory = history.slice(0, historyIndex + 1);
@@ -102,26 +143,28 @@ const MapView = ({
             }
         }
 
-        // Draw grid lines in the affected area
-        ctx.strokeStyle = 'rgba(51,65,85,0.3)';
-        ctx.lineWidth = 1;
-        
-        // Vertical lines
-        for (let gridX = Math.floor(startX / tileSize); gridX <= Math.floor(endX / tileSize); gridX++) {
-            const lineX = gridX * tileSize;
-            ctx.beginPath();
-            ctx.moveTo(lineX, startY);
-            ctx.lineTo(lineX, endY);
-            ctx.stroke();
-        }
-        
-        // Horizontal lines
-        for (let gridY = Math.floor(startY / tileSize); gridY <= Math.floor(endY / tileSize); gridY++) {
-            const lineY = gridY * tileSize;
-            ctx.beginPath();
-            ctx.moveTo(startX, lineY);
-            ctx.lineTo(endX, lineY);
-            ctx.stroke();
+        // Draw grid lines in the affected area if grid is enabled
+        if (showGrid) {
+            ctx.strokeStyle = 'rgba(51,65,85,0.3)';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let gridX = Math.floor(startX / tileSize); gridX <= Math.floor(endX / tileSize); gridX++) {
+                const lineX = gridX * tileSize;
+                ctx.beginPath();
+                ctx.moveTo(lineX, startY);
+                ctx.lineTo(lineX, endY);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let gridY = Math.floor(startY / tileSize); gridY <= Math.floor(endY / tileSize); gridY++) {
+                const lineY = gridY * tileSize;
+                ctx.beginPath();
+                ctx.moveTo(startX, lineY);
+                ctx.lineTo(endX, lineY);
+                ctx.stroke();
+            }
         }
 
         // Draw only the tiles in the affected area
@@ -153,7 +196,7 @@ const MapView = ({
                 }
             }
         }
-    }, [layers, tileSize, width, height]);
+    }, [layers, tileSize, width, height, showGrid]);
 
     // Optimized tile placement with frontend rendering for immediate feedback
     const placeStamp = useCallback((x: number, y: number) => {
@@ -337,6 +380,27 @@ const MapView = ({
             onInitialRenderReady();
         }
     }, [width, height, tileSize, isMapAlreadyRendered, onInitialRenderReady]);
+
+    // Handle rendered image data from backend
+    useEffect(() => {
+        if (renderedImageData && canvasRef.current) {
+            console.log("MapView: Received rendered image data, updating canvas");
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    console.log("MapView: Canvas updated with rendered image data");
+                };
+                img.onerror = (error) => {
+                    console.error("MapView: Failed to load rendered image:", error);
+                };
+                img.src = `data:image/png;base64,${renderedImageData}`;
+            }
+        }
+    }, [renderedImageData]);
 
     // Listen for backend rendering events
     useEffect(() => {

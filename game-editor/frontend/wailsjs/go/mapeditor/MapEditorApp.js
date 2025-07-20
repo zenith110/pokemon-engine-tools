@@ -34,6 +34,10 @@ export function GetTilesetImageData(arg1) {
   return window['go']['mapeditor']['MapEditorApp']['GetTilesetImageData'](arg1);
 }
 
+export function PreloadTilesOnly(arg1) {
+  return window['go']['mapeditor']['MapEditorApp']['PreloadTilesOnly'](arg1);
+}
+
 export function PreloadTilesWithProgress(arg1, arg2) {
   return window['go']['mapeditor']['MapEditorApp']['PreloadTilesWithProgress'](arg1, arg2);
 }

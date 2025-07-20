@@ -19,6 +19,8 @@ export function GetRenderProgress():Promise<Record<string, any>>;
 
 export function GetTilesetImageData(arg1:string):Promise<Record<string, any>>;
 
+export function PreloadTilesOnly(arg1:Array<string>):Promise<Record<string, any>>;
+
 export function PreloadTilesWithProgress(arg1:Array<string>,arg2:mapeditor.RenderRequest):Promise<Record<string, any>>;
 
 export function RenameMapFile(arg1:string,arg2:string):Promise<Record<string, any>>;

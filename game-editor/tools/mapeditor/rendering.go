@@ -174,9 +174,9 @@ func createCheckerboardPattern(size int) image.Image {
 	draw.Draw(img, image.Rect(0, 0, size, size), &image.Uniform{color.White}, image.Point{}, draw.Src)
 	draw.Draw(img, image.Rect(size, size, size*2, size*2), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
-	// Gray squares
-	draw.Draw(img, image.Rect(size, 0, size*2, size), &image.Uniform{color.RGBA{204, 204, 204, 255}}, image.Point{}, draw.Src)
-	draw.Draw(img, image.Rect(0, size, size, size*2), &image.Uniform{color.RGBA{204, 204, 204, 255}}, image.Point{}, draw.Src)
+	// Light gray squares (more visible)
+	draw.Draw(img, image.Rect(size, 0, size*2, size), &image.Uniform{color.RGBA{200, 200, 200, 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(0, size, size, size*2), &image.Uniform{color.RGBA{200, 200, 200, 255}}, image.Point{}, draw.Src)
 
 	return img
 }
@@ -210,6 +210,9 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	outputHeight := req.Height * req.TileSize
 	outputImg := image.NewRGBA(image.Rect(0, 0, outputWidth, outputHeight))
 
+	// Fill with white background to avoid transparent areas showing as dark
+	draw.Draw(outputImg, outputImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+
 	// Emit progress for canvas creation
 	if ctx != nil {
 		progressData := map[string]any{
@@ -227,6 +230,7 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 
 	// Draw checkerboard pattern if requested
 	if req.ShowCheckerboard {
+		fmt.Printf("Drawing checkerboard pattern for %dx%d image\n", outputWidth, outputHeight)
 		checkerboard := createCheckerboardPattern(8)
 		pattern := image.NewRGBA(image.Rect(0, 0, outputWidth, outputHeight))
 
@@ -236,6 +240,9 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 			}
 		}
 		draw.Draw(outputImg, outputImg.Bounds(), pattern, image.Point{}, draw.Over)
+		fmt.Printf("Checkerboard pattern drawn successfully\n")
+	} else {
+		fmt.Printf("ShowCheckerboard is false, skipping checkerboard pattern\n")
 	}
 
 	// Emit progress for checkerboard
