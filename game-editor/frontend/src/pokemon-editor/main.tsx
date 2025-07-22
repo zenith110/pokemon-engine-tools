@@ -122,7 +122,7 @@ export default function PokemonEditor(): React.ReactElement {
                     // Refresh Pokemon data from backend to get the latest evolution data
                     const updatedPokemon = await LoadPokemonById(selectedPokemon.ID);
                     let pokemon: Pokemon;
-                    if(updatedPokemon.Evolutions.length != null && updatedPokemon.Evolutions.length > 0) {
+                    if(updatedPokemon.Evolutions != null && updatedPokemon.Evolutions.length > 0) {
                     pokemon = {
                         ...updatedPokemon,
                         DexEntry: "",
@@ -263,7 +263,9 @@ export default function PokemonEditor(): React.ReactElement {
                                                                 onClick={async () => {
                                                                     if (evolution) {
                                                                         const evo = await LoadPokemonById(evolution.ID);
-                                                                        const pokemon: Pokemon = {
+                                                                        let pokemon: Pokemon;
+                                                                        if(evo.Evolutions != null && evo.Evolutions.length > 0) {
+                                                                        pokemon = {
                                                                             ...evo,
                                                                             DexEntry: "",
                                                                             Evolutions: evo.Evolutions.map(evo => ({
@@ -272,6 +274,13 @@ export default function PokemonEditor(): React.ReactElement {
                                                                                 Method2: evo.Method2 ? [evo.Method2] : []
                                                                             }))
                                                                         };
+                                                                    } else {
+                                                                        pokemon = {
+                                                                            ...evo,
+                                                                            DexEntry: "",
+                                                                            Evolutions: []
+                                                                        };
+                                                                    }
                                                                         updatePokemonSelection(pokemon);
                                                                     }
                                                                 }}

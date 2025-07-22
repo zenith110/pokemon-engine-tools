@@ -135,7 +135,8 @@ func (a *PokemonEditorApp) UpdatePokemonEvolution(evolutionRequest models.Pokemo
 
 					oldMethods := evolution.Methods
 					newMethods := []string{evolutionRequest.EvolutionData["Method1"], evolutionRequest.EvolutionData["Method2"]}
-
+					pokemons.Pokemon[i].Evolutions[j].PokemonID = evolutionRequest.EvolutionData["NewPokemonEvolutionID"]
+					pokemons.Pokemon[i].Evolutions[j].Name = evolutionRequest.EvolutionData["Name"]
 					pokemons.Pokemon[i].Evolutions[j].Methods = newMethods
 					log.Printf("Updated evolution methods: %v -> %v", oldMethods, newMethods)
 					break

@@ -77,6 +77,7 @@ const EvolutionDialog = ({
             
             const evolutionData = {
                 NewPokemonEvolutionID: selectedEvolutionPokemon.ID,
+                EvolutionID: selectedPokemon.Evolutions[editingEvolutionIndex].EvolutionID,
                 Name: selectedEvolutionPokemon.Name,
                 Method1: evolutionMethod,
                 Method2: evolutionMethod === "level-up" ? evolutionLevel : (evolutionMethod === "stone" ? selectedStone : "")
@@ -148,11 +149,6 @@ const EvolutionDialog = ({
 
         const action = editingEvolutionIndex !== undefined ? 'update' : 'add';
         await callBackendEvolution(action);
-    };
-
-    const handleDelete = async () => {
-        if (editingEvolutionIndex === undefined) return;
-        await callBackendEvolution('delete');
     };
 
     return (
@@ -342,15 +338,6 @@ const EvolutionDialog = ({
 
                         {/* Action Buttons */}
                         <div className="flex justify-end gap-2 pt-4">
-                            {editingEvolutionIndex !== undefined && (
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={isLoading}
-                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl transition-colors"
-                                >
-                                    Delete
-                                </button>
-                            )}
                             <button
                                 onClick={onClose}
                                 disabled={isLoading}
