@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "bunx tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:dev": "vite build --minify false --mode development"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
