@@ -74,15 +74,34 @@ const EvolutionDialog = ({
 
         try {
             setIsLoading(true);
-            
-            const evolutionData = {
-                NewPokemonEvolutionID: selectedEvolutionPokemon.ID,
-                EvolutionID: selectedPokemon.Evolutions[editingEvolutionIndex].EvolutionID,
-                Name: selectedEvolutionPokemon.Name,
-                Method1: evolutionMethod,
-                Method2: evolutionMethod === "level-up" ? evolutionLevel : (evolutionMethod === "stone" ? selectedStone : "")
-            };
-
+            console.log("Selected Pokemon:", selectedPokemon);
+            let evolutionData: any;
+            if(selectedPokemon.Evolutions != null && selectedPokemon.Evolutions.length > 0) {
+                console.log("Selected Pokemon Evolutions:", selectedPokemon.Evolutions[editingEvolutionIndex]);
+                if(selectedPokemon.Evolutions[editingEvolutionIndex] != null && selectedPokemon.Evolutions[editingEvolutionIndex].EvolutionID != null) {
+                evolutionData = {
+                    NewPokemonEvolutionID: selectedEvolutionPokemon.ID,
+                    EvolutionID: selectedPokemon.Evolutions[editingEvolutionIndex].EvolutionID,
+                    Name: selectedEvolutionPokemon.Name,
+                    Method1: evolutionMethod,
+                    Method2: evolutionMethod === "level-up" ? evolutionLevel : (evolutionMethod === "stone" ? selectedStone : "")
+                };
+                } else {
+                    evolutionData = {
+                        NewPokemonEvolutionID: selectedEvolutionPokemon.ID,
+                        Name: selectedEvolutionPokemon.Name,
+                        Method1: evolutionMethod,
+                        Method2: evolutionMethod === "level-up" ? evolutionLevel : (evolutionMethod === "stone" ? selectedStone : "")
+                    };
+                }
+            } else {
+                evolutionData = {
+                    NewPokemonEvolutionID: selectedEvolutionPokemon.ID,
+                    Name: selectedEvolutionPokemon.Name,
+                    Method1: evolutionMethod,
+                    Method2: evolutionMethod === "level-up" ? evolutionLevel : (evolutionMethod === "stone" ? selectedStone : "")
+                };
+            }
             const request = {
                 pokemonId: selectedPokemon.ID,
                 evolutionData: evolutionData

@@ -41,7 +41,9 @@ export const usePokemonData = () => {
                 const pokemonId = lastSelectedId || "001"; // Default to first Pokemon if no last selected
                 const trainerEditor = await LoadPokemonById(pokemonId);
                 if (trainerEditor) {
-                    const pokemon: Pokemon = {
+                    let pokemon: Pokemon;
+                    if(trainerEditor.Evolutions != null && trainerEditor.Evolutions.length > 0) {
+                    pokemon = {
                         ...trainerEditor,
                         DexEntry: "",
                         Evolutions: trainerEditor.Evolutions.map(evo => ({
@@ -50,6 +52,13 @@ export const usePokemonData = () => {
                             Method2: evo.Method2 ? [evo.Method2] : []
                         }))
                     };
+                    } else {
+                        pokemon = {
+                            ...trainerEditor,
+                            DexEntry: "",
+                            Evolutions: []
+                        };
+                    }
                     updatePokemonSelection(pokemon);
                 }
             }
