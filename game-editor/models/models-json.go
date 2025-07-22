@@ -43,6 +43,7 @@ type Evolution struct {
 	ID          string
 	Method1     string
 	Method2     string
+	EvolutionID string
 }
 type PokemonTrainerEditor struct {
 	Name           string
@@ -201,4 +202,14 @@ type OverworldDataJson struct {
 	IsPlayer       bool `json:"IsPlayer"`
 	SurfingFrames  []models.OverworldDirectionFrame
 	Name           string `json:"Name"`
+}
+
+type PokemonEvolutionRequest struct {
+	PokemonId     string            `json:"pokemonId"`
+	EvolutionData map[string]string `json:"evolutionData"`
+}
+
+type PokemonEvolutionResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }

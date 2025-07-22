@@ -16,6 +16,7 @@ import (
 	mapEditor "github.com/zenith110/pokemon-engine-tools/tools/map-editor"
 	moveEditor "github.com/zenith110/pokemon-engine-tools/tools/move-editor"
 	overworldEditor "github.com/zenith110/pokemon-engine-tools/tools/overworld-editor"
+	pokemonEditor "github.com/zenith110/pokemon-engine-tools/tools/pokemon-editor"
 	trainerEditor "github.com/zenith110/pokemon-engine-tools/tools/trainer-editor"
 )
 
@@ -50,6 +51,7 @@ func main() {
 	moveEditorSetup := moveEditor.NewMoveEditorApp(app)
 	jukeboxSetup := jukebox.NewJukeboxApp(app)
 	parsingSetup := parsing.NewParsingApp(app)
+	pokemonEditorSetup := pokemonEditor.NewPokemonEditorApp(app)
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Game Editor",
@@ -69,6 +71,7 @@ func main() {
 			moveEditorSetup,
 			jukeboxSetup,
 			parsingSetup,
+			pokemonEditorSetup,
 		},
 	})
 

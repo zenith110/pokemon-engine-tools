@@ -73,6 +73,8 @@ github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM
 github.com/xanzy/ssh-agent v0.3.3/go.mod h1:6dzNDKs0J9rVPHPhaGCukekBHKqfl+L3KghI1Bc68Uw=
 github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250223140129-f44c17210e27 h1:vCefuosGhsvj/4teHZH78UJcOkS9s0Au4Zm38juAhmU=
 github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250223140129-f44c17210e27/go.mod h1:UxNp48E9je4xAzSilmRuXRwH1XnN5p4KIW/LUQhy1Io=
+github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8 h1:mAA+xlRw9GNKIC+SrJx3o0EMMHkbyXZNe4ci2oJu7QI=
+github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8/go.mod h1:UxNp48E9je4xAzSilmRuXRwH1XnN5p4KIW/LUQhy1Io=
 golang.org/x/crypto v0.0.0-20190219172222-a4c6cb3142f2/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=

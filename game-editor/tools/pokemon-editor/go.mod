@@ -1,31 +1,34 @@
-module github.com/zenith110/pokemon-engine-tools/parsing
+module github.com/zenith110/pokemon-engine-tools/tools/pokemon-editor
 
-replace github.com/zenith110/pokemon-engine-tools/tools-core => ../core
+replace github.com/zenith110/pokemon-engine-tools/parsing => ../../parsing
 
-replace github.com/zenith110/pokemon-engine-tools/models => ../models
+replace github.com/zenith110/pokemon-engine-tools/models => ../../models
 
-go 1.22.2
+replace github.com/zenith110/pokemon-engine-tools/tools-core => ../../core
+
+go 1.23.4
 
 require (
-	github.com/pelletier/go-toml/v2 v2.2.3
+	github.com/BurntSushi/toml v1.5.0
 	github.com/zenith110/pokemon-engine-tools/models v0.0.0-00010101000000-000000000000
 	github.com/zenith110/pokemon-engine-tools/tools-core v0.0.0-00010101000000-000000000000
-	github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8
 )
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/uuid v1.6.0 // direct
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/leaanthony/slicer v1.6.0 // indirect
 	github.com/leaanthony/u v1.1.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/wailsapp/wails/v2 v2.10.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
+	github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8 // direct
 	golang.org/x/crypto v0.33.0 // indirect
 	golang.org/x/mod v0.23.0 // indirect
 	golang.org/x/net v0.35.0 // indirect
