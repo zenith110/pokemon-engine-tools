@@ -19,6 +19,7 @@ export interface Pokemon {
         Method2: string[];
         ID: string;
         Icon: string;
+        EvolutionID: string;
     }[];
 
     HP: number;

@@ -383,6 +383,7 @@ export namespace models {
 	    ID: string;
 	    Method1: string;
 	    Method2: string;
+	    EvolutionID: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Evolution(source);
@@ -399,6 +400,7 @@ export namespace models {
 	        this.ID = source["ID"];
 	        this.Method1 = source["Method1"];
 	        this.Method2 = source["Method2"];
+	        this.EvolutionID = source["EvolutionID"];
 	    }
 	}
 	export class FishingEncounter {
@@ -872,6 +874,20 @@ export namespace models {
 		}
 	}
 	
+	export class PokemonEvolutionRequest {
+	    pokemonId: string;
+	    evolutionData: Record<string, string>;
+	
+	    static createFrom(source: any = {}) {
+	        return new PokemonEvolutionRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.pokemonId = source["pokemonId"];
+	        this.evolutionData = source["evolutionData"];
+	    }
+	}
 	export class PokemonJson {
 	    species: string;
 	    level: number;

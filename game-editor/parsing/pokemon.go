@@ -119,8 +119,8 @@ func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *ParsingApp) 
 			// Load evolutions concurrently
 			for _, evolution := range data.Evolutions {
 				assetsWg.Add(1)
-				evoID := evolution.ID
-
+				evoID := evolution.PokemonID
+				fmt.Println("Evolution ID:", evoID)
 				// Create channel for icon
 				iconChan := make(chan string, 1)
 
@@ -132,10 +132,11 @@ func CreatePokemonTrainerEditorData(pokemons Models.PokemonToml, a *ParsingApp) 
 
 				// Create evolution data
 				evolutionData := coreModels.Evolution{
-					Name:    strings.ToUpper(evolution.Name[:1]) + evolution.Name[1:],
-					Method1: "",
-					Method2: "",
-					ID:      evoID,
+					Name:        strings.ToUpper(evolution.Name[:1]) + evolution.Name[1:],
+					Method1:     "",
+					Method2:     "",
+					ID:          evoID,
+					EvolutionID: evolution.EvolutionID,
 				}
 
 				if len(evolution.Methods) == 2 {
