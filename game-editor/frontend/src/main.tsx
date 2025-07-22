@@ -30,7 +30,7 @@ root.render(
                      <Route path="/trainer-editor/new-trainer" element={<NewTrainerCard/>}/>
                      <Route path="/jukebox" element={<Jukebox/>}/>
                      <Route path="/move-editor" element={<MoveEditor/>}/>
-                     <Route path="/script-editor" element={<ScriptEditor/>}/>
+                     {/* <Route path="/script-editor" element={<ScriptEditor/>}/> */}
                      <Route path="/overworld-editor" element={<OverworldEditor/>}/>
                      <Route path="/overworld-editor/new-overworld" element={<NewOverworlds/>}/>
                      <Route path="/map-editor" element={<MapEditor/>}/>

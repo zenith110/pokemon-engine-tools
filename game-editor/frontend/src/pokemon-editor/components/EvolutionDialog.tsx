@@ -3,6 +3,7 @@ import { Dialog } from "@headlessui/react";
 import Select from "react-select";
 import { Pokemon } from "../pokemon.model";
 import { AddPokemonEvolution, UpdatePokemonEvolution } from "../../../wailsjs/go/pokemoneditor/PokemonEditorApp";
+import { GetAllMaps, LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp";
 interface EvolutionDialogProps {
     isOpen: boolean;
     onClose: () => void;
@@ -26,7 +27,7 @@ const EvolutionDialog = ({
     const [selectedEvolutionPokemon, setSelectedEvolutionPokemon] = useState<Pokemon | null>(null);
     const [error, setError] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
+    
     const evolutionMethods = [
         { value: "level-up", label: "Level Up" },
         { value: "stone", label: "Evolution Stone" },
@@ -69,7 +70,7 @@ const EvolutionDialog = ({
         setError("");
     }, [isOpen, editingEvolutionIndex, selectedPokemon, pokemonSpecies]);
 
-    const callBackendEvolution = async (action: 'add' | 'update' | 'delete') => {
+    const callBackendEvolution = async (action: 'add' | 'update') => {
         if (!selectedPokemon || !selectedEvolutionPokemon) return;
 
         try {
@@ -121,7 +122,6 @@ const EvolutionDialog = ({
             console.log(`Backend ${action} evolution completed successfully`);
 
             // Refresh the Pokemon data from the backend to get the latest evolution data
-            const { LoadPokemonById } = await import("../../../wailsjs/go/parsing/ParsingApp");
             const updatedPokemon = await LoadPokemonById(selectedPokemon.ID);
             const pokemon: Pokemon = {
                 ...updatedPokemon,

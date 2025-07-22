@@ -140,6 +140,8 @@ github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
 github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D34wi1o9J6Wh1mRuqd4mF/x/lgBS7N7AbDhec=
 github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3UBbZlj6HuIJcUGPhkA7kY=
+github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
+github.com/pelletier/go-toml/v2 v2.2.4/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
 github.com/pjbgf/sha1cd v0.3.0/go.mod h1:nZ1rrWOcGJ5uZgEEVL1VUM9iRQiZvWdbZjkKyFzPPsI=
 github.com/pjbgf/sha1cd v0.3.2/go.mod h1:zQWigSxVmsHEZow5qaLtPYxpcKMMQpa09ixqBxuCS6A=
 github.com/plus3it/gorecurcopy v0.0.1 h1:H7AgvM0N/uIo7o1PQRlewEGQ92BNr7DqbPy5lnR3uJI=
@@ -199,6 +201,8 @@ github.com/zenith110/pokemon-go-engine v0.0.0-20240413232411-a0fb330e93e7 h1:Xfu
 github.com/zenith110/pokemon-go-engine v0.0.0-20240413232411-a0fb330e93e7/go.mod h1:L/bV2Ki0Gpc2WsLOBbsTYPQsA4If6RzsidyFITkoSqk=
 github.com/zenith110/pokemon-go-engine v0.0.0-20240623193251-81902d17e796 h1:TdCbkPsaswAUm5bmjvApus0LTbOghmCeS8XzvBcUrDM=
 github.com/zenith110/pokemon-go-engine v0.0.0-20240623193251-81902d17e796/go.mod h1:L/bV2Ki0Gpc2WsLOBbsTYPQsA4If6RzsidyFITkoSqk=
+github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8 h1:mAA+xlRw9GNKIC+SrJx3o0EMMHkbyXZNe4ci2oJu7QI=
+github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8/go.mod h1:UxNp48E9je4xAzSilmRuXRwH1XnN5p4KIW/LUQhy1Io=
 golang.org/x/exp/shiny v0.0.0-20230817173708-d852ddb80c63/go.mod h1:UH99kUObWAZkDnWqppdQe5ZhPYESUw8I0zVV1uWBR+0=
 golang.org/x/image v0.12.0 h1:w13vZbU4o5rKOFFR8y7M+c4A5jXDC0uXTdHYRP8X2DQ=
 golang.org/x/image v0.12.0/go.mod h1:Lu90jvHG7GfemOIcldsh9A2hS01ocl6oNO7ype5mEnk=
