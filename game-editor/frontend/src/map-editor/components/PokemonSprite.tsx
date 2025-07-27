@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp";
+import { LoadPokemonById } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 
 interface PokemonSpriteProps {
     pokemonId: string;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal from 'react-modal';
-import { models } from "../../../../wailsjs/go/models";
-import { LoadPokemonById } from "../../../../wailsjs/go/parsing/ParsingApp";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
+import { LoadPokemonById } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 
 interface NewPokemonProps {
     selectedTrainer: models.TrainerJson;

@@ -5,9 +5,9 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Textarea } from "../../components/ui/textarea"
-import { GetAllTilesets, GrabMusicTracks } from "../../../wailsjs/go/parsing/ParsingApp"
+import { GetAllTilesets, GrabMusicTracks } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp"
 import { Song } from "../../models/song"
-import { models } from "../../../wailsjs/go/models"
+import { models } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/models"
 import { CreateMapData } from "../types"
 
 interface CreateMapDialogProps {

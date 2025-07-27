@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import Select from "react-select";
 import { Pokemon } from "../pokemon.model";
-import { AddPokemonEvolution, UpdatePokemonEvolution } from "../../../wailsjs/go/pokemoneditor/PokemonEditorApp";
-import { GetAllMaps, LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp";
+import { AddPokemonEvolution, UpdatePokemonEvolution } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/pokemon-editor/PokemonEditorApp";
+import { GetAllMaps, LoadPokemonById } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 interface EvolutionDialogProps {
     isOpen: boolean;
     onClose: () => void;

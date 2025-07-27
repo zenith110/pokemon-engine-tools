@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { EventsOn } from "../../../../wailsjs/runtime/runtime";
+import { Events } from "@wailsio/runtime";
 import { SelectedTile } from "../TilePalette";
 import MapEditorHeader from "./MapEditorHeader";
 import MapEditorSidebar from "./MapEditorSidebar";
@@ -12,7 +12,6 @@ import { useLayers } from "./hooks/useLayers";
 import { useLoadingState } from "./hooks/useLoadingState";
 import { useSaveState } from "./hooks/useSaveState";
 import { useTilePreloading } from "./hooks/useTilePreloading";
-import { mapeditor } from "../../../../wailsjs/go/models";
 
 type ViewMode = "map" | "encounters" | "settings";
 
@@ -78,10 +77,10 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
     console.log("Setting up event listeners in MapEditorView for initial loading...");
     eventListenersSetUp.current = true;
     
-    const unsubscribeProgress = EventsOn("map-render-progress", (data: string) => {
-      console.log("Received map render progress event:", data);
+    const unsubscribeProgress = Events.On("map-render-progress", (ev) => {
+      console.log("Received map render progress event:", ev);
       try {
-        const progress = JSON.parse(data);
+        const progress = JSON.parse(ev.data);
         console.log("Parsed render progress:", progress);
         updateRenderProgress({
           current: progress.current,
@@ -93,23 +92,23 @@ const MapEditorView = ({ map, onMapChange, onBack }: MapEditorViewProps) => {
       }
     });
 
-    const unsubscribeComplete = EventsOn("map-render-complete", (data: any) => {
-      console.log("Map rendering completed in MapEditorView:", data);
-      console.log("Image data length:", data.imageData ? data.imageData.length : 0);
+    const unsubscribeComplete = Events.On("map-render-complete", (ev) => {
+      console.log("Map rendering completed in MapEditorView:", ev);
+      console.log("Image data length:", ev.data.imageData ? ev.data.imageData.length : 0);
       
       // Store the rendered image data
-      if (data.imageData) {
+      if (ev.data.imageData) {
         console.log("Storing rendered image data");
-        setRenderedImageData(data.imageData);
+        setRenderedImageData(ev.data.imageData);
       }
       
       console.log("Calling setRenderComplete()");
       setRenderComplete();
     });
 
-    const unsubscribeError = EventsOn("map-render-error", (data: any) => {
-      console.error("Map rendering error in MapEditorView:", data);
-      console.error("Error details:", data.error, data.message);
+    const unsubscribeError = Events.On("map-render-error", (ev) => {
+      console.error("Map rendering error in MapEditorView:", ev);
+      console.error("Error details:", ev.data.error, ev.data.message);
       setRenderError();
     });
 

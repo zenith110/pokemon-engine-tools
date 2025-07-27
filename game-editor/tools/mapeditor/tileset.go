@@ -6,18 +6,40 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
+	"time"
+
+	"encoding/json"
+	"image"
+	"sync"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 	coreModels "github.com/zenith110/pokemon-engine-tools/models"
 	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 )
 
 // MapEditorApp struct for tileset operations
 type MapEditorApp struct {
-	app *core.App
+	app      *core.App
+	wailsApp *application.App
 }
+
+// RenderProgress tracks the progress of map rendering
+type RenderProgress struct {
+	Current   int    `json:"current"`
+	Total     int    `json:"total"`
+	Message   string `json:"message"`
+	Success   bool   `json:"success"`
+	Timestamp int64  `json:"timestamp"`
+	ImageData string `json:"imageData,omitempty"`
+}
+
+// Global render progress tracking
+var (
+	renderProgressMutex   sync.RWMutex
+	currentRenderProgress RenderProgress
+	isRendering           bool
+)
 
 // NewMapEditorApp creates a new MapEditorApp struct
 func NewMapEditorApp(app *core.App) *MapEditorApp {
@@ -26,167 +48,179 @@ func NewMapEditorApp(app *core.App) *MapEditorApp {
 	}
 }
 
-func (a *MapEditorApp) CreateTilesetImage(fileName string) map[string]any {
-	tilesetPath, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
-		Title: "Select tileset .png file",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "PNG Images (*.png)",
-				Pattern:     "*.png",
-			},
-			{
-				DisplayName: "All Images (*.png, *.jpg, *.jpeg, *.gif)",
-				Pattern:     "*.png;*.jpg;*.jpeg;*.gif",
-			},
-		},
-	})
-	if err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error opening file dialog: %v", err),
-		}
-	}
+// SetWailsApp sets the Wails application instance for event emission
+func (a *MapEditorApp) SetWailsApp(wailsApp *application.App) {
+	a.wailsApp = wailsApp
+}
 
-	if tilesetPath == "" {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": "No file selected",
-		}
-	}
-
-	// Validate file exists
-	if _, err := os.Stat(tilesetPath); os.IsNotExist(err) {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": "Selected file does not exist",
-		}
-	}
-
-	// Get file info for size validation
-	fileInfo, err := os.Stat(tilesetPath)
-	if err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error getting file info: %v", err),
-		}
-	}
-
-	// Check file size (limit to 50MB)
-	const maxFileSize = 50 * 1024 * 1024 // 50MB
-	if fileInfo.Size() > maxFileSize {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("File too large. Maximum size is %d MB", maxFileSize/(1024*1024)),
-		}
-	}
-
-	// Check if file is empty
-	if fileInfo.Size() == 0 {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": "Selected file is empty",
-		}
-	}
-
-	// Get the original file extension
-	originalFileName := filepath.Base(tilesetPath)
-	ext := strings.ToLower(filepath.Ext(originalFileName))
-
-	// Validate file extension
-	allowedExtensions := []string{".png", ".jpg", ".jpeg", ".gif"}
-	isValidExtension := false
-	for _, allowedExt := range allowedExtensions {
-		if ext == allowedExt {
-			isValidExtension = true
-			break
-		}
-	}
-
-	if !isValidExtension {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Invalid file type. Allowed: %s", strings.Join(allowedExtensions, ", ")),
-		}
-	}
-
-	// Process the filename: replace spaces with underscores and add extension
-	processedFileName := strings.ReplaceAll(fileName, " ", "_") + ext
-
-	// Create assets directory if it doesn't exist
-	assetsDir := filepath.Join(a.app.DataDirectory, "data/assets", "tilesets")
-	if err := os.MkdirAll(assetsDir, 0755); err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error creating assets directory: %v", err),
-		}
-	}
-
-	// Copy file to assets directory
-	localProjectTilesetPath := filepath.Join(assetsDir, processedFileName)
-
-	// Check if file already exists and handle accordingly
-	if _, err := os.Stat(localProjectTilesetPath); err == nil {
-		// File exists, generate unique name
-		baseName := strings.TrimSuffix(processedFileName, ext)
-		counter := 1
-		for {
-			newFileName := fmt.Sprintf("%s_%d%s", baseName, counter, ext)
-			newPath := filepath.Join(assetsDir, newFileName)
-			if _, err := os.Stat(newPath); os.IsNotExist(err) {
-				processedFileName = newFileName
-				localProjectTilesetPath = newPath
-				break
-			}
-			counter++
-			if counter > 1000 { // Prevent infinite loop
-				return map[string]any{
-					"success":      false,
-					"errorMessage": "Unable to generate unique filename",
-				}
-			}
-		}
-	}
-
-	// Copy the file
-	sourceFile, err := os.Open(tilesetPath)
-	if err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error opening source file: %v", err),
-		}
-	}
-	defer sourceFile.Close()
-
-	destFile, err := os.Create(localProjectTilesetPath)
-	if err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error creating destination file: %v", err),
-		}
-	}
-	defer destFile.Close()
-
-	if _, err := io.Copy(destFile, sourceFile); err != nil {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": fmt.Sprintf("Error copying file: %v", err),
-		}
-	}
-
-	// Verify the copied file
-	if _, err := os.Stat(localProjectTilesetPath); os.IsNotExist(err) {
-		return map[string]any{
-			"success":      false,
-			"errorMessage": "File was not copied successfully",
-		}
-	}
+// RenderMap renders the map using Go backend
+func (a *MapEditorApp) RenderMap(req RenderRequest) map[string]any {
+	// Start rendering in background
+	go a.renderMapInBackground(req)
 
 	return map[string]any{
-		"success":  true,
-		"fileName": processedFileName,
-		"filePath": localProjectTilesetPath,
-		"fileSize": fileInfo.Size(),
-		"message":  "File uploaded successfully",
+		"success": true,
+		"message": "Map rendering started",
+	}
+}
+
+// GetRenderProgress returns the current render progress
+func (a *MapEditorApp) GetRenderProgress() map[string]any {
+	renderProgressMutex.RLock()
+	defer renderProgressMutex.RUnlock()
+
+	return map[string]any{
+		"success":     currentRenderProgress.Success,
+		"current":     currentRenderProgress.Current,
+		"total":       currentRenderProgress.Total,
+		"message":     currentRenderProgress.Message,
+		"timestamp":   currentRenderProgress.Timestamp,
+		"isRendering": isRendering,
+		"imageData":   currentRenderProgress.ImageData,
+	}
+}
+
+// updateRenderProgress updates the render progress and emits an event
+func (a *MapEditorApp) updateRenderProgress(current int, total int, message string, imageData string) {
+	renderProgressMutex.Lock()
+	currentRenderProgress = RenderProgress{
+		Current:   current,
+		Total:     total,
+		Message:   message,
+		Success:   true,
+		Timestamp: time.Now().Unix(),
+		ImageData: imageData,
+	}
+	renderProgressMutex.Unlock()
+
+	// Emit progress event to frontend using Wails v3
+	if a.wailsApp != nil {
+		progressData, _ := json.Marshal(currentRenderProgress)
+		a.wailsApp.Event.Emit("map-render-progress", string(progressData))
+	}
+}
+
+// renderMapInBackground handles the actual map rendering with progress updates
+func (a *MapEditorApp) renderMapInBackground(req RenderRequest) {
+	// Add timeout protection for the entire rendering process
+	done := make(chan bool, 1)
+
+	go func() {
+		// Initialize render progress
+		renderProgressMutex.Lock()
+		currentRenderProgress = RenderProgress{
+			Current:   0,
+			Total:     100, // Use percentage-based progress
+			Message:   "Starting map rendering...",
+			Success:   true,
+			Timestamp: time.Now().Unix(),
+		}
+		isRendering = true
+		renderProgressMutex.Unlock()
+
+		// Send initial progress
+		a.updateRenderProgress(0, 100, "Starting map rendering...", "")
+
+		// Perform actual rendering
+		response := renderMap(req)
+
+		if response.Success {
+			fmt.Printf("RenderMap returned success, imageData length: %d\n", len(response.ImageData))
+			if len(response.ImageData) > 0 {
+				fmt.Printf("ImageData preview: %s...\n", response.ImageData[:100])
+			} else {
+				fmt.Printf("WARNING: ImageData is empty!\n")
+			}
+
+			// Send completion with image data
+			a.updateRenderProgress(100, 100, "Map rendering completed successfully", response.ImageData)
+
+			// Mark as not rendering
+			renderProgressMutex.Lock()
+			isRendering = false
+			renderProgressMutex.Unlock()
+
+			// Emit completion event with the rendered map data
+			if a.wailsApp != nil {
+				eventData := map[string]any{
+					"success":   true,
+					"imageData": response.ImageData,
+					"message":   "Map rendering completed successfully",
+				}
+				fmt.Printf("Emitting map-render-complete event with imageData length: %d\n", len(response.ImageData))
+				a.wailsApp.Event.Emit("map-render-complete", eventData)
+			}
+
+			fmt.Printf("Map rendering completed successfully\n")
+		} else {
+			fmt.Printf("RenderMap failed: %s\n", response.Error)
+
+			// Send error
+			a.updateRenderProgress(0, 100, "Map rendering failed: "+response.Error, "")
+
+			// Mark as not rendering
+			renderProgressMutex.Lock()
+			isRendering = false
+			renderProgressMutex.Unlock()
+
+			// Emit error event
+			if a.wailsApp != nil {
+				a.wailsApp.Event.Emit("map-render-error", map[string]any{
+					"success": false,
+					"error":   response.Error,
+					"message": "Map rendering failed",
+				})
+			}
+
+			fmt.Printf("Map rendering failed: %s\n", response.Error)
+		}
+
+		done <- true
+	}()
+
+	// Wait for rendering to complete or timeout
+	select {
+	case <-done:
+		fmt.Printf("Rendering completed successfully\n")
+	case <-time.After(60 * time.Second): // 60 second timeout
+		fmt.Printf("Rendering timeout reached, forcing completion\n")
+
+		// Mark as not rendering
+		renderProgressMutex.Lock()
+		isRendering = false
+		renderProgressMutex.Unlock()
+
+		// Emit timeout error event
+		if a.wailsApp != nil {
+			a.wailsApp.Event.Emit("map-render-error", map[string]any{
+				"success": false,
+				"error":   "Rendering timeout",
+				"message": "Map rendering timed out after 60 seconds",
+			})
+		}
+	}
+}
+
+// StampTile places a tile stamp using Go backend
+func (a *MapEditorApp) StampTile(req StampRequest) StampResponse {
+	return stampTile(req)
+}
+
+// ClearTileCache clears the tile cache to free memory
+func (a *MapEditorApp) ClearTileCache() map[string]any {
+	tileCache = make(map[string]image.Image)
+	return map[string]any{
+		"success": true,
+		"message": "Tile cache cleared",
+	}
+}
+
+func (a *MapEditorApp) CreateTilesetImage(fileName string) map[string]any {
+	// For now, return a simple response since we removed the file dialog
+	// TODO: Implement file dialog using Wails v3 approach
+	return map[string]any{
+		"success":      false,
+		"errorMessage": "File dialog not implemented yet - using Wails v3",
 	}
 }
 

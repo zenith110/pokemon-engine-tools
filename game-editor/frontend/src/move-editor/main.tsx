@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ParseMoves } from "../../wailsjs/go/moveeditor/MoveEditorApp";
+import { ParseMoves } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools/move-editor/MoveEditorApp";
 import Select from "react-select";
 import UpdateMoveData from "./existing-moves/UpdateMoveData";
 import { Move } from "./move.model";

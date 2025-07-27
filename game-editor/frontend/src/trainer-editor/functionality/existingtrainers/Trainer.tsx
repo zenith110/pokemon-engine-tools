@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { UpdateTrainer, UpdateTrainerSprite } from "../../../../wailsjs/go/trainereditor/TrainerEditorApp";
+import { UpdateTrainer, UpdateTrainerSprite } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/trainer-editor/TrainerEditorApp";
 import UpdatingPokemon from "./UpdatingPokemon";
 import NewPokemon from "./NewPokemon";
 import NewTrainerClass from "./NewTrainerClass";
-import { models } from "../../../../wailsjs/go/models";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 interface TrainerProps {
     selectedTrainer: models.TrainerJson;

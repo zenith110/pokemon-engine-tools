@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
-import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites, LoadPokemonById} from "../../../../wailsjs/go/parsing/ParsingApp"
+import { ParsePokemonData, ParseHeldItems, ParseTrainerClass, GrabTrainerSprites, LoadPokemonById} from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp"
 import TrainerPokemonsGenerator from "./TrainerPokemonsGenerator"
 import TrainerClasses from "./TrainerClasses";
 import TrainerSprites from "./TrainerSprites";
 import { useNavigate } from "react-router-dom";
-import { models } from "../../../../wailsjs/go/models";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 interface DictData {
     name: string;

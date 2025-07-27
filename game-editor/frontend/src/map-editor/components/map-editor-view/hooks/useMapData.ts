@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-import { GetMapTomlByID, ParseMapData } from "../../../../../wailsjs/go/parsing/ParsingApp";
-import { UpdateMapJsonWithPath, UpdateTomlMapEntryByID, RenameMapFile } from "../../../../../wailsjs/go/mapeditor/MapEditorApp";
+import { GetMapTomlByID, ParseMapData } from "../../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 
 export interface MapData {
   id: string;

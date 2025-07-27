@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TrainerPokemon from "./TrainerPokemon"
-import { models } from "../../../../wailsjs/go/models";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 interface GeneratorProps {
     pokemonSpeciesList: models.PokemonTrainerEditor[];

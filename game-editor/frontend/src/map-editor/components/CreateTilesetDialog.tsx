@@ -5,7 +5,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { Upload, X } from "lucide-react"
-import { CreateTileset, CreateTilesetImage, GetTilesetImageData } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { CreateTileset, CreateTilesetImage, GetTilesetImageData } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp"
 
 const CreateTilesetDialog = () => {
   const [open, setOpen] = useState(false)

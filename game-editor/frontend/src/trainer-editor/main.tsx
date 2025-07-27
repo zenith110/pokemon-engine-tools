@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { models } from "../../wailsjs/go/models";
+import { models } from "../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
-import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems } from "../../wailsjs/go/parsing/ParsingApp";
+import { ParseTrainers, ParseTrainerClass, ParsePokemonData, ParseHeldItems } from "../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 import Trainer from "./functionality/existingtrainers/Trainer";
-//\import { Trainer } from "./trainer.models";
 
 export default function TrainerEditor():React.ReactElement {
     const [trainers, setTrainers] = useState<models.TrainerJson[] | null>([]);

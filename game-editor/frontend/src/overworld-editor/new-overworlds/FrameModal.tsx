@@ -1,16 +1,16 @@
 import Modal from 'react-modal';
 import { useState } from "react";
-import { models } from "../../../wailsjs/go/models";
-import { CreateOverworldFrame, CreteOverworldGif  } from "../../../wailsjs/go/overworldeditor/OverworldEditorApp";
+import { OverworldDirectionFrame } from "../../../bindings/github.com/zenith110/pokemon-go-engine-toml-models/models";
+import { CreateOverworldFrame, CreteOverworldGif  } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor/OverworldEditorApp";
 
 interface FrameModalProps {
     typeOfFrame: string;
     nameOfFolder: number;
-    setFrames: (frames: models.OverworldDirectionFrame[]) => void;
+    setFrames: (frames: OverworldDirectionFrame[]) => void;
     direction: string | null;
     modalIsOpen: boolean;
     closeModal: () => void;
-    frames: models.OverworldDirectionFrame[];
+    frames: OverworldDirectionFrame[];
 }
 
 const customStyles = {
@@ -50,7 +50,7 @@ const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOp
               let data = await CreateOverworldFrame(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
               setFrames([
                 ...frames,
-                models.OverworldDirectionFrame.createFrom(data)
+                OverworldDirectionFrame.createFrom(data)
               ])
             }}>Upload Frame</button>
             <br/>

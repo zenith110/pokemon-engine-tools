@@ -1,8 +1,8 @@
 import { useState} from "react"
-import { CreateTrainerData } from "../../../../../wailsjs/go/trainereditor/TrainerEditorApp"
+import { CreateTrainerData } from "../../../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/trainer-editor/TrainerEditorApp"
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from "react-router-dom";
-import { models } from "../../../../../wailsjs/go/models";
+import { models } from "../../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 interface PokemonStatsProps {
     currentlySelectedPokemon: models.PokemonTrainerEditor;

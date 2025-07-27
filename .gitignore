@@ -1,3 +1,5 @@
 .DS_Store
 projects.toml
 lastused.toml
+*/bin/
+game-editor/frontend/bindings/*

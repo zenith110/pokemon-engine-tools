@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Select from "react-select";
 import { Pokemon } from "../pokemon.model";
-import { LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp";
+import { LoadPokemonById } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 
 interface PokemonSelectorProps {
     pokemonSpecies: Pokemon[];

@@ -1,8 +1,7 @@
-import React from "react";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
-import { GrabProjectWorkspace, CreateProject} from "../../wailsjs/go/core/App";
+import { GrabProjectWorkspace, CreateProject} from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools-core/App";
 const NewProject = ({ setClickedNewProject }: { setClickedNewProject: (value: boolean) => void }) => {
     const [projectName, setProjectName] = useState("");
     const [projectDirectory, setProjectDirectory] = useState("")

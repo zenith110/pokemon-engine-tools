@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
-import { models } from "../../../wailsjs/go/models";
+import { models } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 import DownArrow from "../images/reshot-icon-down-arrow-P6BUA8L4DS.svg";
 import UpArrow from "../images/reshot-icon-up-arrow-XMEL8JGW5T.svg";
 import LeftArrow from "../images/reshot-icon-left-arrow-2RFCAW584E.svg";
 import RightArrow from "../images/reshot-icon-right-arrow-5E3R279NU8.svg";
-import { CheckOverworldId, CreateOverworldTomlEntry } from "../../../wailsjs/go/overworldeditor/OverworldEditorApp";
+import { CheckOverworldId, CreateOverworldTomlEntry } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor/OverworldEditorApp";
 import FrameModal from "./FrameModal";
 const NewOverworlds = () => {
     const [swimmingFrames, setSwimmingFrames] = useState<models.OverworldDirectionFrame[]>([]);

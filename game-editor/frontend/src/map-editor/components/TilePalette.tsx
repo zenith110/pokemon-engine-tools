@@ -4,7 +4,7 @@ import { Button } from "../../components/ui/button"
 import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react"
 import { ResizableBox } from "react-resizable"
 import "react-resizable/css/styles.css"
-import { GetTilesetImageData } from "../../../wailsjs/go/mapeditor/MapEditorApp"
+import { GetTilesetImageData } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp"
 
 export interface SelectedTile {
     id: string;

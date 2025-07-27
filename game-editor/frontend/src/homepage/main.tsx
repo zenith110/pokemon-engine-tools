@@ -1,6 +1,6 @@
 import React from "react";
-import { useState } from "react"
-import { ImportProject} from "../../wailsjs/go/core/App";
+import { useState, useEffect } from "react"
+import { ImportProject} from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools-core/App";
 import { useProjects } from "../contexts/ProjectContext";
 
 import NewProject from "./NewProject";
@@ -8,9 +8,30 @@ import ProjectCard from "./ProjectCard";
 import WelcomeMessage from "./WelcomeMessage";
 
 const HomePage = () => {
-    const { projects, refreshProjects } = useProjects();
+    const { projects, refreshProjects, hasSelectedProject } = useProjects();
     const [clickedNewProject, setClickedNewProject] = useState(false)
     const [currentProjectIndex, setCurrentProjectIndex] = useState(0)
+
+    // Set the current project index to the last used project when projects load
+    useEffect(() => {
+        if (projects && projects.length > 0 && hasSelectedProject) {
+            // Find the project with the most recent LastUsed date
+            const lastUsedProject = projects.reduce((latest, current) => {
+                if (current.LastUsed === "N/A") return latest;
+                if (latest.LastUsed === "N/A") return current;
+                
+                const currentDate = new Date(current.LastUsed);
+                const latestDate = new Date(latest.LastUsed);
+                return currentDate > latestDate ? current : latest;
+            });
+            
+            // Find the index of the last used project
+            const lastUsedIndex = projects.findIndex(p => p.ID === lastUsedProject.ID);
+            if (lastUsedIndex !== -1) {
+                setCurrentProjectIndex(lastUsedIndex);
+            }
+        }
+    }, [projects, hasSelectedProject]);
 
     const handlePrevProject = () => {
         setCurrentProjectIndex((prev) => (prev > 0 ? prev - 1 : prev));
