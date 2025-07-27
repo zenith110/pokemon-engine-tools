@@ -218,3 +218,33 @@ func (a *App) ImportProject() {
 	}
 	a.DataDirectory = selectionUpdated
 }
+
+func (a *App) GetCurrentProject() Models.Project {
+	lastUsedFileName := "lastused.toml"
+	projectLastUpdated, err := os.OpenFile(lastUsedFileName, os.O_CREATE, 0644)
+	if err != nil {
+		os.Create(lastUsedFileName)
+		return Models.Project{}
+	}
+	defer projectLastUpdated.Close()
+
+	var projectsData Models.Project
+	b, err := io.ReadAll(projectLastUpdated)
+	if err != nil {
+		fmt.Printf("error while reading last used project: %v", err)
+		return Models.Project{}
+	}
+
+	err = toml.Unmarshal(b, &projectsData)
+	if err != nil {
+		fmt.Printf("error while unmarshaling last used project: %v", err)
+		return Models.Project{}
+	}
+
+	return projectsData
+}
+
+// IsProjectSelected checks if a project is currently selected
+func (a *App) IsProjectSelected() bool {
+	return a.DataDirectory != ""
+}

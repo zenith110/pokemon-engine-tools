@@ -1,5 +1,5 @@
 import { Button } from "../../components/ui/button";
-import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw, Save, Link, Download } from "lucide-react";
+import { Pencil, Undo, Redo, PaintBucket, Eraser, RotateCcw, Save, Download } from "lucide-react";
 
 interface MapToolbarProps {
   paintMode: 'stamp' | 'fill' | 'remove';

@@ -1,4 +1,4 @@
-import { UpdateMove } from "../../../wailsjs/go/moveeditor/MoveEditorApp";
+import { UpdateMove } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/move-editor/MoveEditorApp";
 import { Dispatch, SetStateAction } from "react";
 import { Move } from "../move.model";
 

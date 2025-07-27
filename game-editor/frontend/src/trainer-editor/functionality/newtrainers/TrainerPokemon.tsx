@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { models } from "../../../../wailsjs/go/models";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 import PokemonStats from "./pokemon/PokemonStats"
 
 interface TrainerPokemonProps {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { OverworldDataJson } from "../models/overworld";
-import { ParseOverworldData } from "../../wailsjs/go/overworldeditor/OverworldEditorApp";
+import { ParseOverworldData } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor/OverworldEditorApp";
 import Select from "react-select";
 
 const OverworldEditor = () => {

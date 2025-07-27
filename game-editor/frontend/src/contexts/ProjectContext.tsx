@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
-import { ParseProjects } from '../../wailsjs/go/core/App';
+import { ParseProjects } from '../../bindings/github.com/zenith110/pokemon-engine-tools/tools-core/App';
 import { Project } from '../models/project';
 
 interface ProjectContextType {
@@ -40,9 +40,16 @@ export const ProjectProvider: React.FC<ProjectProviderProps> = ({ children }) =>
       setIsLoading(true);
       const data = await ParseProjects();
       setProjects(data);
+      
       // Check if any project has been used (has a LastUsed date that's not "N/A")
-      const hasUsedProject = data.some(project => project.LastUsed !== "N/A");
+      // Also check if any project has a valid folder location (indicating it's selected)
+      const hasUsedProject = data.some(project => 
+        project.LastUsed !== "N/A" && 
+        project.FolderLocation !== ""
+      );
       setHasSelectedProject(hasUsedProject);
+      
+      console.log(`Loaded ${data.length} projects, hasSelectedProject: ${hasUsedProject}`);
     } catch (error) {
       console.error('Error fetching projects:', error);
       setProjects([]);

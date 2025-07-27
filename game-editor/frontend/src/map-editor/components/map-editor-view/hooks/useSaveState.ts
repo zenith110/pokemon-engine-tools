@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { UpdateMapJsonWithPath, UpdateTomlMapEntryByID, RenameMapFile } from "../../../../../wailsjs/go/mapeditor/MapEditorApp";
+import { UpdateMapJsonWithPath, UpdateTomlMapEntryByID, RenameMapFile } from "../../../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp";
 import { MapData } from "./useMapData";
 import { MapLayer } from "./useLayers";
 

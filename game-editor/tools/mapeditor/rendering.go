@@ -1,7 +1,6 @@
 package mapeditor
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,14 +8,106 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"net/http"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/gin-gonic/gin"
 )
 
 // TileCache stores loaded tile images
 var tileCache = make(map[string]image.Image)
+
+// SSE clients for progress updates
+var (
+	sseClients   = make(map[string]chan string)
+	sseClientsMu sync.RWMutex
+)
+
+// RegisterSSEClient registers a new SSE client
+func RegisterSSEClient(clientID string) {
+	sseClientsMu.Lock()
+	defer sseClientsMu.Unlock()
+	sseClients[clientID] = make(chan string, 100)
+}
+
+// UnregisterSSEClient removes an SSE client
+func UnregisterSSEClient(clientID string) {
+	sseClientsMu.Lock()
+	defer sseClientsMu.Unlock()
+	if ch, exists := sseClients[clientID]; exists {
+		close(ch)
+		delete(sseClients, clientID)
+	}
+}
+
+// BroadcastProgress sends progress updates to all SSE clients
+func BroadcastProgress(eventType, data string) {
+	sseClientsMu.RLock()
+	defer sseClientsMu.RUnlock()
+
+	message := fmt.Sprintf("event: %s\ndata: %s\n\n", eventType, data)
+
+	for clientID, ch := range sseClients {
+		select {
+		case ch <- message:
+			// Message sent successfully
+		default:
+			// Channel is full or closed, remove client
+			fmt.Printf("Removing unresponsive SSE client: %s\n", clientID)
+			delete(sseClients, clientID)
+		}
+	}
+}
+
+// SetupSSERoutes sets up the SSE routes for progress updates
+func SetupSSERoutes(router *gin.Engine) {
+	router.GET("/sse/progress", func(c *gin.Context) {
+		clientID := c.Query("client_id")
+		if clientID == "" {
+			clientID = fmt.Sprintf("client_%d", time.Now().UnixNano())
+		}
+
+		// Set SSE headers
+		c.Header("Content-Type", "text/event-stream")
+		c.Header("Cache-Control", "no-cache")
+		c.Header("Connection", "keep-alive")
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Headers", "Cache-Control")
+
+		// Register client
+		RegisterSSEClient(clientID)
+		defer UnregisterSSEClient(clientID)
+
+		// Get client channel
+		sseClientsMu.RLock()
+		clientChan, exists := sseClients[clientID]
+		sseClientsMu.RUnlock()
+
+		if !exists {
+			c.String(http.StatusInternalServerError, "Client not found")
+			return
+		}
+
+		// Send initial connection message
+		c.SSEvent("connected", map[string]interface{}{
+			"client_id": clientID,
+			"message":   "SSE connection established",
+		})
+
+		// Stream messages to client
+		for {
+			select {
+			case message := <-clientChan:
+				c.Data(http.StatusOK, "text/event-stream", []byte(message))
+				c.Writer.Flush()
+			case <-c.Request.Context().Done():
+				return
+			}
+		}
+	})
+}
 
 // loadTileImage loads a tile image from base64 data
 func loadTileImage(imageData string) (image.Image, error) {
@@ -182,7 +273,7 @@ func createCheckerboardPattern(size int) image.Image {
 }
 
 // renderMap renders the map to a canvas image with SSE progress updates
-func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
+func renderMap(req RenderRequest) RenderResponse {
 	// Add panic recovery
 	defer func() {
 		if r := recover(); r != nil {
@@ -190,20 +281,14 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 		}
 	}()
 
-	// Emit initial progress
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 0,
-			"total":   100,
-			"message": "Starting map rendering...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	// Emit initial progress via SSE
+	progressData := map[string]any{
+		"current": 0,
+		"total":   100,
+		"message": "Starting map rendering...",
 	}
+	progressJSON, _ := json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Create the output image
 	outputWidth := req.Width * req.TileSize
@@ -214,19 +299,13 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	draw.Draw(outputImg, outputImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
 	// Emit progress for canvas creation
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 10,
-			"total":   100,
-			"message": "Creating canvas...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	progressData = map[string]any{
+		"current": 10,
+		"total":   100,
+		"message": "Creating canvas...",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Draw checkerboard pattern if requested
 	if req.ShowCheckerboard {
@@ -246,19 +325,13 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	}
 
 	// Emit progress for checkerboard
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 15,
-			"total":   100,
-			"message": "Drawing background...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	progressData = map[string]any{
+		"current": 15,
+		"total":   100,
+		"message": "Drawing background...",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Build spatial indices for each layer
 	spatialIndices := make(map[int]*SpatialIndex)
@@ -270,19 +343,13 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	}
 
 	// Emit progress for spatial indexing
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 20,
-			"total":   100,
-			"message": "Building spatial indices...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	progressData = map[string]any{
+		"current": 20,
+		"total":   100,
+		"message": "Building spatial indices...",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Calculate total tiles for progress tracking
 	totalTiles := 0
@@ -299,19 +366,13 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	if totalTiles == 0 {
 		fmt.Printf("No tiles to render, skipping tile rendering phase\n")
 		// Emit progress for empty rendering
-		if ctx != nil {
-			progressData := map[string]any{
-				"current": 85,
-				"total":   100,
-				"message": "No tiles to render, drawing grid...",
-			}
-			progressJSON, err := json.Marshal(progressData)
-			if err == nil {
-				runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-			} else {
-				fmt.Printf("Error marshaling progress data: %v\n", err)
-			}
+		progressData = map[string]any{
+			"current": 85,
+			"total":   100,
+			"message": "No tiles to render, drawing grid...",
 		}
+		progressJSON, _ = json.Marshal(progressData)
+		BroadcastProgress("map-render-progress", string(progressJSON))
 	} else {
 		// Render layers in order (bottom to top)
 		tilesRendered := 0
@@ -323,19 +384,13 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 			}
 
 			// Emit progress for layer start
-			if ctx != nil {
-				progressData := map[string]any{
-					"current": 25 + (layerIndex * 15),
-					"total":   100,
-					"message": fmt.Sprintf("Rendering layer: %s", layer.Name),
-				}
-				progressJSON, err := json.Marshal(progressData)
-				if err == nil {
-					runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-				} else {
-					fmt.Printf("Error marshaling progress data: %v\n", err)
-				}
+			progressData = map[string]any{
+				"current": 25 + (layerIndex * 15),
+				"total":   100,
+				"message": fmt.Sprintf("Rendering layer: %s", layer.Name),
 			}
+			progressJSON, _ = json.Marshal(progressData)
+			BroadcastProgress("map-render-progress", string(progressJSON))
 
 			spatialIndex := spatialIndices[layer.ID]
 			if spatialIndex == nil {
@@ -468,65 +523,47 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 
 				// Emit progress every 10 tiles or at the end
 				if tileIndex%10 == 0 || tileIndex == len(tiles)-1 {
-					if ctx != nil {
-						// Safety check for division by zero
-						var progress int
-						if totalTiles > 0 {
-							progress = 25 + (layerIndex * 15) + int((float64(tilesRendered)/float64(totalTiles))*60)
-						} else {
-							progress = 25 + (layerIndex * 15) + 60 // Max progress for this layer
-						}
-						// Ensure progress doesn't exceed 85 (before grid drawing)
-						if progress > 85 {
-							progress = 85
-						}
-						fmt.Printf("Emitting progress: %d%% (tiles rendered: %d/%d)\n", progress, tilesRendered, totalTiles)
-						progressData := map[string]any{
-							"current": progress,
-							"total":   100,
-							"message": fmt.Sprintf("Rendering tiles... (%d/%d)", tilesRendered, totalTiles),
-						}
-						progressJSON, err := json.Marshal(progressData)
-						if err == nil {
-							runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-						} else {
-							fmt.Printf("Error marshaling progress data: %v\n", err)
-						}
+					// Safety check for division by zero
+					var progress int
+					if totalTiles > 0 {
+						progress = 25 + (layerIndex * 15) + int((float64(tilesRendered)/float64(totalTiles))*60)
+					} else {
+						progress = 25 + (layerIndex * 15) + 60 // Max progress for this layer
 					}
+					// Ensure progress doesn't exceed 85 (before grid drawing)
+					if progress > 85 {
+						progress = 85
+					}
+					fmt.Printf("Emitting progress: %d%% (tiles rendered: %d/%d)\n", progress, tilesRendered, totalTiles)
+					progressData = map[string]any{
+						"current": progress,
+						"total":   100,
+						"message": fmt.Sprintf("Rendering tiles... (%d/%d)", tilesRendered, totalTiles),
+					}
+					progressJSON, _ = json.Marshal(progressData)
+					BroadcastProgress("map-render-progress", string(progressJSON))
 				}
 			}
 		}
 	}
 
 	// Emit progress for grid drawing
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 85,
-			"total":   100,
-			"message": "Drawing grid...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	progressData = map[string]any{
+		"current": 85,
+		"total":   100,
+		"message": "Drawing grid...",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Emit progress for encoding
-	if ctx != nil {
-		progressData := map[string]any{
-			"current": 90,
-			"total":   100,
-			"message": "Encoding image...",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-		} else {
-			fmt.Printf("Error marshaling progress data: %v\n", err)
-		}
+	progressData = map[string]any{
+		"current": 90,
+		"total":   100,
+		"message": "Encoding image...",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
 
 	// Encode to PNG
 	fmt.Printf("Starting PNG encoding...\n")
@@ -547,21 +584,24 @@ func renderMap(req RenderRequest, ctx context.Context) RenderResponse {
 	fmt.Printf("Base64 encoding completed, data length: %d\n", len(imageData))
 
 	// Emit final progress
-	if ctx != nil {
-		fmt.Printf("Emitting final progress (100%%)\n")
-		progressData := map[string]any{
-			"current": 100,
-			"total":   100,
-			"message": "Map rendering completed",
-		}
-		progressJSON, err := json.Marshal(progressData)
-		if err == nil {
-			runtime.EventsEmit(ctx, "map-render-progress", string(progressJSON))
-			fmt.Printf("Final progress event emitted successfully\n")
-		} else {
-			fmt.Printf("Error marshaling final progress data: %v\n", err)
-		}
+	fmt.Printf("Emitting final progress (100%%)\n")
+	progressData = map[string]any{
+		"current": 100,
+		"total":   100,
+		"message": "Map rendering completed",
 	}
+	progressJSON, _ = json.Marshal(progressData)
+	BroadcastProgress("map-render-progress", string(progressJSON))
+	fmt.Printf("Final progress event emitted successfully\n")
+
+	// Emit completion event
+	completionData := map[string]any{
+		"success":   true,
+		"imageData": imageData,
+		"message":   "Map rendering completed successfully",
+	}
+	completionJSON, _ := json.Marshal(completionData)
+	BroadcastProgress("map-render-complete", string(completionJSON))
 
 	fmt.Printf("RenderMap function completed successfully\n")
 	return RenderResponse{

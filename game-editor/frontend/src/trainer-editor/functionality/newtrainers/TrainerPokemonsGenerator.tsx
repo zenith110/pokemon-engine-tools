@@ -1,5 +1,5 @@
 import Generator from "./Generator"
-import { models } from "../../../../wailsjs/go/models";
+import { models } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
 
 interface TrainerPokemonsGeneratorProps {
     pokemonSpeciesList: models.PokemonTrainerEditor[];

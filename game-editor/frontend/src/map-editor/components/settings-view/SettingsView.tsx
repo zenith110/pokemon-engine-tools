@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import { Settings, Music, Map, Type } from "lucide-react";
-import { GrabMusicTracks } from "../../../../wailsjs/go/parsing/ParsingApp";
+import { GrabMusicTracks } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 import { Song } from "../../../models/song";
 
 interface SettingsViewProps {

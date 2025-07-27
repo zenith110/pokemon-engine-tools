@@ -4,9 +4,9 @@ import MapToolbar from "../MapToolbar";
 import { SelectedTile } from "../TilePalette";
 import MapConnectionDialog from "../MapConnectionDialog";
 import { useState, useRef } from "react";
-import { RenderMap } from "../../../../wailsjs/go/mapeditor/MapEditorApp";
-import { mapeditor } from "../../../../wailsjs/go/models";
-import { EventsOn } from "../../../../wailsjs/runtime/runtime";
+import { RenderMap } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp";
+import { Map as MapModel, MapLayer, MapTile } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/models";
+import { Events } from "@wailsio/runtime";
 
 type ViewMode = "map" | "encounters" | "settings";
 
@@ -126,23 +126,23 @@ const MapEditorToolbar = ({
       });
       
       // Create render request for export
-      const renderRequest = new mapeditor.RenderRequest({
+      const renderRequest = {
         width: mapWidth,
         height: mapHeight,
         tileSize: tileSize,
-        layers: layers.map(layer => new mapeditor.Layer({
+        layers: layers.map(layer => ({
           id: layer.id,
           name: layer.name,
           visible: layer.visible,
           locked: layer.locked,
-          tiles: layer.tiles.map(tile => new mapeditor.Tile({
+          tiles: layer.tiles.map(tile => ({
             x: tile.x,
             y: tile.y,
             tileId: tile.tileId
           }))
         })),
         showCheckerboard: false // Don't show checkerboard for export
-      });
+      };
 
       // Start rendering and wait for completion
       const result = await RenderMap(renderRequest);
@@ -154,21 +154,21 @@ const MapEditorToolbar = ({
             reject(new Error('Export timeout - rendering took too long'));
           }, 30000); // 30 second timeout
           
-          const unsubscribe = EventsOn("map-render-complete", (data: any) => {
+          const unsubscribe = Events.On("map-render-complete", (ev) => {
             clearTimeout(timeout);
             unsubscribe();
-            if (data.success && data.imageData) {
-              resolve(data.imageData);
+            if (ev.data.success && ev.data.imageData) {
+              resolve(ev.data.imageData);
             } else {
               reject(new Error('Rendering failed'));
             }
           });
           
-          const unsubscribeError = EventsOn("map-render-error", (data: any) => {
+          const unsubscribeError = Events.On("map-render-error", (ev) => {
             clearTimeout(timeout);
             unsubscribe();
             unsubscribeError();
-            reject(new Error(data.message || 'Rendering failed'));
+            reject(new Error(ev.data.message || 'Rendering failed'));
           });
         });
         

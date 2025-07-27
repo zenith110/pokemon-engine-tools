@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react"
-import { StampTile, ClearTileCache } from "../../../wailsjs/go/mapeditor/MapEditorApp"
-import { EventsOn } from "../../../wailsjs/runtime/runtime"
+import { ClearTileCache } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp"
+import { Events } from "@wailsio/runtime";
 import { MapViewProps } from "../types";
 
 
@@ -419,10 +419,10 @@ const MapView = ({
         if (!canvas) return;
 
         // Listen for render progress events
-        const unsubscribeProgress = EventsOn("map-render-progress", (data: string) => {
-            console.log("MapView: Received render progress:", data);
+        const unsubscribeProgress = Events.On("map-render-progress", (ev) => {
+            console.log("MapView: Received render progress:", ev);
             try {
-                const progress = JSON.parse(data);
+                const progress = JSON.parse(ev.data);
                 console.log(`MapView: Render progress: ${progress.current}/${progress.total} - ${progress.message}`);
                 
                 // If we have image data, update the canvas
@@ -443,18 +443,18 @@ const MapView = ({
         });
 
         // Listen for render completion
-        const unsubscribeComplete = EventsOn("map-render-complete", (data: any) => {
-            console.log("MapView: Map rendering completed:", data);
-            console.log("MapView: Received data keys:", Object.keys(data));
-            console.log("MapView: imageData present:", !!data.imageData);
-            console.log("MapView: imageData length:", data.imageData ? data.imageData.length : 0);
+        const unsubscribeComplete = Events.On("map-render-complete", (ev) => {
+            console.log("MapView: Map rendering completed:", ev);
+            console.log("MapView: Received data keys:", Object.keys(ev.data));
+            console.log("MapView: imageData present:", !!ev.data.imageData);
+            console.log("MapView: imageData length:", ev.data.imageData ? ev.data.imageData.length : 0);
             
             // Clean up event listeners
             unsubscribeProgress();
             unsubscribeComplete();
             
             // Update canvas with final rendered image
-            if (data.imageData) {
+            if (ev.data.imageData) {
                 console.log("MapView: Updating canvas with imageData");
                 const img = new Image();
                 img.onload = () => {
@@ -473,7 +473,7 @@ const MapView = ({
                 img.onerror = (error) => {
                     console.error("MapView: Failed to load image:", error);
                 };
-                img.src = `data:image/png;base64,${data.imageData}`;
+                img.src = `data:image/png;base64,${ev.data.imageData}`;
             } else {
                 console.warn("MapView: No imageData received in map-render-complete event");
                 // If no image data, still call the callback
@@ -484,8 +484,8 @@ const MapView = ({
         });
 
         // Listen for render errors
-        const unsubscribeError = EventsOn("map-render-error", (data: any) => {
-            console.error("MapView: Map rendering error:", data);
+        const unsubscribeError = Events.On("map-render-error", (ev) => {
+            console.error("MapView: Map rendering error:", ev);
             
             // Clean up event listeners
             unsubscribeProgress();

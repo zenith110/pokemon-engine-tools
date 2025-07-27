@@ -1,7 +1,6 @@
 import { useCallback } from "react";
-import { PreloadTilesWithProgress, PreloadTilesOnly } from "../../../../../wailsjs/go/mapeditor/MapEditorApp";
-import { EventsOn } from "../../../../../wailsjs/runtime/runtime";
-import { mapeditor } from "../../../../../wailsjs/go/models";
+import { RenderMap } from "../../../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp";
+import { Events } from "@wailsio/runtime";
 import { MapLayer } from "./useLayers";
 import { LoadingProgress } from "./useLoadingState";
 
@@ -56,41 +55,39 @@ export const useTilePreloading = () => {
     };
     
     try {
-      // Start backend preloading
-      const tileIdsArray = Array.from(uniqueTileIds);
-      console.log("Starting backend preloading with tile IDs:", tileIdsArray.length);
+      // Start backend rendering (which now handles both preloading and rendering)
+      console.log("Starting backend rendering with layers:", layersToPreload.length);
       
-      // Create render request for the second argument
-      const renderRequest = new mapeditor.RenderRequest({
+      // Create render request for the backend
+      const renderRequest = {
         width: mapWidth,
         height: mapHeight,
         tileSize: tileSize,
-        layers: layersToPreload.map(layer => new mapeditor.Layer({
+        layers: layersToPreload.map(layer => ({
           id: layer.id,
           name: layer.name,
           visible: layer.visible,
           locked: layer.locked,
-          tiles: layer.tiles.map(tile => new mapeditor.Tile({
+          tiles: layer.tiles.map(tile => ({
             x: tile.x,
             y: tile.y,
             tileId: tile.tileId
           }))
         })),
-
         showCheckerboard: !hasTiles // Only show checkerboard for empty maps
-      });
+      };
       
-      const result = await PreloadTilesWithProgress(tileIdsArray, renderRequest);
+      const result = await RenderMap(renderRequest);
       
       if (result.success) {
-        console.log("Backend preloading started successfully");
+        console.log("Backend rendering started successfully");
         
         // Set up event listeners for progress updates
-        const unsubscribeProgress = EventsOn("tile-preload-progress", (data: string) => {
+        const unsubscribeProgress = Events.On("map-render-progress", (ev) => {
           if (isCompleted) return;
-          console.log("Received tile preload progress event:", data);
+          console.log("Received map render progress event:", ev);
           try {
-            const progress = JSON.parse(data);
+            const progress = JSON.parse(ev.data);
             console.log("Parsed progress:", progress);
             setLoadingProgress({
               current: progress.current,
@@ -102,54 +99,35 @@ export const useTilePreloading = () => {
           }
         });
         
-        const unsubscribeComplete = EventsOn("tile-preload-complete", (data: any) => {
+        const unsubscribeComplete = Events.On("map-render-complete", (ev) => {
           if (isCompleted) return;
-          console.log("Received tile preload completion event:", data);
-          setLoadingProgress({ 
-            current: data.total, 
-            total: data.total, 
-            message: "Tile preloading completed, starting map rendering..." 
-          });
-          
-          // Clean up event listeners
-          unsubscribeProgress();
-          unsubscribeComplete();
-          
-          // The backend now handles both preloading and rendering, so we don't need to trigger rendering separately
-          // Just wait for the map-render-complete event
-        });
-
-        // Listen for map rendering completion (now part of the same backend call)
-        const unsubscribeRenderComplete = EventsOn("map-render-complete", (data: any) => {
-          if (isCompleted) return;
-          console.log("Map rendering completed:", data);
-          console.log("Image data length:", data.imageData ? data.imageData.length : 0);
+          console.log("Map rendering completed:", ev);
+          console.log("Image data length:", ev.data.imageData ? ev.data.imageData.length : 0);
           setLoadingProgress({ 
             current: totalTiles, 
             total: totalTiles, 
             message: "Map rendering completed" 
           });
           
-          // Clean up everything
-          cleanup();
-          unsubscribeRenderComplete();
-          unsubscribeRenderError();
+          // Clean up event listeners
+          unsubscribeProgress();
+          unsubscribeComplete();
           
           // Set map ready since both preloading and rendering are complete
           console.log("Calling handleMapReady()");
           handleMapReady();
         });
 
-        const unsubscribeRenderError = EventsOn("map-render-error", (data: any) => {
+        const unsubscribeError = Events.On("map-render-error", (ev) => {
           if (isCompleted) return;
-          console.error("Map rendering error:", data);
-          console.error("Error details:", data.error, data.message);
+          console.error("Map rendering error:", ev);
+          console.error("Error details:", ev.data.error, ev.data.message);
           setLoadingProgress({ current: 0, total: 0, message: "Map rendering failed" });
           
-          // Clean up everything
-          cleanup();
-          unsubscribeRenderComplete();
-          unsubscribeRenderError();
+          // Clean up event listeners
+          unsubscribeProgress();
+          unsubscribeComplete();
+          unsubscribeError();
           
           // Set map ready on error to prevent infinite loading
           console.log("Calling handleMapReady() due to error");
@@ -172,16 +150,16 @@ export const useTilePreloading = () => {
         }, 30000);
         
       } else {
-        console.error("Failed to start backend preloading:", result.message);
+        console.error("Failed to start backend rendering:", result.message);
         // Fall back to frontend preloading
         await preloadTilesFrontend(uniqueTileIds, setLoadingProgress, handleMapReady);
       }
     } catch (error) {
-      console.error("Error with backend preloading:", error);
+      console.error("Error with backend rendering:", error);
       // Fall back to frontend preloading
       await preloadTilesFrontend(uniqueTileIds, setLoadingProgress, handleMapReady);
     }
-  }, []); // Empty dependency array is fine since PreloadTilesWithProgress and EventsOn are imported functions
+  }, [RenderMap]);
 
   // Fallback frontend preloading function
   const preloadTilesFrontend = useCallback(async (

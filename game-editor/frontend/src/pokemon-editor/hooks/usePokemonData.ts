@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ParsePokemonData, LoadPokemonById } from "../../../wailsjs/go/parsing/ParsingApp";
+import { ParsePokemonData, LoadPokemonById } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 import { Pokemon } from "../pokemon.model";
 
 export const usePokemonData = () => {

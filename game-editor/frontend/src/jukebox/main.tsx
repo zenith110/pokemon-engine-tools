@@ -1,6 +1,6 @@
 import {useState, useEffect, useRef} from "react";
-import { UploadNewSong } from "../../wailsjs/go/jukebox/JukeboxApp";
-import { GrabMusicTracks } from "../../wailsjs/go/parsing/ParsingApp";
+import { UploadNewSong } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools/jukebox/JukeboxApp";
+import { GrabMusicTracks } from "../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 import Select from "react-select";
 import { Song } from "../models/song";
 

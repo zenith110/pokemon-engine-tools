@@ -4,13 +4,13 @@ import { Button } from "../components/ui/button"
 import CreateMapDialog from "./components/CreateMapDialog"
 import CreateTilesetDialog from "./components/CreateTilesetDialog"
 import MapEditorView from "./components/MapEditorView"
-import { CreateMapData, CreateTilesetData } from "./types"
-import { models } from "../../wailsjs/go/models"
-import { GetAllMaps } from "../../wailsjs/go/parsing/ParsingApp"; // adjust path as needed
-import { DeleteMapByID, UpdateTomlMapEntryByID } from "../../wailsjs/go/mapeditor/MapEditorApp"
+import { CreateMapData } from "./types"
+import { Map, MapEditerMapData } from "../../bindings/github.com/zenith110/pokemon-engine-tools/models"
+import { GetAllMaps } from "../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp"; // adjust path as needed
+import { DeleteMapByID, UpdateTomlMapEntryByID, CreateMap } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools/map-editor/MapEditorApp"
 // Hook for managing maps
 const useMaps = () => {
-  const [maps, setMaps] = useState<models.Map[]>([]);
+  const [maps, setMaps] = useState<Map[]>([]);
 
   useEffect(() => {
     const fetchMaps = async () => {
@@ -28,7 +28,7 @@ const useMaps = () => {
   }, []);
 
 
-  const updateMap = async(updatedMap: models.Map) => {
+  const updateMap = async(updatedMap: Map) => {
     setMaps(prev => prev.map(m => m.ID === updatedMap.ID ? updatedMap : m))
     await UpdateTomlMapEntryByID(updatedMap)
   }
@@ -50,9 +50,9 @@ const MapSelectionScreen = ({
   onSelectMap,
   onDeleteMap
 }: {
-  maps: models.Map[]
+  maps: Map[]
   onCreateMap: (mapData: CreateMapData) => void
-  onSelectMap: (map: models.Map) => void
+  onSelectMap: (map: Map) => void
   onDeleteMap: (mapId: number) => void
 }) => (
   <div className="h-screen flex flex-col bg-slate-950 text-white p-8">
@@ -136,7 +136,7 @@ const MapSelectionScreen = ({
 
 const MapEditor = () => {
   const { maps, setMaps, updateMap, deleteMap } = useMaps()
-  const [selectedMap, setSelectedMap] = useState<models.Map | null>(null)
+  const [selectedMap, setSelectedMap] = useState<Map | null>(null)
 
   const handleCreateMap = async (mapData: CreateMapData) => {
     try {
@@ -160,12 +160,11 @@ const MapEditor = () => {
       }
       
       // Call backend to create the map
-      const { CreateMap } = await import("../../wailsjs/go/mapeditor/MapEditorApp")
-      const createdMap = await CreateMap(models.MapEditerMapData.createFrom(backendMapData))
+      const createdMap = await CreateMap(MapEditerMapData.createFrom(backendMapData))
       
       if (createdMap.success === true) {
         // Create the map for frontend state
-        const newMap = new models.Map({
+        const newMap = new Map({
           Name: mapData.mapName,
           ID: Date.now(),
           Width: mapData.width,
@@ -200,7 +199,7 @@ const MapEditor = () => {
   }
 
 
-  const handleMapChange = (updatedMap: models.Map) => {
+  const handleMapChange = (updatedMap: Map) => {
     setSelectedMap(updatedMap)
     updateMap(updatedMap)
   }

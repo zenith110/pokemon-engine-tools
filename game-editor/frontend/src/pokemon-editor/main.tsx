@@ -11,8 +11,8 @@ import AbilitiesSection from "./components/AbilitiesSection";
 import StatsSection from "./components/StatsSection";
 import EvolutionDialog from "./components/EvolutionDialog";
 import TypeDialog from "./components/TypeDialog";
-import { DeletePokemonEvolution } from "../../wailsjs/go/pokemoneditor/PokemonEditorApp";
-import { LoadPokemonById } from "../../wailsjs/go/parsing/ParsingApp";
+import { DeletePokemonEvolution } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools/pokemon-editor/PokemonEditorApp";
+import { LoadPokemonById } from "../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
 
 export default function PokemonEditor(): React.ReactElement {
     const { pokemonSpecies, selectedPokemon, isLoading, updatePokemonSelection } = usePokemonData();
