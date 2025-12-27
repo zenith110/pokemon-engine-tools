@@ -180,7 +180,7 @@ func (a *OverworldEditorApp) CreateOverworldFrame(frameSetName string, frame int
 	return frameData
 }
 
-func (a *OverworldEditorApp) CreteOverworldGif(frameSetName string, frame int, overworldId int, direction string) string {
+func (a *OverworldEditorApp) CreateOverworldGif(frameSetName string, frame int, overworldId int, direction string) string {
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
 	filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)

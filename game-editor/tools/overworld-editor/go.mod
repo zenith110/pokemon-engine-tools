@@ -15,7 +15,7 @@ require (
 	github.com/zenith110/pokemon-engine-tools/models v0.0.0-00010101000000-000000000000
 	github.com/zenith110/pokemon-engine-tools/parsing v0.0.0-00010101000000-000000000000
 	github.com/zenith110/pokemon-engine-tools/tools-core v0.0.0-00010101000000-000000000000
-	github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250223140129-f44c17210e27
+	github.com/zenith110/pokemon-go-engine-toml-models v0.0.0-20250721010513-1bbc148091e8
 )
 
 require (

@@ -1,4 +1,4 @@
-import { UpdateMove } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/move-editor/MoveEditorApp";
+import { MoveEditorApp } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/move-editor";
 import { Dispatch, SetStateAction } from "react";
 import { Move } from "../move.model";
 
@@ -32,7 +32,9 @@ const UpdateMoveData = ({
       <div className="grid grid-cols-2 gap-6">
         {/* Move Name Section */}
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-2">Move Name</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Move Name
+          </label>
           <input
             value={name ? name : ""}
             onChange={(e) => setName(e.target.value)}
@@ -43,7 +45,9 @@ const UpdateMoveData = ({
 
         {/* Move Type Section */}
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-300 mb-2">Move Type</label>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Move Type
+          </label>
           <input
             value={moveType ? moveType : ""}
             onChange={(e) => setMoveType(e.target.value)}
@@ -58,7 +62,9 @@ const UpdateMoveData = ({
           <div className="grid grid-cols-3 gap-4">
             {/* Power Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Power</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Power
+              </label>
               <input
                 type="number"
                 value={power}
@@ -70,7 +76,9 @@ const UpdateMoveData = ({
 
             {/* PP Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">PP</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                PP
+              </label>
               <input
                 type="number"
                 value={pp ? pp : 0}
@@ -82,7 +90,9 @@ const UpdateMoveData = ({
 
             {/* Accuracy Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Accuracy</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Accuracy
+              </label>
               <input
                 type="number"
                 value={accuracy ? accuracy : 0}
@@ -109,11 +119,20 @@ const UpdateMoveData = ({
               id: selectedMove?.ID.toString(),
               description: "test",
             };
-            await UpdateMove(data);
+            await MoveEditorApp.UpdateMove(data);
           }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
           </svg>
           <span>Save Changes</span>
         </button>

@@ -26,6 +26,8 @@
     "@types/node": "^20.11.16",
     "@types/react-modal": "^3.16.3",
     "@wailsio/runtime": "^3.0.0-alpha.66",
+    "baseline-browser-mapping": "^2.9.11",
+    "caniuse-lite": "^1.0.30001761",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fabric": "^5.3.0",

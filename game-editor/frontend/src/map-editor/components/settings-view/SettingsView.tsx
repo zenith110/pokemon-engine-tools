@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
 import { Settings, Music, Map, Type } from "lucide-react";
-import { GrabMusicTracks } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing/ParsingApp";
+import { ParsingApp } from "../../../../bindings/github.com/zenith110/pokemon-engine-tools/parsing";
 import { Song } from "../../../models/song";
 
 interface SettingsViewProps {
@@ -65,16 +76,19 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
   useEffect(() => {
     const loadMusicTracks = async () => {
       try {
-        const tracks = await GrabMusicTracks();
+        const tracks = await ParsingApp.GrabMusicTracks();
         setMusicTracks(tracks);
       } catch (error) {
-        console.error('Error loading music tracks:', error);
+        console.error("Error loading music tracks:", error);
       }
     };
     loadMusicTracks();
   }, []);
 
-  const updateSetting = (field: keyof typeof settings, value: string | number) => {
+  const updateSetting = (
+    field: keyof typeof settings,
+    value: string | number,
+  ) => {
     // Validate map dimensions
     if (field === "width" && (value as number) > 200) {
       value = 200;
@@ -82,7 +96,7 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
     if (field === "height" && (value as number) > 200) {
       value = 200;
     }
-    
+
     const newSettings = { ...settings, [field]: value };
     setSettings(newSettings);
     onSettingsChange(newSettings);
@@ -117,13 +131,20 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
 
             <div className="space-y-2">
               <Label className="text-white text-sm">Map Type</Label>
-              <Select value={settings.type} onValueChange={(value) => updateSetting("type", value)}>
+              <Select
+                value={settings.type}
+                onValueChange={(value) => updateSetting("type", value)}
+              >
                 <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
                   <SelectValue placeholder="Select map type" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-700 border-slate-600">
                   {mapTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value} className="text-white">
+                    <SelectItem
+                      key={type.value}
+                      value={type.value}
+                      className="text-white"
+                    >
                       {type.label}
                     </SelectItem>
                   ))}
@@ -150,7 +171,9 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
                   min="1"
                   max="200"
                   value={settings.width}
-                  onChange={(e) => updateSetting("width", parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    updateSetting("width", parseInt(e.target.value) || 1)
+                  }
                   className="bg-slate-700 border-slate-600 text-white"
                 />
               </div>
@@ -161,7 +184,9 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
                   min="1"
                   max="200"
                   value={settings.height}
-                  onChange={(e) => updateSetting("height", parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    updateSetting("height", parseInt(e.target.value) || 1)
+                  }
                   className="bg-slate-700 border-slate-600 text-white"
                 />
               </div>
@@ -169,13 +194,22 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
 
             <div className="space-y-2">
               <Label className="text-white text-sm">Tile Size</Label>
-              <Select value={settings.tileSize.toString()} onValueChange={(value) => updateSetting("tileSize", parseInt(value))}>
+              <Select
+                value={settings.tileSize.toString()}
+                onValueChange={(value) =>
+                  updateSetting("tileSize", parseInt(value))
+                }
+              >
                 <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
                   <SelectValue placeholder="Select tile size" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-700 border-slate-600">
                   {tileSizes.map((size) => (
-                    <SelectItem key={size.value} value={size.value.toString()} className="text-white">
+                    <SelectItem
+                      key={size.value}
+                      value={size.value.toString()}
+                      className="text-white"
+                    >
                       {size.label}
                     </SelectItem>
                   ))}
@@ -184,7 +218,8 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
             </div>
 
             <div className="text-xs text-slate-400">
-              Map size: {settings.width * settings.tileSize} × {settings.height * settings.tileSize} pixels
+              Map size: {settings.width * settings.tileSize} ×{" "}
+              {settings.height * settings.tileSize} pixels
             </div>
           </CardContent>
         </Card>
@@ -200,7 +235,12 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label className="text-white text-sm">Background Music</Label>
-              <Select value={settings.music || "none"} onValueChange={(value) => updateSetting("music", value === "none" ? "" : value)}>
+              <Select
+                value={settings.music || "none"}
+                onValueChange={(value) =>
+                  updateSetting("music", value === "none" ? "" : value)
+                }
+              >
                 <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
                   <SelectValue placeholder="Select background music (optional)" />
                 </SelectTrigger>
@@ -209,7 +249,11 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
                     No Music
                   </SelectItem>
                   {musicTracks.map((track) => (
-                    <SelectItem key={track.ID} value={track.Name} className="text-white">
+                    <SelectItem
+                      key={track.ID}
+                      value={track.Name}
+                      className="text-white"
+                    >
                       {track.Name}
                     </SelectItem>
                   ))}
@@ -229,11 +273,24 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm text-slate-300">
-              <div><strong>Name:</strong> {settings.name || "Unnamed Map"}</div>
-              <div><strong>Type:</strong> {mapTypes.find(t => t.value === settings.type)?.label || "Other"}</div>
-              <div><strong>Dimensions:</strong> {settings.width} × {settings.height} tiles</div>
-              <div><strong>Tile Size:</strong> {settings.tileSize}px</div>
-              <div><strong>Music:</strong> {settings.music || "None"}</div>
+              <div>
+                <strong>Name:</strong> {settings.name || "Unnamed Map"}
+              </div>
+              <div>
+                <strong>Type:</strong>{" "}
+                {mapTypes.find((t) => t.value === settings.type)?.label ||
+                  "Other"}
+              </div>
+              <div>
+                <strong>Dimensions:</strong> {settings.width} ×{" "}
+                {settings.height} tiles
+              </div>
+              <div>
+                <strong>Tile Size:</strong> {settings.tileSize}px
+              </div>
+              <div>
+                <strong>Music:</strong> {settings.music || "None"}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -242,4 +299,4 @@ const SettingsView = ({ mapData, onSettingsChange }: SettingsViewProps) => {
   );
 };
 
-export default SettingsView; 
+export default SettingsView;

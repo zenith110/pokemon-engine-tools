@@ -1,71 +1,120 @@
-import Modal from 'react-modal';
+import Modal from "react-modal";
 import { useState } from "react";
 import { OverworldDirectionFrame } from "../../../bindings/github.com/zenith110/pokemon-go-engine-toml-models/models";
-import { CreateOverworldFrame, CreteOverworldGif  } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor/OverworldEditorApp";
+import { OverworldEditorApp } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor";
 
 interface FrameModalProps {
-    typeOfFrame: string;
-    nameOfFolder: number;
-    setFrames: (frames: OverworldDirectionFrame[]) => void;
-    direction: string | null;
-    modalIsOpen: boolean;
-    closeModal: () => void;
-    frames: OverworldDirectionFrame[];
+  typeOfFrame: string;
+  nameOfFolder: number;
+  setFrames: (frames: OverworldDirectionFrame[]) => void;
+  direction: string | null;
+  modalIsOpen: boolean;
+  closeModal: () => void;
+  frames: OverworldDirectionFrame[];
 }
 
 const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-    },
-  };
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
 
-const FrameModal = ({ typeOfFrame, nameOfFolder, setFrames, direction, modalIsOpen, closeModal, frames}: FrameModalProps) => {
- const [currentFrameNumber, currentSetFrameNumber] = useState(0);
- const [frameMax, setFrameMax] = useState(0)
- const [gif, setGif] = useState("")
- return(
+const FrameModal = ({
+  typeOfFrame,
+  nameOfFolder,
+  setFrames,
+  direction,
+  modalIsOpen,
+  closeModal,
+  frames,
+}: FrameModalProps) => {
+  const [currentFrameNumber, currentSetFrameNumber] = useState(0);
+  const [frameMax, setFrameMax] = useState(0);
+  const [gif, setGif] = useState("");
+  return (
     <div>
-        <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={closeModal}
-            style={customStyles}
-        >
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        style={customStyles}
+      >
         <div className="text-black">
-            <label>Number of frames:</label>
-            <br/>
-            <input type="number" id="frames" name="frames" min="1" max="9999" onChange={(e) => setFrameMax(Number(e.target.value))}/>
-            <br/>
-            <label>Current frame:</label>
-            <br/>
-            <input type="number" id="currentFrame" name="currentFrame" min={currentFrameNumber} max={frameMax} onChange={(e) => currentSetFrameNumber(Number(e.target.value))} value={currentFrameNumber}/>
-            <br/>
-            <img src={frames[currentFrameNumber]? `data:image/png;base64,${frames[currentFrameNumber]?.Sprite}` : ''} alt={`${nameOfFolder} image`} />
-            <button onClick={async() => {
+          <label>Number of frames:</label>
+          <br />
+          <input
+            type="number"
+            id="frames"
+            name="frames"
+            min="1"
+            max="9999"
+            onChange={(e) => setFrameMax(Number(e.target.value))}
+          />
+          <br />
+          <label>Current frame:</label>
+          <br />
+          <input
+            type="number"
+            id="currentFrame"
+            name="currentFrame"
+            min={currentFrameNumber}
+            max={frameMax}
+            onChange={(e) => currentSetFrameNumber(Number(e.target.value))}
+            value={currentFrameNumber}
+          />
+          <br />
+          <img
+            src={
+              frames[currentFrameNumber]
+                ? `data:image/png;base64,${frames[currentFrameNumber]?.Sprite}`
+                : ""
+            }
+            alt={`${nameOfFolder} image`}
+          />
+          <button
+            onClick={async () => {
               if (!direction) return;
-              let data = await CreateOverworldFrame(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
-              setFrames([
-                ...frames,
-                OverworldDirectionFrame.createFrom(data)
-              ])
-            }}>Upload Frame</button>
-            <br/>
-            <br/>
-            { currentFrameNumber == frameMax ? <button onClick={async() => {
-              if (!direction) return;
-              let gifData = await CreteOverworldGif(typeOfFrame, currentFrameNumber, nameOfFolder, direction);
-              setGif(gifData)
-            }}>Create Gif</button> : <div/>}
-            <br/>
-            <img src={gif ? `data:image/gif;base64,${gif}` : ""}></img>
-            <button onClick={() => closeModal()}>Close</button>
+              let data = await OverworldEditorApp.CreateOverworldFrame(
+                typeOfFrame,
+                currentFrameNumber,
+                nameOfFolder,
+                direction,
+              );
+              setFrames([...frames, OverworldDirectionFrame.createFrom(data)]);
+            }}
+          >
+            Upload Frame
+          </button>
+          <br />
+          <br />
+          {currentFrameNumber == frameMax ? (
+            <button
+              onClick={async () => {
+                if (!direction) return;
+                let gifData = await OverworldEditorApp.CreateOverworldGif(
+                  typeOfFrame,
+                  currentFrameNumber,
+                  nameOfFolder,
+                  direction,
+                );
+                setGif(gifData);
+              }}
+            >
+              Create Gif
+            </button>
+          ) : (
+            <div />
+          )}
+          <br />
+          <img src={gif ? `data:image/gif;base64,${gif}` : ""}></img>
+          <button onClick={() => closeModal()}>Close</button>
         </div>
-        </Modal>
+      </Modal>
     </div>
- )
-} 
+  );
+};
 export default FrameModal;
