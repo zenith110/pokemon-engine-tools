@@ -1,7 +1,6 @@
 package core
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -12,7 +11,6 @@ import (
 
 // App struct
 type App struct {
-	Ctx           context.Context
 	DataDirectory string
 }
 
@@ -42,9 +40,4 @@ func NewApp() *App {
 	}
 
 	return app
-}
-
-// Startup initializes the app with context (for Wails v3 compatibility)
-func (a *App) Startup(ctx context.Context) {
-	a.Ctx = ctx
 }

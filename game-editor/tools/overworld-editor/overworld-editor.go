@@ -15,7 +15,6 @@ import (
 
 	"github.com/andybons/gogif"
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	coreModels "github.com/zenith110/pokemon-engine-tools/models"
 	parsing "github.com/zenith110/pokemon-engine-tools/parsing"
 	core "github.com/zenith110/pokemon-engine-tools/tools-core"
@@ -85,23 +84,16 @@ func CreateImagesArray(filePath string) []image.Image {
 }
 
 // Creates a frame, returns base64 version of the frame + base location in game engine
-func (a *OverworldEditorApp) CreateOverworldFrame(frameSetName string, frame int, overworldId int, direction string) map[string]string {
-	selection, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
-		Title: "Select overworld frame",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Images (*.png)",
-				Pattern:     "*.png",
-			},
-		},
-	})
-	if err != nil {
-		panic(fmt.Errorf("error has occured while updating trainer sprite"))
+func (a *OverworldEditorApp) CreateOverworldFrame(filePath string, frameSetName string, frame int, overworldId int, direction string) map[string]string {
+	if filePath == "" {
+		fmt.Printf("No file selected for overworld frame\n")
+		return map[string]string{"error": "no file selected"}
 	}
+	selection := filePath
 
 	// Gets all the files of a directory
 	basePath := "data/assets/overworlds"
-	filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)
+	// filePath := fmt.Sprintf("%s/%s", a.app.DataDirectory, basePath)
 
 	// Creates new directory for the ow
 	newOverWorldFolderPath := fmt.Sprintf("%s/%d", filePath, overworldId)

@@ -12,20 +12,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	coreModels "github.com/zenith110/pokemon-engine-tools/models"
 	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
 	"gopkg.in/src-d/go-git.v4"
 )
 
-func (a *App) GrabProjectWorkspace() string {
-	selection, err := runtime.OpenDirectoryDialog(a.Ctx, runtime.OpenDialogOptions{
-		Title: "Select engine base directory",
-	})
-	if err != nil {
-		panic(err)
+func (a *App) GrabProjectWorkspace(directoryPath string) string {
+	if directoryPath == "" {
+		return ""
 	}
-	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
+	selectionUpdated := strings.ReplaceAll(directoryPath, "\\", "/")
 	return selectionUpdated
 }
 
@@ -177,16 +173,14 @@ func (a *App) SelectProject(project coreModels.ProjectSelect) {
 	}
 }
 
-func (a *App) ImportProject() {
-	selection, err := runtime.OpenDirectoryDialog(a.Ctx, runtime.OpenDialogOptions{
-		Title: "Select engine base directory",
-	})
-	if err != nil {
-		fmt.Printf("error is %v while importing a project!\n", err)
+func (a *App) ImportProject(directoryPath string) {
+	if directoryPath == "" {
+		fmt.Printf("No directory selected for import\n")
+		return
 	}
 
 	id := uuid.New()
-	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
+	selectionUpdated := strings.ReplaceAll(directoryPath, "\\", "/")
 	currentTime := time.Now()
 	projectNameSplit := strings.Split(selectionUpdated, "/")
 	projectName := projectNameSplit[len(projectNameSplit)-1]

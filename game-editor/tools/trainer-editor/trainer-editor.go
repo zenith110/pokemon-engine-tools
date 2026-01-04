@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+
 	coreModels "github.com/zenith110/pokemon-engine-tools/models"
 	core "github.com/zenith110/pokemon-engine-tools/tools-core"
 	Models "github.com/zenith110/pokemon-go-engine-toml-models/models"
@@ -137,19 +137,12 @@ func (a *TrainerEditorApp) UpdateTrainer(trainerJson coreModels.TrainerJson) {
 	}
 }
 
-func (a *TrainerEditorApp) UpdateTrainerSprite() string {
-	selection, err := runtime.OpenFileDialog(a.app.Ctx, runtime.OpenDialogOptions{
-		Title: "Select trainer image",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Images (*.png)",
-				Pattern:     "*.png",
-			},
-		},
-	})
-	if err != nil {
-		panic(fmt.Errorf("error has occured while updating trainer sprite"))
+func (a *TrainerEditorApp) UpdateTrainerSprite(filePath string) string {
+	if filePath == "" {
+		fmt.Printf("No file selected for trainer sprite\n")
+		return ""
 	}
+	selection := filePath
 	selectionUpdated := strings.ReplaceAll(selection, "\\", "/")
 	selectionSplit := strings.Split(selectionUpdated, "/")
 	selectionFinal := selectionSplit[len(selectionSplit)-1]

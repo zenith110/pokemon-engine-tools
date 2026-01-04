@@ -8,8 +8,6 @@ import (
 	"strings"
 
 	core "github.com/zenith110/pokemon-engine-tools/tools-core"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // JukeboxApp struct
@@ -24,19 +22,12 @@ func NewJukeboxApp(app *core.App) *JukeboxApp {
 	}
 }
 
-func (j *JukeboxApp) UploadNewSong() {
-	selection, err := runtime.OpenFileDialog(j.app.Ctx, runtime.OpenDialogOptions{
-		Title: "Select song",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Music (*.ogg)",
-				Pattern:     "*.ogg",
-			},
-		},
-	})
-	if err != nil {
-		panic(err)
+func (j *JukeboxApp) UploadNewSong(filePath string) {
+	if filePath == "" {
+		fmt.Printf("No file selected for upload\n")
+		return
 	}
+	selection := filePath
 	formattedSongName := strings.ReplaceAll(selection, "\\", "/")
 
 	splittedSongName := strings.Split(formattedSongName, "/")

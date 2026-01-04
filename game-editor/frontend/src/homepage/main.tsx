@@ -2,6 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { App } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools-core";
 import { useProjects } from "../contexts/ProjectContext";
+import { Dialogs } from "@wailsio/runtime";
 
 import NewProject from "./NewProject";
 import ProjectCard from "./ProjectCard";
@@ -150,9 +151,20 @@ const HomePage = () => {
 
             <button
               onClick={async () => {
-                await App.ImportProject();
-                // Refresh the projects list
-                await refreshProjects();
+                try {
+                  const result = await Dialogs.OpenFile({
+                    Title: "Select engine base directory",
+                    CanChooseDirectories: true,
+                    CanChooseFiles: false,
+                  });
+                  if (result) {
+                    await App.ImportProject(result);
+                    // Refresh the projects list
+                    await refreshProjects();
+                  }
+                } catch (err) {
+                  console.error("Error selecting directory:", err);
+                }
               }}
               className="px-6 py-2 bg-tealBlue text-white rounded-xl hover:bg-wildBlueYonder transition-colors duration-200 flex items-center space-x-2"
             >

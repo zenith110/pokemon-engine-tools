@@ -2,7 +2,7 @@ import Modal from "react-modal";
 import { useState } from "react";
 import { OverworldDirectionFrame } from "../../../bindings/github.com/zenith110/pokemon-go-engine-toml-models/models";
 import { OverworldEditorApp } from "../../../bindings/github.com/zenith110/pokemon-engine-tools/tools/overworld-editor";
-
+import { Dialogs } from "@wailsio/runtime";
 interface FrameModalProps {
   typeOfFrame: string;
   nameOfFolder: number;
@@ -36,6 +36,7 @@ const FrameModal = ({
   const [currentFrameNumber, currentSetFrameNumber] = useState(0);
   const [frameMax, setFrameMax] = useState(0);
   const [gif, setGif] = useState("");
+  const [selectedFilePath, setSelectedFilePath] = useState("");
   return (
     <div>
       <Modal
@@ -77,8 +78,31 @@ const FrameModal = ({
           />
           <button
             onClick={async () => {
-              if (!direction) return;
+              try {
+                const result = await Dialogs.OpenFile({
+                  CanChooseDirectories: false,
+                  CanChooseFiles: true,
+                  AllowsMultipleSelection: false,
+                  ShowHiddenFiles: false,
+                  AllowsOtherFiletypes: true,
+                });
+
+                if (result && result.length > 0) {
+                  setSelectedFilePath(result[0]);
+                }
+              } catch (error) {
+                console.error("Error selecting file:", error);
+              }
+            }}
+          >
+            Select Image File
+          </button>
+          {selectedFilePath && <p>Selected: {selectedFilePath}</p>}
+          <button
+            onClick={async () => {
+              if (!direction || !selectedFilePath) return;
               let data = await OverworldEditorApp.CreateOverworldFrame(
+                selectedFilePath,
                 typeOfFrame,
                 currentFrameNumber,
                 nameOfFolder,
@@ -86,6 +110,7 @@ const FrameModal = ({
               );
               setFrames([...frames, OverworldDirectionFrame.createFrom(data)]);
             }}
+            disabled={!selectedFilePath}
           >
             Upload Frame
           </button>

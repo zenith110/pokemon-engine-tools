@@ -2,6 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 import { App } from "../../bindings/github.com/zenith110/pokemon-engine-tools/tools-core";
+import { Dialogs } from "@wailsio/runtime";
 const NewProject = ({
   setClickedNewProject,
 }: {
@@ -21,18 +22,34 @@ const NewProject = ({
       <br />
       <button
         onClick={async () => {
-          let data = await App.GrabProjectWorkspace();
-          setProjectDirectory(data);
+          try {
+            const result = await Dialogs.OpenFile({
+              Title: "Select engine base directory",
+              CanChooseDirectories: true,
+              CanChooseFiles: false,
+            });
+            if (result) {
+              setProjectDirectory(result);
+            }
+          } catch (err) {
+            console.error("Error selecting directory:", err);
+            setStatus("Error selecting directory. Please try again.");
+          }
         }}
       >
-        Project Directory
+        Select Project Directory
       </button>
+      {projectDirectory && <p>Selected: {projectDirectory}</p>}
       <br />
       <button
         onClick={async () => {
+          if (!projectDirectory) {
+            setStatus("Please select a project directory first!");
+            return;
+          }
           let data = {
             name: projectName,
-            directory: projectDirectory,
+            directory: await App.GrabProjectWorkspace(projectDirectory),
             id: uuidv4(),
           };
           setStatus(`${projectName} is being created!`);

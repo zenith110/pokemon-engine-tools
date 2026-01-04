@@ -3,7 +3,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"log"
 	"time"
@@ -27,10 +26,7 @@ func main() {
 	// Create the core app
 	coreApp := core.NewApp()
 
-	// Initialize the core app with context (Wails v3 startup)
-	// Note: In Wails v3, we need to call startup manually since OnStartup is not available
-	ctx := context.Background()
-	coreApp.Startup(ctx)
+	// Initialize with a base context for Wails v2 runtime compatibility
 
 	// Create all the editor apps
 	mapEditorApp := mapEditor.NewMapEditorApp(coreApp)
